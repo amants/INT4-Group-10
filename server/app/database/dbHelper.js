@@ -41,6 +41,46 @@ exports.getByUsername = function (tableName, username) {
   });
 };
 
+exports.getChatMessages = function (tableName, id) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT chat.message, chat.time_posted, user.username, chat.lobby_id, user.avatar FROM ?? INNER JOIN user ON chat.user_id=user.user_id WHERE lobby_id = ?",
+      [tableName, id],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.sendMessage = function (tableName, message) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO chat (lobby_id, user_id, message) VALUES (?)",
+      [[message.lobby_id, message.user_id, message.message]],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve({
+            lobby_id: message.lobby_id,
+            user_id: message.user_id,
+            username: message.username,
+            avatar: message.avatar,
+            message: message.message,
+            time_posted: new Date(),
+          });
+        }
+      }
+    );
+  });
+};
+
 exports.getByIdentification = function (tableName, identification) {
   return new Promise((resolve) => {
     sql.query(

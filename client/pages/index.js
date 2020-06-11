@@ -5,8 +5,8 @@ import io from "socket.io-client";
 const socket = io("http://localhost:5000");
 
 const Home = () => {
-  const [messageCount, setMessageCount] = useState(0);
   const [messages, setMessages] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [inRoom, setInRoom] = useState(false);
 
   console.log(messages);
@@ -14,7 +14,7 @@ const Home = () => {
   useEffect(() => {
     if (inRoom) {
       console.log("joining room");
-      socket.emit("room", { room: "test-room" });
+      socket.emit("join room", { room: 1 });
     }
 
     return () => {
@@ -28,11 +28,23 @@ const Home = () => {
   }, [inRoom]);
 
   useEffect(() => {
+    socket.on("initial messages", (payload) => {
+      console.log(payload);
+      setMessages(payload.chats);
+      document.title = `new messages have been emitted`;
+    });
     socket.on("receive message", (payload) => {
-      console.log("new message", payload);
-      setMessageCount((prevValue) => prevValue + 1);
       setMessages((prevValue) => [...prevValue, payload]);
-      document.title = `${messageCount} new messages have been emitted`;
+      document.title = `new messages have been emitted`;
+    });
+    socket.on("system message", (payload) => {
+      setMessages((prevValue) => [...prevValue, payload]);
+      document.title = `new messages have been emitted`;
+    });
+    socket.on("playerCountUpdate", (payload) => {
+      console.log("new message", payload);
+      setPlayers(payload.users);
+      document.title = `new messages have been emitted`;
     });
   }, []);
 
@@ -42,12 +54,11 @@ const Home = () => {
 
   const handleNewMessage = (e) => {
     e.preventDefault();
-    console.log("emitting new message");
     socket.emit("new message", {
-      room: "test-room",
-      message: `message ${messageCount + 1}`,
+      lobby_id: 1,
+      token: `eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlJleGFuaSIsImVtYWlsIjoicmV4QGFtYXRudG52LmJlIiwiaWF0IjoxNTkxODc0Njc1LCJhdWQiOiJodHRwczovL25lb2xvbC5jb20iLCJpc3MiOiJIdWdlQ2xvbmUiLCJzdWIiOiJSZXhhbmkifQ.WWpr5gUtbBHhRmgg6fc3eHKbQ-qSCtqmYyZbFDpWtfwbZpIaG2KmVvGZp9PtAe00H-npRt11HHMK_lTuGkB0gQ`,
+      message: `message ${messages.length + 1}`,
     });
-    setMessageCount(messageCount + 1);
   };
 
   return (
@@ -62,11 +73,19 @@ const Home = () => {
           {inRoom && `You Have Entered The Room`}
           {!inRoom && `Outside Room`}
         </h1>
-        <p>{messageCount} messages have been emitted</p>
+        <p>{messages.length} messages have been emitted</p>
         <div>
           <h1>Messages</h1>
-          {messages.map((item) => (
-            <p key={item.message}>{item.message}</p>
+          {messages.map((item, i) => (
+            <p key={i}>
+              {item.username}: {item.message}
+            </p>
+          ))}
+        </div>
+        <div>
+          <h1>Players</h1>
+          {players.map((item, i) => (
+            <p key={i}>{item.username}</p>
           ))}
         </div>
         {inRoom && (

@@ -5,7 +5,7 @@ const express = require("express");
 const socket = require("socket.io");
 const cors = require("cors");
 const tokenMiddleware = require("./app/middlewares/tokenMiddleware");
-
+const chatController = require("./app/controllers/chatController");
 const app = express();
 const port = process.env.PORT || 5000;
 const server = app.listen(port, () => {
@@ -43,29 +43,33 @@ app.use(tokenMiddleware.checkTokens);
 const io = socket(server);
 io.on("connection", (socket) => {
   console.log("made socket connection", socket.id);
-
-  socket.on("leave room", (data) => {
-    console.log("leaving room");
-    console.log(data);
+  socket.on("leave lobby", (data) => {
     socket.leave(data.room);
-  });
-
-  socket.on("new message", (data) => {
-    console.log(data);
-    socket.broadcast.to(data.room).emit("receive message", data);
-  });
-
-  socket.on("disconnect", (reason) => {
-    console.log("user disconnected");
-  });
-
-  socket.on("room", (data) => {
-    console.log("room join");
-    console.log(data);
-    socket.join(data.room);
     socket.broadcast
       .to(data.room)
-      .emit("receive message", { message: "user joined" });
+      .emit("system message", { message: "user left the room" });
+    socket.broadcast.to(data.room).emit("playerCountUpdate", { users: [] });
+  });
+
+  socket.on("new message", async (data) => {
+    const message = await chatController.newMessage(data);
+    socket.broadcast.to(data.lobby_id).emit("receive message", message);
+    socket.emit("receive message", message);
+  });
+
+  socket.on("disconnect", (data) => {
+    socket.broadcast
+      .to(data.room)
+      .emit("receive message", { message: "user left the room" });
+    socket.broadcast.to(data.room).emit("playerCountUpdate", { users: [] });
+  });
+
+  socket.on("join room", async (data) => {
+    socket.join(data.room);
+    const chats = await chatController.getMessages(data.room);
+    socket.emit("initial messages", { message: "user joined", chats });
+    socket.broadcast.to(data.room).emit("system message", "user joined");
+    socket.broadcast.to(data.room).emit("playerCountUpdate", { users: [] });
   });
 
   socket.on("chat", (data) => {
