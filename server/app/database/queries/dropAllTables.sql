@@ -1,0 +1,17 @@
+DROP TABLE IF EXISTS `comment_report`;
+DROP TABLE IF EXISTS `comment_vote`;
+DROP TABLE IF EXISTS `comment`;
+DROP TABLE IF EXISTS `post_repost_flag`;
+DROP TABLE IF EXISTS `post_report`;
+DROP TABLE IF EXISTS `post_favorite`;
+DROP TABLE IF EXISTS `post_vote`;
+DROP TABLE IF EXISTS `user_achievement`;
+DROP TABLE IF EXISTS `user_stats`;
+DROP TABLE IF EXISTS `user_ignored`;
+DROP TABLE IF EXISTS `tag_ignored`;
+DROP TABLE IF EXISTS `post_tag`;
+DROP TABLE IF EXISTS `achievement`;
+DROP TABLE IF EXISTS `tag`;
+DROP TABLE IF EXISTS `post`;
+DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `user_preferences`;
