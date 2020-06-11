@@ -6,11 +6,7 @@ const UserModel = require("../models/userModel");
 exports.authenticate = async function (auth) {
   try {
     const account = await UserModel.getUserByUsernameOrEmail(
-      auth.identification,
-      (err, res) => {
-        console.log(res[0].username, " signed in");
-        return res[0] || err;
-      }
+      auth.identification
     );
     // Username or Email not found
     if (!account)

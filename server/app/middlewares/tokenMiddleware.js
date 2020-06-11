@@ -2,6 +2,7 @@ const encryptionService = require("../services/encryptionService");
 const accessTokenService = require("../services/accessTokenService");
 const { cookieConfig, cookieConfigReset } = require("../config/cookies");
 const { code, msg } = require("../constants");
+const User = require("../models/userModel");
 // const User = require("../models/userModel");
 
 // Block methods not in the list
@@ -16,15 +17,13 @@ const routeBlacklist = ["/me"];
 exports.checkTokens = function (req, res, next) {
   // Token is the user's credentials
   // Access Token is the temporary access to the user
-  const { token, accessToken } = req?.cookies;
+  const { token, access_token } = req?.cookies;
   function CheckIfAuthNecessary() {
     if (
       !routeWhitelist.includes(req.url.toLowerCase()) ||
       routeBlacklist.includes(req.url.toLowerCase())
     ) {
-      if (!methodWhitelist.includes(req.method)) {
-        return res.status(code.notAuthenticated).send(msg.notAuthenticated);
-      }
+      return res.status(code.notAuthenticated).send(msg.notAuthenticated);
     }
     return next();
   }
@@ -60,7 +59,7 @@ exports.checkTokens = function (req, res, next) {
 
   // User is not verified if there are no tokens
   if (!token) {
-    if (!accessToken) {
+    if (!access_token) {
       req.verified = false;
       return CheckIfAuthNecessary();
     }
@@ -68,28 +67,26 @@ exports.checkTokens = function (req, res, next) {
   }
 
   // If there is no access token, verify and make one
-  if (!accessToken && token) {
+  if (!access_token && token) {
     return doCheck();
   }
 
   // If there are both, they have to be verified
-  if (accessToken && token) {
+  if (access_token && token) {
     return encryptionService
-      .verifySession(accessToken)
-      .then((verified) => {
+      .verifySession(access_token)
+      .then(async (verified) => {
         if (verified.error) {
           // Invalid access token, try to make a new one
           return doCheck();
         }
-        // model.findOne({ where: { username: verified.username, user_id: verified.user_id } }).then(async (result) => {
-        //   if (!result) {
-        //     // User not found, weird tokens
-        //     return clearCookiesTokens();
-        //   }
-        //   // All is fine
-        //   req.verified = result;
-        //   return next();
-        // }).catch(clearCookiesTokens);
+        const user = await User.validateSessionToken(verified);
+        if (user) {
+          req.verified = user;
+          return next();
+        } else {
+          return clearCookiesTokens();
+        }
       })
       .catch((err) => {
         if (err.name === "TokenExpiredError") {

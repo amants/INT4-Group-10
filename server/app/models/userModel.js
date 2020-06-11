@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const SessionService = require("./sessionModel");
 const sql = require("./db.js")();
+const accessTokenService = require("../services/accessTokenService");
 
 const DbTableName = "user";
 const DbHelper = require("../database/dbHelper");
@@ -43,126 +44,16 @@ class User {
     return DbHelper.getById(DbTableName, userId, result);
   }
 
-  static getUserSimple(username, result) {
-    return DbHelper.getByUsername(DbTableName, username, result);
+  static getUserSimple(username) {
+    return DbHelper.getByUsername(DbTableName, username);
   }
 
-  static getUserByRefreshToken(token, result) {
-    return DbHelper.getById(DbTableName, token, result);
+  static validateSessionToken(payload) {
+    return DbHelper.validateSessionToken(DbTableName, payload);
   }
 
-  static updateUserById(id, user, result) {
-    sql.query("UPDATE user SET ? WHERE id = ?", [user, id], function (
-      err,
-      res
-    ) {
-      if (err) {
-        result(null, err);
-      } else {
-        result(null, res);
-      }
-    });
-  }
-
-  static getAllUsers(result) {
-    return DbHelper.getAll(DbTableName, result);
-  }
-
-  static async getSessionByAuth(credentials, result) {
-    sql.query(
-      "SELECT salt FROM user WHERE email = ? ",
-      [credentials.email],
-      async function (err, res) {
-        if (res.length !== 1) {
-          return result(null, {
-            status: 400,
-            message: "INVALID_CREDENTIALS",
-          });
-        }
-        const encryptedPass = await bcrypt.hash(
-          credentials.password,
-          res[0].salt
-        );
-        sql.query(
-          "SELECT username, id, email, avatar, token FROM user " +
-            "WHERE email = ? AND  password = ?",
-          [credentials.email, encryptedPass],
-          async function (errSub, resSub) {
-            if (errSub) {
-              result(errSub, {
-                status: 500,
-                message: errSub,
-              });
-            } else {
-              const { username, id, email, avatar } = resSub[0];
-              const sessiontokenpayload = {
-                username,
-                id,
-                email,
-                avatar,
-              };
-              // If the user has matched,
-              if (resSub.length === 1) {
-                const response = await SessionService.generateSessionToken(
-                  sessiontokenpayload
-                );
-                result(null, {
-                  status: 200,
-                  access_token: response,
-                  token: resSub[0].token,
-                });
-              } else {
-                result(null, {
-                  status: 400,
-                  message: "INVALID_CREDENTIALS",
-                });
-              }
-            }
-          }
-        );
-      }
-    );
-  }
-
-  static async generateAccessTokenByRefreshToken(token, accessToken, result) {
-    const verifyOptions = {
-      issuer: i,
-      audience: a,
-      algorithm: ["HS512"],
-    };
-    let legit = {};
-    if (accessToken) {
-      legit = jwt.verify(accessToken, privateKEYAccess, verifyOptions);
-    } else {
-      legit = jwt.verify(token, privateKEY, verifyOptions);
-    }
-    sql.query(
-      "SELECT username, id, email, avatar FROM user " +
-        "WHERE username = ? AND token = ?",
-      [legit.username, token],
-      async function (err, res) {
-        if (err) {
-          result(err, {
-            status: 500,
-            message: err,
-          });
-        }
-        // If the user has matched,
-        else if (res.length === 1) {
-          const response = await SessionService.generateSessionToken(res[0]);
-          result(null, {
-            status: 200,
-            access_token: response,
-            token,
-          });
-        } else {
-          result(null, {
-            status: 400,
-            message: "INVALID_REFRESH_TOKEN",
-          });
-        }
-      }
-    );
+  static getUserByRefreshToken(token) {
+    return DbHelper.getByRefreshToken(DbTableName, token);
   }
 
   static async registerNewUser(credentials) {
@@ -170,16 +61,13 @@ class User {
     const refreshPayload = {
       username: usedPayload.username,
       email: usedPayload.email,
-      nickname: usedPayload.nickname,
-      etc: usedPayload["g-recaptcha-response"],
     };
     return new Promise((resolve) => {
       const errors = {};
       sql.query(
         "SELECT SUM(CASE WHEN username = ? THEN 1 ELSE 0 END) AS username, " +
-          "SUM(CASE WHEN nickname = ? THEN 1 ELSE 0 END) AS nickname, " +
           "SUM(CASE WHEN email = ? THEN 1 ELSE 0 END) AS email FROM user",
-        [usedPayload.username, usedPayload.nickname, usedPayload.email],
+        [usedPayload.username, usedPayload.email],
         async function (err, res) {
           Object.keys(res[0]).map((key) => {
             if (res[0][key] >= 1) {
@@ -187,15 +75,8 @@ class User {
             }
           });
 
-          if (
-            usedPayload.password.length < 6 ||
-            usedPayload.password.length > 30
-          ) {
-            errors.password = "PASSWORD_INVALID";
-          }
-
           if (Object.values(errors).length > 0) {
-            return resolve({ status: 403, errors });
+            return resolve({ status: 400, errors });
           }
           const signOptions = {
             issuer: i,
@@ -207,14 +88,12 @@ class User {
           const salt = await bcrypt.genSalt(10);
           const encryptedPass = await bcrypt.hash(usedPayload.password, salt);
           sql.query(
-            "INSERT INTO user (username, nickname, email, password, about, avatar, token, salt) " +
-              "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?);",
+            "INSERT INTO user (username, email, password, avatar, refresh_token, salt) " +
+              "VALUES ( ?, ?, ?, ?, ?, ?);",
             [
               usedPayload.username,
-              usedPayload.nickname,
               usedPayload.email,
               encryptedPass,
-              usedPayload.about,
               usedPayload.avatar,
               token,
               salt,
@@ -226,16 +105,17 @@ class User {
                   errors: { global: "INSERT_FAILED" },
                 });
               }
-              User.generateAccessTokenByRefreshToken(
-                token,
-                undefined,
-                function (errGenerate, resGenerate) {
-                  if (errGenerate) {
-                    return resolve(errGenerate);
-                  }
-                  return resolve(resGenerate);
-                }
-              );
+              return resolve({
+                status: 200,
+                created: {
+                  username: usedPayload.username,
+                  email: usedPayload.email,
+                  password: encryptedPass,
+                  avatar: usedPayload.avatar,
+                  token,
+                  salt,
+                },
+              });
             }
           );
         }

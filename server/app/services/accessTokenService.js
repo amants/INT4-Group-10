@@ -7,21 +7,18 @@ const { msg, code } = require("../constants");
 exports.generateAccessTokenByRefreshToken = async function (token) {
   try {
     // const user = await model.findOne({ where: { token } });
-    const user = UserModel.getUserByRefreshToken(token, (resp) => {
-      console.log(resp);
-      return resp;
-    });
-    if (!user)
+    let [err, resp] = await UserModel.getUserByRefreshToken(token);
+    if (!resp)
       return {
         status: code.invalidRefreshToken,
         error: msg.invalidRefreshToken.message,
       };
 
     const payload = {
-      username: user.username,
-      user_id: user.user_id,
-      email: user.email,
-      avatar: user.avatar,
+      username: resp.username,
+      user_id: resp.user_id,
+      email: resp.email,
+      avatar: resp.avatar,
     };
     return await encryptionService.generateSessionToken(payload);
   } catch (err) {
@@ -32,10 +29,9 @@ exports.generateAccessTokenByRefreshToken = async function (token) {
 exports.getUserDataByAccessToken = async function (accessToken) {
   try {
     const legit = await encryptionService.verifyToken(null, accessToken);
-    // return await model.findOne({ where: { user_id: legit.user_id } });
+    const result = await UserModel.getUserById(legit.user_id);
+    return result;
   } catch (err) {
-    // This is a weird place to get an error and would be hard to debug
-    if (process.env.DB_LOGGING === "console.log") console.log(err.message);
     return false;
   }
 };

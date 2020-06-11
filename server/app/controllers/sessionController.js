@@ -10,7 +10,6 @@ exports.authenticate = async function (req, res) {
     return res.status(code.alreadySignedIn).send(msg.alreadySignedIn);
 
   const auth = req.body;
-  console.log(auth);
   if (check.isMissingData([auth.identification, auth.password]))
     return res.status(code.missingData).send(msg.missingData);
   auth.identification = auth.identification.toLowerCase();
@@ -20,7 +19,7 @@ exports.authenticate = async function (req, res) {
     return res.status(user.status).send({ error: user.error });
 
   // Credentials are valid, create the Access Token
-  const { username, user_id: userId, email, avatar, token } = user;
+  const { username, user_id: userId, email, avatar, refresh_token } = user;
   const accessToken = await encryptionService.generateSessionToken({
     username,
     user_id: userId,
@@ -34,7 +33,7 @@ exports.authenticate = async function (req, res) {
 
   // Write the tokens and return success
   res.cookie("access_token", accessToken, cookieConfig);
-  res.cookie("token", token, cookieConfig);
+  res.cookie("token", refresh_token, cookieConfig);
   return res.status(code.success).send(msg.success);
 };
 

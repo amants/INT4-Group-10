@@ -1,64 +1,56 @@
 const User = require("../models/userModel");
 const { msg, code } = require("../constants");
-// const accessTokenService = require("../services/accessTokenService");
+const accessTokenService = require("../services/accessTokenService");
+const { cookieConfig, cookieConfigReset } = require("../config/cookies");
+const check = require("../helpers/checksHelper");
 
-exports.logout = function (req, res) {
-  res.cookie("access_token", "", { maxAge: 0 });
-  res.cookie("refresh_token", "", { maxAge: 0 });
-  res.status(200).send({
-    message: "SIGNED_OUT",
-  });
+exports.create = async function (req, res) {
+  if (req.verified)
+    return res.status(code.alreadySignedIn).send(msg.alreadySignedIn);
+
+  const sessionCookie = req.cookies.access_token;
+  if (sessionCookie) {
+    // If the user is not verified but has a token, reset it
+    res.cookie("access_token", "", cookieConfigReset);
+  }
+
+  const user = req.body;
+  if (check.isMissingData([user.username, user.email, user.password]))
+    return res.status(code.missingData).send(msg.missingData);
+
+  if (user.password.length < 8)
+    return res.status(code.invalidPassword).send(msg.invalidPassword);
+
+  // Makes sure the e-mail is always lower case
+  user.email = user.email.toLowerCase();
+
+  const created = await User.registerNewUser(user, (res) => res);
+  if (created.errors != null)
+    return res.status(created.status).send({ errors: created.errors });
+  const access = await accessTokenService.generateAccessTokenByRefreshToken(
+    created.created.token
+  );
+  if (access.error != null)
+    return res.status(code.badRequest).send({ error: access.error });
+
+  res.cookie("access_token", access, cookieConfig);
+  res.cookie("token", created.created.token, cookieConfig);
+  return res.status(code.success).send(msg.success);
 };
 
 exports.getMe = async function (req, res) {
   const { username } = req.verified;
-  const user = await User.getUserSimple(username, (resp) => {
-    console.log(resp);
-    return resp;
-  });
-  if (user == null)
+  const user = await User.getUserSimple(username);
+  if (user === null)
     return res.status(code.notAuthenticated).json(msg.notAuthenticated);
-  if (user.error != null)
-    return res.status(code.badRequest).send({ error: user.error });
+  // else
+  //   return res.status(code.badRequest).send({ error: user.error });
 
-  return res.status(code.success).json(user);
-};
-
-exports.register_user = async function (req, res) {
-  const sessionCookie = req.cookies.access_token;
-  if (sessionCookie) {
-    res.cookie("access_token", "", { maxAge: 0 });
-    return res.status(400).send({
-      message: "ALREADY_SIGNED_IN",
-    });
-  }
-  const user = req.body;
-  if (
-    !user.email ||
-    !user.password ||
-    !user.nickname ||
-    !user.username ||
-    !user["g-recaptcha-response"]
-  ) {
-    return res.status(400).send({
-      message: "MISSING_DATA",
-    });
-  }
-  // This can also take the user's IP as remoteIp
-  const resp = await User.registerNewUser(user);
-  if (resp.errors) {
-    return res.status(403).send({
-      message: resp.errors,
-    });
-  }
-
-  res.cookie("access_token", resp.access_token, {
-    maxAge: 2678400,
-    httpOnly: true,
-  });
-  return res.status(resp.status).send({
-    message: "SUCCESSFULLY_REGISTERED",
-    access_token: resp.access_token,
-    token: resp.token,
-  });
+  const payload = {
+    username: user.username,
+    email: user.email,
+    avatar: user.avatar,
+    joined: user.joined,
+  };
+  return res.status(code.success).json(payload);
 };

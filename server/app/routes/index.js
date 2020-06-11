@@ -10,7 +10,7 @@ module.exports = function (app) {
 
   // app.route("/refresh").post(User.refresh_session);
 
-  app.route("/logout").get(User.logout);
+  app.route("/logout").get(Session.logout);
 
-  app.route("/register").post(User.register_user);
+  app.route("/register").post(User.create);
 };
