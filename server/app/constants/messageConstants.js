@@ -16,9 +16,11 @@ exports.msg = {
   invalidRefreshToken: { message: "INVALID_REFRESH_TOKEN" },
   sameIp: { message: "SAME_IP" },
   signedOut: { message: "SIGNED_OUT" },
+  noPermissions: { message: "NO_PERMISSIONS" },
   noFileUploaded: { message: "NO_FILE_UPLOADED" },
   multipleFilesUploaded: { message: "MULTIPLE_FILES_UPLOADED" },
   invalidMimeType: { message: "INVALID_MIMETYPE" },
+  fileTooLarge: { message: "FILE_TOO_LARGE" },
   fileTooLarge: { message: "FILE_TOO_LARGE" },
 };
 
@@ -30,6 +32,9 @@ exports.code = {
   invalidPassword: 449,
   alreadySignedIn: 400,
   badRequest: 400,
+  notFuture: 400,
+  tooShort: 400,
+  notEnoughFriends: 400,
   notAuthenticated: 401,
   invalidIdentification: 401,
   invalidCredentials: 401,
@@ -39,5 +44,6 @@ exports.code = {
   invalidRefreshToken: 400,
   sameIp: 400,
   signedOut: 200,
+  noPermissions: 403,
   internalServerError: 500,
 };

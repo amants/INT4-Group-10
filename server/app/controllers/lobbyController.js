@@ -2,8 +2,6 @@ const Lobby = require("../models/lobbyModel");
 const User = require("../models/userModel");
 const { msg, code } = require("../constants");
 const check = require("../helpers/checksHelper");
-// const accessTokenService = require("../services/accessTokenService");
-// const { cookieConfig, cookieConfigReset } = require("../config/cookies");
 // const check = require("../helpers/checksHelper");
 
 exports.create = async function (req, res) {
@@ -42,7 +40,57 @@ exports.getAllParties = async function (req, res) {
     return res.status(code.notAuthenticated).send(msg.notAuthenticated);
 
   const parties = await Lobby.getPartiesFromUser(req.verified.user_id);
-  console.log(parties);
+  if (parties) {
+    res.status(200).send(parties);
+  } else {
+    res.status(code.notFound).send(msg.notFound);
+  }
+};
+
+exports.findPartyById = async function (req, res) {
+  if (!req.verified)
+    return res.status(code.notAuthenticated).send(msg.notAuthenticated);
+  const user = await Lobby.isRequesterLobbyMember(
+    req.verified.user_id,
+    req.params.id
+  );
+
+  if (user.length !== 1)
+    return res.status(code.noPermissions).send(msg.noPermissions);
+
+  const party = await Lobby.getPartyById(req.params.id);
+  const members = await Lobby.getPartyMembers(req.params.id);
+  if (party && members) {
+    const payload = {
+      ...party,
+      members,
+      leader: {
+        id: party.leadid,
+        username: party.leadusername,
+        avatar: party.leadavatar,
+      },
+    };
+
+    delete payload.leadid,
+      delete payload.leadusername,
+      delete payload.leadavatar;
+    return res.status(200).send(payload);
+  } else {
+    return res.status(code.notFound).send(msg.notFound);
+  }
+};
+
+exports.getPartyMembers = async function (req, res) {
+  if (!req.verified)
+    return res.status(code.notAuthenticated).send(msg.notAuthenticated);
+  const user = await Lobby.isRequesterLobbyMember(
+    req.verified.user_id,
+    req.params.id
+  );
+
+  if (user?.length !== 1)
+    return res.status(code.noPermissions).send(msg.noPermissions);
+  const parties = await Lobby.getPartyMembers(req.params.id);
   if (parties) {
     res.status(200).send(parties);
   } else {

@@ -25,8 +25,16 @@ class Lobby {
     return DbHelper.getPartiesFromUser(DbTableName, userId);
   }
 
-  static getUserById(userId, result) {
-    return DbHelper.getById(DbTableName, userId, result);
+  static getPartyMembers(lobbyId) {
+    return DbHelper.getPartyMembers(lobbyId);
+  }
+
+  static getPartyById(userId, result) {
+    return DbHelper.getPartyById(DbTableName, userId, result);
+  }
+
+  static isRequesterLobbyMember(userId, lobbyId) {
+    return DbHelper.isUserLobbyMember(userId, lobbyId);
   }
 }
 

@@ -25,6 +25,24 @@ exports.getById = function (tableName, id) {
   });
 };
 
+exports.getPartyById = function (tableName, id) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT lobbies.lobby_id, lobbies.name, lobbies.lobby_key, lobbies.start_date, user.username AS leadusername, user.user_id AS leadid, user.avatar AS leadavatar FROM ?? INNER JOIN user ON lobbies.party_leader=user.user_id WHERE lobby_id = ?",
+      [tableName, id],
+      function (err, res) {
+        if (err) {
+          console.log(err);
+          resolve(null);
+        } else {
+          console.log(res);
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
 exports.getByUsername = function (tableName, username) {
   return new Promise((resolve) => {
     return sql.query(
@@ -63,6 +81,57 @@ exports.getPartiesFromUser = function (tableName, id) {
     return sql.query(
       "SELECT lobbies.name, lobbies.lobby_id, lobbies.lobby_key, lobby_members.user_id, lobby_members.lobby_id, user.username AS leader FROM ?? INNER JOIN lobby_members ON lobbies.lobby_id=lobby_members.lobby_id INNER JOIN user ON lobbies.party_leader=user.user_id WHERE lobby_members.user_id = ?",
       [tableName, id],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getPartyMembers = function (tableName, id) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT lobby_members.user_id, user.username FROM ?? INNER JOIN lobby_members ON lobbies.lobby_id=lobby_members.lobby_id INNER JOIN user ON lobby_members.user_id=user.user_id WHERE lobby.lobby_id = ?",
+      [tableName, id],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.isUserLobbyMember = function (userId, lobbyId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT user_id FROM ?? WHERE lobby_members.lobby_id = ? AND lobby_members.user_id = ?",
+      ["lobby_members", lobbyId, userId],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getPartyMembers = function (lobbyId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT user.user_id, user.username, user.avatar FROM lobby_members INNER JOIN user ON lobby_members.user_id=user.user_id WHERE lobby_members.lobby_id = ?",
+      [lobbyId],
       function (err, res) {
         if (err) {
           console.error(err);

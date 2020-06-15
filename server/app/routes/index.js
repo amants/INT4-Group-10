@@ -9,9 +9,11 @@ module.exports = function (app) {
 
   app.route("/users/:q").get(Lobby.findUsers);
 
+  app.route("/party/:id/members").get(Lobby.getPartyMembers);
+
   // app.route("/party").post(Lobby.createParty);
 
-  // app.route("/party/:id").get(Lobby.findPartyById).delete(Lobby.leaveParty);
+  app.route("/party/:id").get(Lobby.findPartyById); //.delete(Lobby.leaveParty);
 
   app.route("/parties").get(Lobby.getAllParties);
 
