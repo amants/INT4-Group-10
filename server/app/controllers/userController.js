@@ -47,6 +47,7 @@ exports.getMe = async function (req, res) {
   //   return res.status(code.badRequest).send({ error: user.error });
 
   const payload = {
+    id: user.user_id,
     username: user.username,
     email: user.email,
     avatar: user.avatar,

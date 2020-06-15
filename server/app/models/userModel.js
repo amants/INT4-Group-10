@@ -40,6 +40,14 @@ class User {
     return DbHelper.getByIdentification(DbTableName, identification, result);
   }
 
+  static getAllUsersByUsernameOrEmail(identification, result) {
+    return DbHelper.getAllUsersByUsernameOrEmail(
+      DbTableName,
+      identification,
+      result
+    );
+  }
+
   static getUserById(userId, result) {
     return DbHelper.getById(DbTableName, userId, result);
   }

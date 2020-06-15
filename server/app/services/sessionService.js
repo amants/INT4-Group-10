@@ -14,7 +14,6 @@ exports.authenticate = async function (auth) {
         status: code.invalidIdentification,
         error: msg.invalidIdentification,
       };
-
     // If an account is found, checks the password
     const encryptedPassword = await encryptionService.encryptPassword(
       auth.password,

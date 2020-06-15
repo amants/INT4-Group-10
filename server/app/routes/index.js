@@ -1,4 +1,5 @@
 const User = require("../controllers/userController");
+const Lobby = require("../controllers/lobbyController");
 const Session = require("../controllers/sessionController");
 
 module.exports = function (app) {
@@ -6,9 +7,13 @@ module.exports = function (app) {
 
   app.route("/me").get(User.getMe);
 
-  // app.route("/verify").get(User.verify_session);
+  app.route("/users/:q").get(Lobby.findUsers);
 
-  // app.route("/refresh").post(User.refresh_session);
+  // app.route("/party").post(Lobby.createParty);
+
+  // app.route("/party/:id").get(Lobby.findPartyById).delete(Lobby.leaveParty);
+
+  app.route("/parties").get(Lobby.getAllParties);
 
   app.route("/logout").get(Session.logout);
 

@@ -58,6 +58,23 @@ exports.getChatMessages = function (tableName, id) {
   });
 };
 
+exports.getPartiesFromUser = function (tableName, id) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT lobbies.name, lobbies.lobby_id, lobbies.lobby_key, lobby_members.user_id, lobby_members.lobby_id, user.username AS leader FROM ?? INNER JOIN lobby_members ON lobbies.lobby_id=lobby_members.lobby_id INNER JOIN user ON lobbies.party_leader=user.user_id WHERE lobby_members.user_id = ?",
+      [tableName, id],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
 exports.sendMessage = function (tableName, message) {
   return new Promise((resolve) => {
     return sql.query(
@@ -90,7 +107,25 @@ exports.getByIdentification = function (tableName, identification) {
         if (err) {
           resolve(null);
         } else {
+          console.log(res);
           resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.getAllUsersByUsernameOrEmail = function (tableName, identification) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT user_id, username, avatar FROM ?? WHERE username LIKE ? OR email LIKE ?",
+      [tableName, `%${identification}%`, `%${identification}%`],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          console.log(res);
+          resolve(res);
         }
       }
     );
