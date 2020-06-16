@@ -42,6 +42,53 @@ exports.getById = function (tableName, id) {
   });
 };
 
+exports.getQuestionsByCocktailId = function (id) {
+  return new Promise((resolve) => {
+    sql.query("SELECT * FROM questions WHERE cocktail_id = ?", [id], function (
+      err,
+      res
+    ) {
+      if (err) {
+        resolve(null);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+};
+
+exports.getLobbyCompletedCocktails = function (id) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM lobby_unlocked_cocktails WHERE lobby_id = ?",
+      [id],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getAnswersOfQuestion = function (id) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT answer_id, answer, question_id FROM answers WHERE question_id = ?",
+      [id],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
 exports.getPartyById = function (tableName, id) {
   return new Promise((resolve) => {
     sql.query(
@@ -174,7 +221,7 @@ exports.sendMessage = function (message) {
   return new Promise((resolve) => {
     return sql.query(
       "INSERT INTO chat (lobby_id, user_id, message) VALUES (?)",
-      [[message.lobby_id, message.userId, message.message]],
+      [[message.lobbyId, message.userId, message.message]],
       function (err, res) {
         if (err) {
           resolve(err);

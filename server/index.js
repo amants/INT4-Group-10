@@ -81,23 +81,23 @@ io.on("connection", async (socket) => {
   socket.on("new message", async (data) => {
     const party = await LobbyController.localFindPartyById(
       user.user_id,
-      data.lobby_id
+      lobby_id
     );
     if (!party) {
-      return socket.emit("error", { error: "NO_ACCESS" });
+      return socket.emit("errormsg", { error: "NO_ACCESS" });
     }
-    await chatController.newMessage(data, user.user_id);
-    socket.broadcast.to(data.lobby_id).emit("receive message", {
+    await chatController.newMessage(data, lobby_id, user.user_id);
+    socket.broadcast.to(lobby_id).emit("receive message", {
       username: user.username,
       time_posted: new Date(),
-      lobby_id: data.lobby_id,
+      lobby_id: lobby_id,
       avatar: user.avatar,
       message: data.message,
     });
     socket.emit("receive message", {
       username: user.username,
       time_posted: new Date(),
-      lobby_id: data.lobby_id,
+      lobby_id: lobby_id,
       avatar: user.avatar,
       message: data.message,
     });
@@ -118,22 +118,86 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("ready", (data) => {
-    if (!quizInstances[data.lobby_id]) {
+    if (!quizInstances[lobby_id]) {
       return;
     }
-    const meIndex = quizInstances[data.lobby_id].members.findIndex(
+    const meIndex = quizInstances[lobby_id].members.findIndex(
       (elem) => elem.user_id === user.user_id
     );
-    quizInstances[data.lobby_id].members[meIndex].ready = data.ready;
+    quizInstances[lobby_id].members[meIndex].ready = data.ready;
     socket.emit("player update", {
-      members: quizInstances[data.lobby_id].members,
+      members: quizInstances[lobby_id].members,
     });
-    socket.broadcast.to(data.lobby_id).emit("player update", {
-      members: quizInstances[data.lobby_id].members,
+    socket.broadcast.to(lobby_id).emit("player update", {
+      members: quizInstances[lobby_id].members,
     });
   });
 
-  socket.on("start game", (data) => {
+  socket.on("answer", (data) => {
+    if (!quizInstances[lobby_id]) {
+      return;
+    }
+    if (quizInstances[lobby_id]?.time_to_answer <= 0) {
+      return;
+    }
+    const answerCount = quizInstances[lobby_id].answered_questions[
+      quizInstances[lobby_id].current_question.question_id
+    ]?.voters?.filter((item) => item.user_id === user.user_id);
+    if (answerCount?.length >= 1) return;
+    if (
+      !quizInstances[lobby_id]?.answered_questions?.[
+        quizInstances[lobby_id]?.current_question.question_id
+      ]
+    ) {
+      quizInstances[lobby_id].answered_questions[
+        quizInstances[lobby_id].current_question.question_id
+      ] = { voters: [] };
+    }
+    if (
+      !quizInstances[lobby_id]?.answered_questions?.[
+        quizInstances[lobby_id]?.current_question.question_id
+      ]?.[data.answer_id]
+    ) {
+      quizInstances[lobby_id].answered_questions[
+        quizInstances[lobby_id].current_question.question_id
+      ][data.answer_id] = [];
+    }
+    quizInstances[lobby_id].answered_questions[
+      quizInstances[lobby_id].current_question.question_id
+    ][data.answer_id].push({
+      username: user.username,
+      user_id: user.user_id,
+    });
+    quizInstances[lobby_id].answered_questions[
+      quizInstances[lobby_id].current_question.question_id
+    ].voters.push({
+      username: user.username,
+      user_id: user.user_id,
+    });
+    quizInstances[lobby_id].time_to_answer =
+      quizInstances[lobby_id]?.answered_questions?.[
+        quizInstances[lobby_id]?.current_question?.question_id
+      ]?.voters?.length >= quizInstances[lobby_id]?.members?.length &&
+      quizInstances[lobby_id]?.members?.length
+        ? 0
+        : quizInstances[lobby_id].time_to_answer;
+    console.log(
+      quizInstances[lobby_id]?.answered_questions?.[
+        quizInstances[lobby_id]?.current_question?.question_id
+      ]?.voters?.length,
+      quizInstances[lobby_id]?.members?.length
+    );
+    socket.emit("status update", {
+      answered_questions: quizInstances[lobby_id].answered_questions,
+      time_to_answer: quizInstances[lobby_id].time_to_answer,
+    });
+    socket.broadcast.to(lobby_id).emit("status update", {
+      answered_questions: quizInstances[lobby_id].answered_questions,
+      time_to_answer: quizInstances[lobby_id].time_to_answer,
+    });
+  });
+
+  socket.on("start game", async (data) => {
     if (!quizInstances[data.lobby_id]) {
       return;
     }
@@ -148,12 +212,48 @@ io.on("connection", async (socket) => {
       });
 
     quizInstances[data.lobby_id].status = 1;
+    const questions = await LobbyController.getAllQuestionsOfCocktail(
+      quizInstances[data.lobby_id].cocktail_id
+    );
+    quizInstances[data.lobby_id].cocktail_questions[
+      quizInstances[data.lobby_id].cocktail_id
+    ] = questions;
+    const randomQuestion = Object.values(questions)[
+      Math.floor(Math.random() * Object.values(questions).length)
+    ];
+    quizInstances[data.lobby_id].current_question = randomQuestion;
+    quizInstances[data.lobby_id].time_to_answer = 20;
     socket.emit("status update", {
-      quiz: quizInstances[data.lobby_id],
+      status: quizInstances[data.lobby_id].status,
+      current_question: quizInstances[data.lobby_id].current_question,
+      time_to_answer: quizInstances[data.lobby_id].time_to_answer,
     });
     socket.broadcast.to(data.lobby_id).emit("status update", {
-      quiz: quizInstances[data.lobby_id],
+      status: quizInstances[data.lobby_id].status,
+      current_question: quizInstances[data.lobby_id].current_question,
+      time_to_answer: quizInstances[data.lobby_id].time_to_answer,
     });
+    const countdownTimer = setInterval(() => {
+      if (
+        quizInstances[data.lobby_id].time_to_answer <= 0 ||
+        !quizInstances[data.lobby_id].time_to_answer
+      ) {
+        socket.emit("correct answer", {
+          correct_answer: quizInstances[data.lobby_id].time_to_answer,
+        });
+        //TODO update points users, give shots to wrong users
+        socket.emit("correct answer", {
+          correct_answer: quizInstances[data.lobby_id].time_to_answer,
+        });
+      }
+      quizInstances[data.lobby_id].time_to_answer -= 1;
+      socket.broadcast.to(data.lobby_id).emit("status update", {
+        time_to_answer: quizInstances[data.lobby_id].time_to_answer,
+      });
+      socket.emit("status update", {
+        time_to_answer: quizInstances[data.lobby_id].time_to_answer,
+      });
+    }, 1000);
   });
 
   socket.on("join room", async (data) => {
@@ -168,7 +268,6 @@ io.on("connection", async (socket) => {
     socket.join(data.lobby_id);
     if (!quizInstances[data.lobby_id]) {
       party.members.forEach((item, key) => {
-        console.log(item.user_id, user.user_id);
         if (item.user_id === user.user_id) {
           party.members[key].online = true;
           party.members[key].ready = false;
@@ -180,7 +279,15 @@ io.on("connection", async (socket) => {
         leader: party.leader,
         startDate: party.startDate,
         status: 0,
+        answers: [],
+        time_to_answer: 0,
+        unlocked_cocktails: await LobbyController.getLobbyCompletedCocktails(
+          data.lobby_id
+        ),
         cocktail_id: party?.current_cocktail,
+        current_question: null,
+        cocktail_questions: {},
+        answered_questions: {},
       };
     } else {
       quizInstances[data.lobby_id].members.forEach((item, key) => {
@@ -197,6 +304,13 @@ io.on("connection", async (socket) => {
       quiz: {
         leader: quizInstances[data.lobby_id].leader,
         name: quizInstances[data.lobby_id].name,
+        answers: quizInstances[data.lobby_id].answers,
+        cocktail_id: quizInstances[data.lobby_id].name,
+        time_to_answer: quizInstances[data.lobby_id].time_to_answer,
+        answered_questions: quizInstances[data.lobby_id].time_to_answer,
+        unlocked_cocktails: quizInstances[data.lobby_id].unlocked_cocktails,
+        current_question: quizInstances[data.lobby_id].current_question,
+        answered_questions: quizInstances[data.lobby_id].answered_questions,
         startDate: quizInstances[data.lobby_id].startDate,
         status: quizInstances[data.lobby_id].status,
       },

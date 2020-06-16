@@ -11,9 +11,10 @@ class Chat {
     return DbHelper.getChatMessages(DbTableName, id);
   }
 
-  static sendMessage(payload, userId) {
+  static sendMessage(payload, lobbyId, userId) {
     return DbHelper.sendMessage({
       ...payload,
+      lobbyId,
       userId,
     });
   }

@@ -23,6 +23,18 @@ class Lobby {
     return DbHelper.getRandomCocktail();
   }
 
+  static getQuestionsByCocktailId(cocktailId) {
+    return DbHelper.getQuestionsByCocktailId(cocktailId);
+  }
+
+  static getLobbyCompletedCocktails(cocktailId) {
+    return DbHelper.getLobbyCompletedCocktails(cocktailId);
+  }
+
+  static getAnswersOfQuestion(questionId) {
+    return DbHelper.getAnswersOfQuestion(questionId);
+  }
+
   static addUsers(users, lobbyId, leader) {
     return DbHelper.addUsers(users, lobbyId, leader);
   }

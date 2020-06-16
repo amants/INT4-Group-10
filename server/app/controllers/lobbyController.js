@@ -69,6 +69,31 @@ exports.getAllParties = async function (req, res) {
   }
 };
 
+exports.getLobbyCompletedCocktails = async function (lobbyId) {
+  const cocktails = await Lobby.getLobbyCompletedCocktails(lobbyId);
+  if (cocktails) {
+    return cocktails;
+  } else {
+    return [];
+  }
+};
+
+exports.getAllQuestionsOfCocktail = async function (cocktail_id) {
+  const questions = await Lobby.getQuestionsByCocktailId(cocktail_id);
+  const questionObject = {};
+  if (questions) {
+    return new Promise((resolve) => {
+      questions.map(async (item, i) => {
+        const answers = await Lobby.getAnswersOfQuestion(item.question_id);
+        questionObject[item.question_id] = item;
+        questionObject[item.question_id].answers = answers;
+        if (questions.length === i + 1) return resolve(questionObject);
+      });
+    });
+  }
+  return {};
+};
+
 exports.findPartyById = async function (req, res) {
   if (!req.verified)
     return res.status(code.notAuthenticated).send(msg.notAuthenticated);
