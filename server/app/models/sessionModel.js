@@ -8,7 +8,7 @@ const privateKEY = fs.readFileSync(
 );
 const i = "Integration"; // Issuer
 const a = "https://int4.neolol.com"; // Audience
-const expiresIn = "1h";
+const expiresIn = "24h";
 
 class SessionService {
   constructor(session) {

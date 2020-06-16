@@ -4,7 +4,8 @@ exports.cookieConfig = {
   httpOnly: true,
   sameSite: "none",
   domain: process.env.COOKIE_DOMAIN,
-  secure: process.env.COOKIE_SECURE === "false" ? false : process.env.COOKIE_SECURE === "true" ? true : process.env.COOKIE_SECURE || false,
+  secure: false,
+  // secure: process.env.COOKIE_SECURE === "false" ? false : process.env.COOKIE_SECURE === "true" ? true : process.env.COOKIE_SECURE || false,
 };
 
 exports.cookieConfigReset = {
@@ -12,5 +13,11 @@ exports.cookieConfigReset = {
   httpOnly: true,
   sameSite: "none",
   domain: process.env.COOKIE_DOMAIN,
-  secure: process.env.COOKIE_SECURE === "false" ? false : process.env.COOKIE_SECURE === "true" ? true : process.env.COOKIE_SECURE || false,
+  secure: false,
+  // secure:
+  //   process.env.COOKIE_SECURE === "false"
+  //     ? false
+  //     : process.env.COOKIE_SECURE === "true"
+  //     ? true
+  //     : process.env.COOKIE_SECURE || false,
 };

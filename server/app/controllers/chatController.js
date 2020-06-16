@@ -6,8 +6,6 @@ exports.getMessages = async (id) => {
   return await Chat.getChatMessages(id);
 };
 
-exports.newMessage = async (payload) => {
-  const [err, resp] = await User.getUserByRefreshToken(payload.token);
-  if (!resp) return false;
-  return await Chat.sendMessage(payload, resp);
+exports.newMessage = async (payload, userId) => {
+  return await Chat.sendMessage(payload, userId);
 };

@@ -16,17 +16,26 @@ exports.create = async function (req, res) {
   const now = new Date();
   const startDate = new Date(body.startDate);
   if (now > startDate) return res.status(code.notFuture).send(msg.notFuture);
-
-  const party = await Lobby.createParty(body, req.verified.user_id);
+  const cocktail = await Lobby.getRandomCocktail();
+  if (!cocktail)
+    return res.status(code.internalServerError).send(msg.internalServerError);
+  const party = await Lobby.createParty(
+    body,
+    req.verified.user_id,
+    cocktail.cocktail_id
+  );
   if (party) {
     const users = await Lobby.addUsers(
       body.friends,
       party.insertId,
       req.verified.user_id
     );
-    if (users) return res.status(200).send(party);
-    else
+    if (!users)
       return res.status(code.internalServerError).send(msg.internalServerError);
+    else
+      return res
+        .status(code.success)
+        .send({ ...msg.success, party_key: party.insertId });
   } else {
     return res.status(code.internalServerError).send(msg.internalServerError);
   }
@@ -41,7 +50,6 @@ exports.findUsers = async function (req, res) {
     return res.status(code.missingData).send(msg.missingData);
   if (params.q?.length < 1) return res.status(code.tooShort).send(msg.tooShort);
   const users = await User.getAllUsersByUsernameOrEmail(params.q);
-  console.log(users);
   if (users) {
     res.status(200).send(users);
   } else {
@@ -91,6 +99,33 @@ exports.findPartyById = async function (req, res) {
     return res.status(200).send(payload);
   } else {
     return res.status(code.notFound).send(msg.notFound);
+  }
+};
+
+exports.localFindPartyById = async function (reqUser, partyId) {
+  if (!reqUser) return false;
+  const user = await Lobby.isRequesterLobbyMember(reqUser, partyId);
+  if (user?.length !== 1) return false;
+
+  const party = await Lobby.getAllPartyDataById(partyId);
+  const members = await Lobby.getPartyMembers(partyId);
+  if (party && members) {
+    const payload = {
+      ...party,
+      members,
+      leader: {
+        id: party.leadid,
+        username: party.leadusername,
+        avatar: party.leadavatar,
+      },
+    };
+
+    delete payload.leadid,
+      delete payload.leadusername,
+      delete payload.leadavatar;
+    return payload;
+  } else {
+    return false;
   }
 };
 

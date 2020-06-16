@@ -11,6 +11,22 @@ exports.executeQuery = function (query, parameters, result) {
   });
 };
 
+exports.getRandomCocktail = function () {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT cocktail_id FROM ?? ORDER BY RAND() LIMIT 1",
+      ["cocktails"],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
 exports.getById = function (tableName, id) {
   return new Promise((resolve) => {
     sql.query("SELECT * FROM ?? WHERE id = ?", [tableName, id], function (
@@ -31,6 +47,22 @@ exports.getPartyById = function (tableName, id) {
     sql.query(
       "SELECT lobbies.lobby_id, lobbies.name, lobbies.lobby_key, lobbies.start_date, user.username AS leadusername, user.user_id AS leadid, user.avatar AS leadavatar FROM ?? INNER JOIN user ON lobbies.party_leader=user.user_id WHERE lobby_id = ?",
       [tableName, id],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.getAllPartyDataById = function (lobbyId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT lobbies.lobby_id, lobbies.current_cocktail, cocktails.name, cocktails.country_id, cocktails.image, lobbies.name, lobbies.lobby_key, lobbies.start_date, user.username AS leadusername, user.user_id AS leadid, user.avatar AS leadavatar FROM ?? INNER JOIN user ON lobbies.party_leader=user.user_id INNER JOIN cocktails ON lobbies.current_cocktail=cocktails.cocktail_id WHERE lobby_id = ?",
+      ["lobbies", lobbyId],
       function (err, res) {
         if (err) {
           resolve(null);
@@ -65,7 +97,6 @@ exports.getChatMessages = function (tableName, id) {
       [tableName, id],
       function (err, res) {
         if (err) {
-          console.error(err);
           resolve([]);
         } else {
           resolve(res);
@@ -82,7 +113,6 @@ exports.getPartiesFromUser = function (tableName, id) {
       [tableName, id],
       function (err, res) {
         if (err) {
-          console.error(err);
           resolve([]);
         } else {
           resolve(res);
@@ -99,7 +129,6 @@ exports.getPartyMembers = function (tableName, id) {
       [tableName, id],
       function (err, res) {
         if (err) {
-          console.error(err);
           resolve([]);
         } else {
           resolve(res);
@@ -116,7 +145,6 @@ exports.isUserLobbyMember = function (userId, lobbyId) {
       ["lobby_members", lobbyId, userId],
       function (err, res) {
         if (err) {
-          console.error(err);
           resolve([]);
         } else {
           resolve(res);
@@ -133,7 +161,6 @@ exports.getPartyMembers = function (lobbyId) {
       [lobbyId],
       function (err, res) {
         if (err) {
-          console.error(err);
           resolve([]);
         } else {
           resolve(res);
@@ -143,35 +170,28 @@ exports.getPartyMembers = function (lobbyId) {
   });
 };
 
-exports.sendMessage = function (tableName, message) {
+exports.sendMessage = function (message) {
   return new Promise((resolve) => {
     return sql.query(
       "INSERT INTO chat (lobby_id, user_id, message) VALUES (?)",
-      [[message.lobby_id, message.user_id, message.message]],
+      [[message.lobby_id, message.userId, message.message]],
       function (err, res) {
         if (err) {
           resolve(err);
         } else {
-          resolve({
-            lobby_id: message.lobby_id,
-            user_id: message.user_id,
-            username: message.username,
-            avatar: message.avatar,
-            message: message.message,
-            time_posted: new Date(),
-          });
+          resolve(res);
         }
       }
     );
   });
 };
 
-exports.createLobby = function (tableName, message, leader) {
+exports.createLobby = function (party, leader, cocktail) {
   return new Promise((resolve) => {
     const lobby_key = uuidv4();
     return sql.query(
-      "INSERT INTO lobbies (party_leader, lobby_key, name, start_date) VALUES (?)",
-      [[leader, lobby_key, message.name, message.startDate]],
+      "INSERT INTO lobbies (party_leader, lobby_key, name, start_date, current_cocktail) VALUES (?)",
+      [[leader, lobby_key, party.name, party.startDate, cocktail]],
       function (err, res) {
         if (err) {
           resolve(err);

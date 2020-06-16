@@ -16,8 +16,8 @@ const privateKEYAccess = fs.readFileSync(
   `${__dirname}/../constants/private.key`,
   "utf8"
 );
-const i = "HugeClone"; // Issuer
-const a = "https://neolol.com"; // Audience
+const i = "Integration"; // Issuer
+const a = "https://int4.neolol.com"; // Audience
 
 // User object constructor
 class User {

@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
-import React from "react";
-import styled from "styled-components";
-import { string, node } from "prop-types";
-import { inject, observer } from "mobx-react";
-import PopUpComponent from "./PopUpComponent";
+import React from 'react';
+import styled from 'styled-components';
+import { string, node } from 'prop-types';
+import { inject, observer } from 'mobx-react';
+import PopUpComponent from './PopUpComponent';
+import LoginForm from './LoginForm';
 
 const Layout = ({ currentPage, children, interfaceStore }) => {
   const { showPopup } = interfaceStore;
@@ -13,7 +14,7 @@ const Layout = ({ currentPage, children, interfaceStore }) => {
     <Container>
       {login ? (
         <PopUpComponent name="login">
-          <h1>Login</h1>
+          <LoginForm />
         </PopUpComponent>
       ) : null}
       <Main>{children}</Main>
@@ -29,8 +30,8 @@ Layout.getInitialProps = async ({ store: { userStore, interfaceStore } }) => {
 };
 
 Layout.defaultProps = {
-  currentPage: "",
-  isDesktopNav: "false",
+  currentPage: '',
+  isDesktopNav: 'false',
 };
 
 Layout.propTypes = {
@@ -57,4 +58,4 @@ const Main = styled.div`
   min-height: calc(100vh - 15rem);
 `;
 
-export default inject("interfaceStore")(observer(Layout));
+export default inject('interfaceStore')(observer(Layout));

@@ -11,8 +11,16 @@ class Lobby {
     this.friends = lobby.friends;
   }
 
-  static createParty(party, leader) {
-    return DbHelper.createLobby(DbTableName, party, leader);
+  static createParty(party, leader, cocktail) {
+    return DbHelper.createLobby(party, leader, cocktail);
+  }
+
+  static leaveParty(userId, partyId) {
+    return DbHelper.leaveParty(userId, partyId);
+  }
+
+  static getRandomCocktail() {
+    return DbHelper.getRandomCocktail();
   }
 
   static addUsers(users, lobbyId, leader) {
@@ -25,6 +33,10 @@ class Lobby {
 
   static getPartyMembers(lobbyId) {
     return DbHelper.getPartyMembers(lobbyId);
+  }
+
+  static getAllPartyDataById(lobbyId) {
+    return DbHelper.getAllPartyDataById(lobbyId);
   }
 
   static getPartyById(userId) {
