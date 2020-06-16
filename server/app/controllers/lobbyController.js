@@ -9,13 +9,27 @@ exports.create = async function (req, res) {
   if (!req.verified)
     return res.status(code.notAuthenticated).send(msg.notAuthenticated);
 
-  if (check.isMissingData([body.partyName, body.startDate, body.friends]))
+  if (check.isMissingData([body.name, body.startDate, body.friends]))
     return res.status(code.missingData).send(msg.missingData);
   if (body.friends?.length < 1)
     return res.status(code.notEnoughFriends).send(msg.notEnoughFriends);
   const now = new Date();
   const startDate = new Date(body.startDate);
-  if (now < startDate) return res.status(code.notFuture).send(msg.notFuture);
+  if (now > startDate) return res.status(code.notFuture).send(msg.notFuture);
+
+  const party = await Lobby.createParty(body, req.verified.user_id);
+  if (party) {
+    const users = await Lobby.addUsers(
+      body.friends,
+      party.insertId,
+      req.verified.user_id
+    );
+    if (users) return res.status(200).send(party);
+    else
+      return res.status(code.internalServerError).send(msg.internalServerError);
+  } else {
+    return res.status(code.internalServerError).send(msg.internalServerError);
+  }
 };
 
 exports.findUsers = async function (req, res) {

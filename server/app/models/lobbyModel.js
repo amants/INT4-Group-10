@@ -11,14 +11,12 @@ class Lobby {
     this.friends = lobby.friends;
   }
 
-  static createParty(newUser, result) {
-    sql.query("INSERT INTO user set ?", newUser, function (err, res) {
-      if (err) {
-        result(null, err);
-      } else {
-        result(null, res.insertId);
-      }
-    });
+  static createParty(party, leader) {
+    return DbHelper.createLobby(DbTableName, party, leader);
+  }
+
+  static addUsers(users, lobbyId, leader) {
+    return DbHelper.addUsers(users, lobbyId, leader);
   }
 
   static getPartiesFromUser(userId) {
@@ -29,8 +27,8 @@ class Lobby {
     return DbHelper.getPartyMembers(lobbyId);
   }
 
-  static getPartyById(userId, result) {
-    return DbHelper.getPartyById(DbTableName, userId, result);
+  static getPartyById(userId) {
+    return DbHelper.getPartyById(DbTableName, userId);
   }
 
   static isRequesterLobbyMember(userId, lobbyId) {

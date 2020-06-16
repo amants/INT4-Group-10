@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require("uuid");
 const sql = require("../models/db.js")();
 
 exports.executeQuery = function (query, parameters, result) {
@@ -32,10 +33,8 @@ exports.getPartyById = function (tableName, id) {
       [tableName, id],
       function (err, res) {
         if (err) {
-          console.log(err);
           resolve(null);
         } else {
-          console.log(res);
           resolve(res?.[0]);
         }
       }
@@ -167,6 +166,44 @@ exports.sendMessage = function (tableName, message) {
   });
 };
 
+exports.createLobby = function (tableName, message, leader) {
+  return new Promise((resolve) => {
+    const lobby_key = uuidv4();
+    return sql.query(
+      "INSERT INTO lobbies (party_leader, lobby_key, name, start_date) VALUES (?)",
+      [[leader, lobby_key, message.name, message.startDate]],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.addUsers = async function (users, lobbyId, leader) {
+  const insertArray = [];
+  await users.forEach((user) => {
+    insertArray.push([lobbyId, user, user === leader, 0, 0]);
+  });
+  insertArray.push([lobbyId, leader, 1, 0, 0]);
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO lobby_members (lobby_id, user_id, leader, shots, score) VALUES ?",
+      [insertArray],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
 exports.getByIdentification = function (tableName, identification) {
   return new Promise((resolve) => {
     sql.query(
@@ -176,7 +213,6 @@ exports.getByIdentification = function (tableName, identification) {
         if (err) {
           resolve(null);
         } else {
-          console.log(res);
           resolve(res?.[0]);
         }
       }
@@ -193,7 +229,6 @@ exports.getAllUsersByUsernameOrEmail = function (tableName, identification) {
         if (err) {
           resolve(null);
         } else {
-          console.log(res);
           resolve(res);
         }
       }

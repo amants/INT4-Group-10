@@ -11,7 +11,7 @@ module.exports = function (app) {
 
   app.route("/party/:id/members").get(Lobby.getPartyMembers);
 
-  // app.route("/party").post(Lobby.createParty);
+  app.route("/party").post(Lobby.create);
 
   app.route("/party/:id").get(Lobby.findPartyById); //.delete(Lobby.leaveParty);
 
