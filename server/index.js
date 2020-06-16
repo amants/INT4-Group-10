@@ -73,9 +73,6 @@ io.on("connection", async (socket) => {
     Lobby.leaveParty(data.userId, data.lobby_id);
 
     socket.leave(data.lobby_id);
-    socket.broadcast
-      .to(data.lobby_id)
-      .emit("system message", { left: data.username });
     socket.broadcast.to(data.lobby_id).emit("player update", {
       members: quizInstances[data.lobby_id].members,
     });
@@ -127,9 +124,35 @@ io.on("connection", async (socket) => {
     const meIndex = quizInstances[data.lobby_id].members.findIndex(
       (elem) => elem.user_id === user.user_id
     );
-    quizInstances[data.lobby_id].members[meIndex].ready = true;
+    quizInstances[data.lobby_id].members[meIndex].ready = data.ready;
+    socket.emit("player update", {
+      members: quizInstances[data.lobby_id].members,
+    });
     socket.broadcast.to(data.lobby_id).emit("player update", {
       members: quizInstances[data.lobby_id].members,
+    });
+  });
+
+  socket.on("start game", (data) => {
+    if (!quizInstances[data.lobby_id]) {
+      return;
+    }
+
+    const notReadyMembers = quizInstances[data.lobby_id].members.filter(
+      (member) => !member.ready
+    );
+    if (notReadyMembers.length > 0)
+      return socket.emit("ready error", {
+        error: "Not all members are ready",
+        members: notReadyMembers,
+      });
+
+    quizInstances[data.lobby_id].status = 1;
+    socket.emit("status update", {
+      quiz: quizInstances[data.lobby_id],
+    });
+    socket.broadcast.to(data.lobby_id).emit("status update", {
+      quiz: quizInstances[data.lobby_id],
     });
   });
 
@@ -154,6 +177,7 @@ io.on("connection", async (socket) => {
       quizInstances[data.lobby_id] = {
         members: party.members,
         name: party.name,
+        leader: party.leader,
         startDate: party.startDate,
         status: 0,
         cocktail_id: party?.current_cocktail,
@@ -171,6 +195,7 @@ io.on("connection", async (socket) => {
       chats,
       members: quizInstances[data.lobby_id].members,
       quiz: {
+        leader: quizInstances[data.lobby_id].leader,
         name: quizInstances[data.lobby_id].name,
         startDate: quizInstances[data.lobby_id].startDate,
         status: quizInstances[data.lobby_id].status,

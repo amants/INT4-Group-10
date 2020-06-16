@@ -7,6 +7,7 @@ const socket = io('http://localhost:5000');
 
 const Home = ({ userStore, partyId }) => {
   const [messages, setMessages] = useState([]);
+  const [ready, setReady] = useState(false);
   const [players, setPlayers] = useState([]);
   const [quiz, setQuiz] = useState({});
   const [error, setError] = useState(false);
@@ -27,15 +28,28 @@ const Home = ({ userStore, partyId }) => {
   }, [inRoom]);
 
   useEffect(() => {
+    console.log({ ready });
+    socket.emit('ready', { lobby_id: partyId, ready });
+
+    return () => {
+      socket.emit('ready', {
+        lobby_id: partyId,
+        ready: false,
+      });
+    };
+  }, [ready]);
+
+  useEffect(() => {
     setInRoom(true);
     socket.on('initial messages', (payload) => {
       setMessages(payload.chats);
       setPlayers(payload.members);
       setQuiz(payload.quiz);
+      console.log(payload.quiz);
       document.title = `new messages have been emitted`;
     });
     socket.on('receive message', (payload) => {
-      console.log('new message', payload);
+      console.log('new message 1', payload);
       setMessages((prevValue) => [...prevValue, payload]);
       document.title = `new messages have been emitted`;
     });
@@ -47,21 +61,34 @@ const Home = ({ userStore, partyId }) => {
       document.title = `new messages have been emitted`;
     });
     socket.on('player update', (payload) => {
-      console.log('new message', payload);
+      console.log('new message 2', payload);
       setPlayers(payload.members);
+    });
+    socket.on('ready error', (payload) => {
+      console.log('Ready error', payload);
+    });
+    socket.on('status update', (payload) => {
+      console.log('status update', payload);
+      if (payload.quiz.status === 1) alert('quiz starting');
     });
   }, []);
 
-  const handleInRoom = () => {
-    inRoom ? setInRoom(false) : setInRoom(true);
+  const handleReady = () => {
+    setReady((prevValue) => !prevValue);
   };
 
   const handleNewMessage = (e) => {
     e.preventDefault();
-    console.log('new message');
     socket.emit('new message', {
       lobby_id: partyId,
       message: `message ${messages.length + 1}`,
+    });
+  };
+
+  const handleStart = (e) => {
+    e.preventDefault();
+    socket.emit('start game', {
+      lobby_id: partyId,
     });
   };
 
@@ -117,17 +144,30 @@ const Home = ({ userStore, partyId }) => {
           <h1>Players</h1>
           {players.map((item, i) => (
             <p key={i}>
-              {item.username} - {item.online ? 'online' : 'offline'}
+              {item.username} - {item.online ? 'online' : 'offline'} -{' '}
+              {item.ready ? 'Ready' : 'waiting ...'}
             </p>
           ))}
         </div>
-        {inRoom && (
-          <button onClick={(e) => handleNewMessage(e)}>Emit new message</button>
-        )}
-        <button onClick={() => handleInRoom()}>
-          {inRoom && `Leave Room`}
-          {!inRoom && `Enter Room`}
-        </button>
+        <br />
+        <div>
+          {inRoom && (
+            <button onClick={handleNewMessage}>Emit new message</button>
+          )}
+        </div>
+        <br />
+        <div>
+          <button onClick={handleReady}>
+            {ready && `Unready`}
+            {!ready && `Ready`}
+          </button>
+        </div>
+        <br />
+        {quiz?.leader?.id === userStore.user.id ? (
+          <div>
+            <button onClick={handleStart}>Start game</button>
+          </div>
+        ) : null}
       </main>
     </div>
   );
