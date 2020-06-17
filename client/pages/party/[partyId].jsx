@@ -32,8 +32,10 @@ const Home = ({ userStore, partyId }) => {
   }, [inRoom]);
 
   useEffect(() => {
-    setReady(false);
-  }, [quiz.type]);
+    if (quiz?.current_question?.type === 'recipe') {
+      setReady(false);
+    }
+  }, [quiz?.current_question?.type]);
 
   useEffect(() => {
     socket.emit('ready', { ready });
@@ -140,7 +142,6 @@ const Home = ({ userStore, partyId }) => {
 
   const handleAnswer = (e, answer_id) => {
     e.preventDefault();
-    console.log(answer_id);
     setAnswerId(answer_id);
     socket.emit('answer', {
       answer_id,
@@ -182,7 +183,7 @@ const Home = ({ userStore, partyId }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        {quiz.type === 'lobby' ? (
+        {quiz?.current_question?.type === 'lobby' ? (
           <>
             <h1>
               {quiz?.name} - {userStore.user.username}
@@ -227,7 +228,7 @@ const Home = ({ userStore, partyId }) => {
             ) : null}
           </>
         ) : null}
-        {quiz.type === 'quiz' ? (
+        {quiz?.current_question?.type === 'quiz' ? (
           <>
             <h1>Quiz {quiz?.time_to_answer}</h1>
             <h2>{quiz?.current_question?.title}</h2>
@@ -268,13 +269,13 @@ const Home = ({ userStore, partyId }) => {
             </div>
           </>
         ) : null}
-        {quiz.type === 'recipe' ? (
+        {quiz?.current_question?.type === 'recipe' ? (
           <>
-            <h1>Recipe step unlocked: {quiz?.recipe_step}</h1>
+            <h1>Recipe step unlocked: {quiz?.current_question?.step}</h1>
             <br />
             <div>
-              <h2>{quiz?.recipe?.[quiz?.recipe_step]?.name}</h2>
-              <h3>{quiz?.recipe?.[quiz?.recipe_step]?.description}</h3>
+              <h2>{quiz?.current_question?.name}</h2>
+              <h3>{quiz?.current_question?.description}</h3>
             </div>
             <br />
             <button onClick={handleReady}>

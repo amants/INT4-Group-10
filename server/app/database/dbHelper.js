@@ -117,6 +117,23 @@ exports.getQuestionsByCocktailId = function (id) {
   });
 };
 
+exports.getNQuestions = function (cocktailId, questionLength) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM questions WHERE cocktail_id = ? ORDER BY RAND() LIMIT ?",
+      [cocktailId, questionLength],
+      function (err, res) {
+        if (err) {
+          console.log(err);
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
 exports.getLobbyCompletedCocktails = function (id) {
   return new Promise((resolve) => {
     sql.query(
@@ -136,7 +153,7 @@ exports.getLobbyCompletedCocktails = function (id) {
 exports.getAnswersOfQuestion = function (id) {
   return new Promise((resolve) => {
     sql.query(
-      "SELECT answer_id, answer, question_id FROM answers WHERE question_id = ?",
+      "SELECT answer_id, answer, question_id, correct FROM answers WHERE question_id = ?",
       [id],
       function (err, res) {
         if (err) {

@@ -43,6 +43,10 @@ class Lobby {
     return DbHelper.getAnswersOfQuestion(questionId);
   }
 
+  static getNQuestions(cocktailId, questionLength) {
+    return DbHelper.getNQuestions(cocktailId, questionLength);
+  }
+
   static getCorrectAnswer(questionId) {
     return DbHelper.getCorrectAnswer(questionId);
   }

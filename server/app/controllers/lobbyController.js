@@ -88,7 +88,6 @@ exports.updateUserScores = async function (list) {
 };
 
 exports.getRecipeStepsByCocktailId = async function (cocktailId) {
-  console.log({ cocktailId });
   const steps = await Lobby.getRecipeStepsByCocktailId(cocktailId);
   if (steps) {
     return steps;
@@ -116,6 +115,21 @@ exports.getAllQuestionsOfCocktail = async function (cocktail_id) {
         questionObject[item.question_id] = item;
         questionObject[item.question_id].answers = answers;
         if (questions.length === i + 1) return resolve(questionObject);
+      });
+    });
+  }
+  return {};
+};
+
+exports.getNQuestions = async function (cocktailId, questionLength) {
+  const questions = await Lobby.getNQuestions(cocktailId, questionLength);
+  console.log("length: ", questions.length);
+  if (questions) {
+    return new Promise((resolve) => {
+      questions.map(async (item, i) => {
+        const answers = await Lobby.getAnswersOfQuestion(item.question_id);
+        questions[i].answers = answers;
+        if (questions.length === i + 1) return resolve(questions);
       });
     });
   }
