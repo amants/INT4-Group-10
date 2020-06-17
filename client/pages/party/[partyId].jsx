@@ -10,22 +10,30 @@ const Home = ({ userStore, partyId }) => {
   const [ready, setReady] = useState(false);
   const [players, setPlayers] = useState([]);
   const [quiz, setQuiz] = useState({});
+  const [showTakeAShot, setShowTakeAShot] = useState(false);
+  const [showPlusPoints, setShowPlusPoints] = useState(false);
   const [error, setError] = useState(false);
+  const [correctAnswerId, setCorrectAnswerId] = useState(null);
+  const [answerId, setAnswerId] = useState(null);
   const [inRoom, setInRoom] = useState(true);
 
   useEffect(() => {
     if (inRoom) {
-      socket.emit('join room', { lobby_id: partyId });
+      socket.emit('join room', { lobby_id: parseInt(partyId) });
     }
 
     return () => {
       if (inRoom) {
         socket.emit('leave room', {
-          lobby_id: 16,
+          lobby_id: parseInt(partyId),
         });
       }
     };
   }, [inRoom]);
+
+  useEffect(() => {
+    setReady(false);
+  }, [quiz.type]);
 
   useEffect(() => {
     socket.emit('ready', { ready });
@@ -38,33 +46,71 @@ const Home = ({ userStore, partyId }) => {
   }, [ready]);
 
   useEffect(() => {
+    if (showTakeAShot) {
+      const timeout = setTimeout(() => {
+        setShowTakeAShot(false);
+      }, 5000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [showTakeAShot]);
+
+  useEffect(() => {
+    if (showPlusPoints) {
+      const timeout = setTimeout(() => {
+        setShowPlusPoints(false);
+      }, 5000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [showPlusPoints]);
+
+  useEffect(() => {
+    if (answerId !== correctAnswerId) {
+      setShowTakeAShot(true);
+    } else {
+      setShowPlusPoints(true);
+    }
+  }, [correctAnswerId]);
+
+  useEffect(() => {
     setInRoom(true);
     socket.on('initial messages', (payload) => {
       setMessages(payload.chats);
       setPlayers(payload.members);
       setQuiz(payload.quiz);
-      console.log(payload.quiz);
+      console.log(payload);
       document.title = `new messages have been emitted`;
     });
     socket.on('receive message', (payload) => {
-      console.log('new message 1', payload);
       setMessages((prevValue) => [...prevValue, payload]);
       document.title = `new messages have been emitted`;
     });
     socket.on('errormsg', (payload) => {
       setError(payload.error);
     });
+
+    socket.on('correct answer', (payload) => {
+      setCorrectAnswerId(payload.correct_answer);
+    });
+
     socket.on('system message', (payload) => {
       setMessages((prevValue) => [...prevValue, payload]);
       document.title = `new messages have been emitted`;
     });
+
     socket.on('player update', (payload) => {
-      console.log('new message 2', payload);
       setPlayers(payload.members);
     });
+
     socket.on('ready error', (payload) => {
       console.log('Ready error', payload);
     });
+
     socket.on('status update', (payload) => {
       console.log('status update', payload);
       setQuiz((prevValue) => ({
@@ -94,6 +140,8 @@ const Home = ({ userStore, partyId }) => {
 
   const handleAnswer = (e, answer_id) => {
     e.preventDefault();
+    console.log(answer_id);
+    setAnswerId(answer_id);
     socket.emit('answer', {
       answer_id,
     });
@@ -134,7 +182,7 @@ const Home = ({ userStore, partyId }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        {quiz.status === 0 ? (
+        {quiz.type === 'lobby' ? (
           <>
             <h1>
               {quiz?.name} - {userStore.user.username}
@@ -179,11 +227,13 @@ const Home = ({ userStore, partyId }) => {
             ) : null}
           </>
         ) : null}
-        {quiz.status === 1 ? (
+        {quiz.type === 'quiz' ? (
           <>
             <h1>Quiz {quiz?.time_to_answer}</h1>
             <h2>{quiz?.current_question?.title}</h2>
             <h3>{quiz?.current_question?.description}</h3>
+            {showTakeAShot ? <h5>TAKE A SHOT!!!</h5> : null}
+            {showPlusPoints ? <h5>CORRECT!!! +20 points</h5> : null}
             <br />
             <div>
               {quiz?.current_question?.answers?.map((answer, i) => (
@@ -193,6 +243,9 @@ const Home = ({ userStore, partyId }) => {
                     key={i}
                     onClick={(e) => handleAnswer(e, answer?.answer_id)}
                   >
+                    {correctAnswerId === answer?.answer_id
+                      ? 'correct -> '
+                      : null}
                     {answer?.answer}
                   </button>{' '}
                   {quiz?.answered_questions?.[
@@ -202,6 +255,42 @@ const Home = ({ userStore, partyId }) => {
                   })}
                   <br />
                 </div>
+              ))}
+            </div>
+            <div>
+              <h1>Players</h1>
+              {players.map((item, i) => (
+                <p key={i}>
+                  {item.username} - {item.online ? 'online' : 'offline'} -{' '}
+                  score: {item.score} - shots: {item.shots}
+                </p>
+              ))}
+            </div>
+          </>
+        ) : null}
+        {quiz.type === 'recipe' ? (
+          <>
+            <h1>Recipe step unlocked: {quiz?.recipe_step}</h1>
+            <br />
+            <div>
+              <h2>{quiz?.recipe?.[quiz?.recipe_step]?.name}</h2>
+              <h3>{quiz?.recipe?.[quiz?.recipe_step]?.description}</h3>
+            </div>
+            <br />
+            <button onClick={handleReady}>
+              {ready && `Unready`}
+              {!ready && `Ready`}
+            </button>
+            <br />
+            <br />
+            <div>
+              <h1>Players</h1>
+              {players.map((item, i) => (
+                <p key={i}>
+                  {item.username} - {item.online ? 'online' : 'offline'} -{' '}
+                  score: {item.score} - shots: {item.shots} -{' '}
+                  {item.ready ? 'Ready' : 'waiting ...'}
+                </p>
               ))}
             </div>
           </>

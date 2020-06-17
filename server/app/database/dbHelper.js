@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
+const { response } = require("express");
 const sql = require("../models/db.js")();
 
 exports.executeQuery = function (query, parameters, result) {
@@ -39,6 +40,65 @@ exports.getById = function (tableName, id) {
         resolve(res?.[0]);
       }
     });
+  });
+};
+
+exports.updateUserScores = function (list) {
+  return new Promise((resolve) => {
+    const errors = [];
+    const results = [];
+    list.forEach(async (item, i) => {
+      await sql.query(
+        "UPDATE lobby_members SET score = ?, shots = ? WHERE lobby_id = ? AND user_id = ?",
+        item,
+        function (err, res) {
+          if (err) {
+            console.error(err);
+            errors.push(err);
+          } else {
+            // console.error(err);
+            results.push(res);
+          }
+        }
+      );
+      if (list.length === i + 1) {
+        console.log(errors);
+        resolve([...errors, ...results]);
+      }
+    });
+  });
+};
+
+exports.getRecipeStepsByCocktailId = function (cocktailId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM cocktail_steps WHERE cocktail_id = ?",
+      [cocktailId],
+      function (err, res) {
+        if (err) {
+          console.log(err);
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getCorrectAnswer = function (questionId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT answer_id FROM answers WHERE question_id = ? AND correct = 1",
+      [questionId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
   });
 };
 
@@ -169,22 +229,6 @@ exports.getPartiesFromUser = function (tableName, id) {
   });
 };
 
-exports.getPartyMembers = function (tableName, id) {
-  return new Promise((resolve) => {
-    return sql.query(
-      "SELECT lobby_members.user_id, user.username FROM ?? INNER JOIN lobby_members ON lobbies.lobby_id=lobby_members.lobby_id INNER JOIN user ON lobby_members.user_id=user.user_id WHERE lobby.lobby_id = ?",
-      [tableName, id],
-      function (err, res) {
-        if (err) {
-          resolve([]);
-        } else {
-          resolve(res);
-        }
-      }
-    );
-  });
-};
-
 exports.isUserLobbyMember = function (userId, lobbyId) {
   return new Promise((resolve) => {
     return sql.query(
@@ -204,7 +248,7 @@ exports.isUserLobbyMember = function (userId, lobbyId) {
 exports.getPartyMembers = function (lobbyId) {
   return new Promise((resolve) => {
     return sql.query(
-      "SELECT user.user_id, user.username, user.avatar FROM lobby_members INNER JOIN user ON lobby_members.user_id=user.user_id WHERE lobby_members.lobby_id = ?",
+      "SELECT user.user_id, user.username, user.avatar, lobby_members.score, lobby_members.shots FROM lobby_members INNER JOIN user ON lobby_members.user_id=user.user_id WHERE lobby_members.lobby_id = ?",
       [lobbyId],
       function (err, res) {
         if (err) {

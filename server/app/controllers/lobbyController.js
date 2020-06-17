@@ -78,6 +78,34 @@ exports.getLobbyCompletedCocktails = async function (lobbyId) {
   }
 };
 
+exports.updateUserScores = async function (list) {
+  const scores = await Lobby.updateUserScores(list);
+  if (scores) {
+    return scores;
+  } else {
+    return null;
+  }
+};
+
+exports.getRecipeStepsByCocktailId = async function (cocktailId) {
+  console.log({ cocktailId });
+  const steps = await Lobby.getRecipeStepsByCocktailId(cocktailId);
+  if (steps) {
+    return steps;
+  } else {
+    return [];
+  }
+};
+
+exports.getCorrectAnswer = async function (answerId) {
+  const correctAnswer = await Lobby.getCorrectAnswer(answerId);
+  if (correctAnswer) {
+    return correctAnswer.answer_id;
+  } else {
+    return false;
+  }
+};
+
 exports.getAllQuestionsOfCocktail = async function (cocktail_id) {
   const questions = await Lobby.getQuestionsByCocktailId(cocktail_id);
   const questionObject = {};

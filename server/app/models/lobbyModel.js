@@ -23,6 +23,14 @@ class Lobby {
     return DbHelper.getRandomCocktail();
   }
 
+  static getRecipeStepsByCocktailId(cocktailId) {
+    return DbHelper.getRecipeStepsByCocktailId(cocktailId);
+  }
+
+  static updateUserScores(list) {
+    return DbHelper.updateUserScores(list);
+  }
+
   static getQuestionsByCocktailId(cocktailId) {
     return DbHelper.getQuestionsByCocktailId(cocktailId);
   }
@@ -33,6 +41,10 @@ class Lobby {
 
   static getAnswersOfQuestion(questionId) {
     return DbHelper.getAnswersOfQuestion(questionId);
+  }
+
+  static getCorrectAnswer(questionId) {
+    return DbHelper.getCorrectAnswer(questionId);
   }
 
   static addUsers(users, lobbyId, leader) {
