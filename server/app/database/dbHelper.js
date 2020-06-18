@@ -62,7 +62,6 @@ exports.updateUserScores = function (list) {
         }
       );
       if (list.length === i + 1) {
-        console.log(errors);
         resolve([...errors, ...results]);
       }
     });
@@ -76,7 +75,6 @@ exports.getRecipeStepsByCocktailId = function (cocktailId) {
       [cocktailId],
       function (err, res) {
         if (err) {
-          console.log(err);
           resolve(null);
         } else {
           resolve(res);
@@ -124,7 +122,6 @@ exports.getNQuestions = function (cocktailId, questionLength) {
       [cocktailId, questionLength],
       function (err, res) {
         if (err) {
-          console.log(err);
           resolve(null);
         } else {
           resolve(res);
