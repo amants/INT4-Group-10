@@ -359,50 +359,55 @@ const Home = ({ userStore, partyId }) => {
                           </>
                         ) : null}
                       </div>
-                      <div className={style.needs__chat}>
-                        <span
-                          className={[style.chat__title, style.h2].join(' ')}
-                        >
-                          Chat
-                        </span>
-                        <div className={style.chat__chatbox}>
-                          {messages?.map((item, i) => (
-                            <div key={i} className={style.chat__row}>
-                              <span
-                                className={
-                                  style[
-                                    `chat_bubble_${
-                                      item.username === userStore.user.username
-                                        ? 'me'
-                                        : 'other'
-                                    }`
-                                  ]
+                      {players?.length > 1 ? (
+                        <div className={style.needs__chat}>
+                          <span
+                            className={[style.chat__title, style.h2].join(' ')}
+                          >
+                            Chat
+                          </span>
+                          <div className={style.chat__chatbox}>
+                            {messages?.map((item, i) => (
+                              <div key={i} className={style.chat__row}>
+                                <span
+                                  className={
+                                    style[
+                                      `chat_bubble_${
+                                        item.username ===
+                                        userStore.user.username
+                                          ? 'me'
+                                          : 'other'
+                                      }`
+                                    ]
+                                  }
+                                >
+                                  {item.username}: {item.message}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className={style.chat__wrapper}>
+                            <form onSubmit={handleNewMessage}>
+                              <input
+                                className={style.chat__chatinput}
+                                type="text"
+                                value={chatFormInput}
+                                onChange={(e) =>
+                                  setChatFormInput(e.target.value)
                                 }
-                              >
-                                {item.username}: {item.message}
-                              </span>
-                            </div>
-                          ))}
+                                size="35"
+                                name="chatMessage"
+                                placeholder="type your message here"
+                              />
+                              <input
+                                type="submit"
+                                value="Send"
+                                className={style.chat__chatbutton}
+                              />
+                            </form>
+                          </div>
                         </div>
-                        <div className={style.chat__wrapper}>
-                          <form onSubmit={handleNewMessage}>
-                            <input
-                              className={style.chat__chatinput}
-                              type="text"
-                              value={chatFormInput}
-                              onChange={(e) => setChatFormInput(e.target.value)}
-                              size="35"
-                              name="chatMessage"
-                              placeholder="type your message here"
-                            />
-                            <input
-                              type="submit"
-                              value="Send"
-                              className={style.chat__chatbutton}
-                            />
-                          </form>
-                        </div>
-                      </div>
+                      ) : null}
                     </div>
                     <img
                       className={style.needs__background}
