@@ -292,13 +292,15 @@
   grid-template-columns: repeat(4, 1fr);
   grid-template-columns: auto;
   grid-template-areas:
-  "text text time time"
-  "feedback feedback feedback start";
-
+    'text text time time'
+    'feedback feedback feedback start';
 }
-.info__text, .info__time, .info__feedback, .info__start {
-  border: .2rem solid #102146;
-  padding: 1rem .5rem;
+.info__text,
+.info__time,
+.info__feedback,
+.info__start {
+  border: 0.2rem solid #102146;
+  padding: 1rem 0.5rem;
 }
 
 .info__text {
@@ -322,26 +324,55 @@
   border-left: none;
 }
 
+.chat__row {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat_bubble_me {
+  display: block;
+  background-color: #10214650;
+  border-radius: 20px;
+  color: white;
+  flex-grow: 0;
+  padding: 1rem 2rem;
+  align-self: flex-end;
+}
+
+.chat_bubble_other {
+  display: block;
+  flex-grow: 0;
+  align-self: flex-start;
+  background-color: #102146;
+  border-radius: 20px;
+  color: white;
+  padding: 1rem 2rem;
+}
+
 .needs__chat {
   padding-top: 5rem;
 }
 .chat__chatbox {
-
+  display: flex;
+  overflow: scroll;
+  flex-direction: column-reverse;
   height: 30rem;
+  padding: 2rem 0;
 }
 
-.chat__chatinput{
- width: max-content;
- border: none;
- padding: 1rem;
- background-color: #F1F1F1;
+.chat__chatinput {
+  width: max-content;
+  border: none;
+  padding: 1rem;
+  background-color: #f1f1f1;
 }
 
 .chat__wrapper {
   width: 35rem;
   display: flex;
   flex-flow: row;
-  border: .2rem solid #102146;
+  border: 0.2rem solid #102146;
   border-radius: 20rem;
   justify-content: space-between;
   padding: 1rem;
@@ -613,9 +644,7 @@
   margin-top: 2rem;
 }
 
-
 .recipe__step {
-
 }
 
 .recipe__steps {
@@ -634,5 +663,4 @@
   z-index: -50;
   margin-left: -4rem;
   margin-top: -2rem;
-  
 }

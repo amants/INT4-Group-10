@@ -17,6 +17,7 @@ const Home = ({ userStore, partyId }) => {
   const [ready, setReady] = useState(false);
   const [players, setPlayers] = useState([]);
   const [picture, setPicture] = useState(null);
+  const [chatFormInput, setChatFormInput] = useState('');
   const [pictures, setPictures] = useState({});
   const [quiz, setQuiz] = useState({});
   const [showTakeAShot, setShowTakeAShot] = useState(false);
@@ -115,7 +116,7 @@ const Home = ({ userStore, partyId }) => {
   useEffect(() => {
     setInRoom(true);
     socket.on('initial messages', (payload) => {
-      setMessages(payload.chats);
+      setMessages(payload.chats.reverse());
       setPlayers(payload.members);
       setQuiz(payload.quiz);
       setPictures(payload.quiz.pictures);
@@ -124,7 +125,14 @@ const Home = ({ userStore, partyId }) => {
       document.title = `new messages have been emitted`;
     });
     socket.on('receive message', (payload) => {
-      setMessages((prevValue) => [...prevValue, payload]);
+      setMessages((prevValue) => {
+        const prevMessage = JSON.parse(JSON.stringify(prevValue));
+        prevMessage.reverse();
+        prevMessage.push(payload);
+        const pushValue = prevMessage.reverse();
+        console.log(pushValue);
+        return pushValue;
+      });
       document.title = `new messages have been emitted`;
     });
     socket.on('errormsg', (payload) => {
@@ -136,11 +144,19 @@ const Home = ({ userStore, partyId }) => {
     });
 
     socket.on('system message', (payload) => {
-      setMessages((prevValue) => [...prevValue, payload]);
+      setMessages((prevValue) => {
+        const prevMessage = JSON.parse(JSON.stringify(prevValue));
+        prevMessage.reverse();
+        prevMessage.push(payload);
+        const pushValue = prevMessage.reverse();
+        console.log(pushValue);
+        return pushValue;
+      });
       document.title = `new messages have been emitted`;
     });
 
     socket.on('player update', (payload) => {
+      console.log(payload.members);
       setPlayers(payload.members);
     });
 
@@ -168,8 +184,9 @@ const Home = ({ userStore, partyId }) => {
   const handleNewMessage = (e) => {
     e.preventDefault();
     socket.emit('new message', {
-      message: `message ${messages.length + 1}`,
+      message: chatFormInput,
     });
+    setChatFormInput('');
   };
 
   const handleStart = (e) => {
@@ -270,6 +287,11 @@ const Home = ({ userStore, partyId }) => {
                       alt="search icon"
                     />
                   </form>
+                  <br />
+                  <button className={style.button} onClick={handleReady}>
+                    {ready && `Unready`}
+                    {!ready && `Ready`}
+                  </button>
                   <div className={style.sidebar__friends}>
                     <div
                       className={[
@@ -316,14 +338,26 @@ const Home = ({ userStore, partyId }) => {
                         >
                           now
                         </span>
-                        <span
-                          className={[style.info__feedback, style.t2].join(' ')}
-                        >
-                          You can only start the game if you are party leader
-                        </span>
-                        <div className={style.info__start}>
-                          <button className={style.button}>start</button>
-                        </div>
+                        {quiz?.leader?.id === userStore.user.id ? (
+                          <>
+                            <span
+                              className={[style.info__feedback, style.t2].join(
+                                ' ',
+                              )}
+                            >
+                              You can only start the game if you are party
+                              leader
+                            </span>
+                            <div className={style.info__start}>
+                              <button
+                                onClick={handleStart}
+                                className={style.button}
+                              >
+                                start
+                              </button>
+                            </div>
+                          </>
+                        ) : null}
                       </div>
                       <div className={style.needs__chat}>
                         <span
@@ -331,15 +365,42 @@ const Home = ({ userStore, partyId }) => {
                         >
                           Chat
                         </span>
-                        <div className={style.chat__chatbox}></div>
+                        <div className={style.chat__chatbox}>
+                          {messages?.map((item, i) => (
+                            <div key={i} className={style.chat__row}>
+                              <span
+                                className={
+                                  style[
+                                    `chat_bubble_${
+                                      item.username === userStore.user.username
+                                        ? 'me'
+                                        : 'other'
+                                    }`
+                                  ]
+                                }
+                              >
+                                {item.username}: {item.message}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                         <div className={style.chat__wrapper}>
-                          <input
-                            className={style.chat__chatinput}
-                            type="text"
-                            size="35"
-                            placeholder="type your message here"
-                          />
-                          <button className={style.chat__chatbutton}>send</button>
+                          <form onSubmit={handleNewMessage}>
+                            <input
+                              className={style.chat__chatinput}
+                              type="text"
+                              value={chatFormInput}
+                              onChange={(e) => setChatFormInput(e.target.value)}
+                              size="35"
+                              name="chatMessage"
+                              placeholder="type your message here"
+                            />
+                            <input
+                              type="submit"
+                              value="Send"
+                              className={style.chat__chatbutton}
+                            />
+                          </form>
                         </div>
                       </div>
                     </div>
@@ -353,49 +414,14 @@ const Home = ({ userStore, partyId }) => {
               </div>
             </div>
             {/* LOGICA HIERONDER */}
-            
-            <h1>
-              {quiz?.name} - {userStore.user.username}
-            </h1>
-
-            <div>
-              <h1>Messages</h1>
-              {messages.map((item, i) => (
-                <p key={i}>
-                  {item.username}: {item.message}
-                </p>
-              ))}
-            </div>
+            <h1>Players</h1>
+            {players.map((item, i) => (
+              <p key={i}>
+                {item.username} - {item.online ? 'online' : 'offline'} -{' '}
+                {item.ready ? 'Ready' : 'waiting ...'}
+              </p>
+            ))}
             <br />
-            <div>
-              <h1>Players</h1>
-              {players.map((item, i) => (
-                <p key={i}>
-                  {item.username} - {item.online ? 'online' : 'offline'} -{' '}
-                  {item.ready ? 'Ready' : 'waiting ...'}
-                </p>
-              ))}
-            </div>
-            <br />
-            <div>
-              {inRoom && (
-                <button onClick={handleNewMessage}>Emit new message</button>
-              )}
-            </div>
-            <br />
-            <div>
-              <button onClick={handleReady}>
-                {ready && `Unready`}
-                {!ready && `Ready`}
-              </button>
-            </div>
-            <br />
-            {quiz?.leader?.id === userStore.user.id ? (
-              <div>
-                <button onClick={handleStart}>Start game</button>
-              </div>
-            ) : null}
-
             {/* BACKGROUND */}
             <img
               src="../assets/images/Card-Back.jpg"
@@ -428,7 +454,6 @@ const Home = ({ userStore, partyId }) => {
               {/* FRIENDSLIST */}
               <div className={style.quiz__sidebar}>
                 <div className={style.sidebar__friends}>
-                  {console.log(players, 'players')}
                   {players.map((item, i) => {
                     if (userStore.user.id == item.user_id) {
                       return (
@@ -509,7 +534,6 @@ const Home = ({ userStore, partyId }) => {
                 </div>
               </div>
               {/* CONTENT */}
-              {console.log(quiz)}
               <div className={style.quiz__content}>
                 <div className={style.quiz__contentquiz}>
                   <div className={style.quiz__question}>
@@ -587,7 +611,7 @@ const Home = ({ userStore, partyId }) => {
                     {showTakeAShot ? <h5>TAKE A SHOT!!!</h5> : null}
                     {showPlusPoints ? <h5>CORRECT!!! +20 points</h5> : null}
 
-                    <div class={style.steps__feedback}>
+                    <div className={style.steps__feedback}>
                       <img
                         className={style.steps__picture}
                         src={[
@@ -663,7 +687,6 @@ const Home = ({ userStore, partyId }) => {
               {/* FRIENDSLIST */}
               <div className={style.quiz__sidebar}>
                 <div className={style.sidebar__friends}>
-                  {console.log(players, 'players')}
                   {players.map((item, i) => {
                     if (userStore.user.id == item.user_id) {
                       return (
@@ -751,7 +774,6 @@ const Home = ({ userStore, partyId }) => {
                     <span
                       className={[style.question__number, style.t4].join(' ')}
                     >
-                      {console.log(quiz)}
                       {quiz.step == 0 ? '1' : quiz.step / 2 + 1} / 5
                     </span>
                     <span
@@ -787,7 +809,7 @@ const Home = ({ userStore, partyId }) => {
                     </button>
                   </div>
                   <div className={style.quiz__steps}>
-                    <div class={style.steps__feedback}>
+                    <div className={style.steps__feedback}>
                       <img
                         className={style.steps__picture}
                         src={[

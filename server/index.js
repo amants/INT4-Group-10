@@ -201,7 +201,7 @@ const startNextQuestion = (socket, lobby_id, user) => {
   );
 
   if (quizInstances[lobby_id].current_question?.type === "quiz") {
-    quizInstances[lobby_id].time_to_answer = 20000;
+    quizInstances[lobby_id].time_to_answer = 20;
 
     socket.emit("status update", {
       total_steps: quizInstances[lobby_id]?.steps?.length,
@@ -562,7 +562,7 @@ io.on("connection", async (socket) => {
         quizInstances[data.lobby_id]?.current_quiz_step
       ]
     );
-    quizInstances[data.lobby_id].time_to_answer = 200000;
+    quizInstances[data.lobby_id].time_to_answer = 20;
     socket.emit("status update", {
       total_steps: quizInstances[data.lobby_id]?.steps?.length,
       step: quizInstances[data.lobby_id]?.current_quiz_step,
