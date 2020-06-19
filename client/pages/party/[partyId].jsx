@@ -375,23 +375,17 @@ const Home = ({ userStore, partyId }) => {
                     <span
                       className={[style.question__number, style.t4].join(' ')}
                     >
-                      {quiz.current_quiz_step == 0
-                        ? '1'
-                        : quiz.current_quiz_step / 2 + 1}{' '}
-                      / 5
+                      {quiz?.step == 0 ? '1' : quiz?.step / 2 + 1} / 5
                     </span>
                     <span
                       className={[style.question__title, style.t2].join(' ')}
                     >
-                      question{' '}
-                      {quiz.current_quiz_step == 0
-                        ? '1'
-                        : quiz.current_quiz_step / 2}
+                      question {quiz?.step == 0 ? '1' : quiz?.step / 2}
                     </span>
                     <p
                       className={[style.question__question, style.h2].join(' ')}
                     >
-                      {quiz.steps[quiz.current_quiz_step].title}
+                      {quiz?.current_question?.title}
                     </p>
                     <img
                       className={style.question__card}
@@ -404,28 +398,47 @@ const Home = ({ userStore, partyId }) => {
                   <div>
                     <div className={style.quiz__answers}>
                       {quiz?.current_question?.answers?.map((answer, i) => (
-                        <>
+                        <div
+                          className={[]}
+                          className={[
+                            style.button_container,
+                            style[`quiz__answer${i + 1}`],
+                          ].join(' ')}
+                        >
                           <button
                             className={[
                               style.button,
                               style.quiz__answer,
-                              style[`quiz__answer${i + 1}`],
+                              style[
+                                `quiz__answer${
+                                  correctAnswerId === answer?.answer_id
+                                    ? `__correct`
+                                    : ''
+                                }`
+                              ],
                               style.t1,
                             ].join(' ')}
                             key={i}
                             onClick={(e) => handleAnswer(e, answer?.answer_id)}
                           >
-                            {correctAnswerId === answer?.answer_id
-                              ? 'correct -> '
-                              : null}
                             {answer?.answer}
                           </button>{' '}
-                          {quiz?.answered_questions?.[
-                            quiz?.current_question?.question_id
-                          ]?.[answer?.answer_id]?.map((item, j) => {
-                            return <span key={j}> - {item.username}</span>;
-                          })}
-                        </>
+                          <div className={[style.answered_by__bullet]}>
+                            {quiz?.answered_questions?.[
+                              quiz?.current_question?.question_id
+                            ]?.[answer?.answer_id]?.map((item, j) => {
+                              return (
+                                <img
+                                  className={style.quiz__usericon}
+                                  src="../assets/images/lara.jpg"
+                                  width="30"
+                                  height="30"
+                                  alt=""
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
                       ))}
                     </div>
                     {/* edit who answered! */}
@@ -503,7 +516,7 @@ const Home = ({ userStore, partyId }) => {
                         className={style.steps__picture}
                         src={[
                           '../assets/images/progressbar/step',
-                          quiz.current_quiz_step,
+                          quiz?.step,
                           '.png',
                         ].join('')}
                         width="493.5"
@@ -646,23 +659,17 @@ const Home = ({ userStore, partyId }) => {
                     <span
                       className={[style.question__number, style.t4].join(' ')}
                     >
-                      {quiz.current_quiz_step == 0
-                        ? '1'
-                        : quiz.current_quiz_step / 2 + 1}{' '}
-                      / 5
+                      {quiz.step == 0 ? '1' : quiz.step / 2 + 1} / 5
                     </span>
                     <span
                       className={[style.question__title, style.t2].join(' ')}
                     >
-                      cocktail step{' '}
-                      {quiz.current_quiz_step == 0
-                        ? '1'
-                        : quiz.current_quiz_step / 2}
+                      cocktail step {quiz.step == 0 ? '1' : quiz.step / 2}
                     </span>
                     <p
                       className={[style.question__question, style.h2].join(' ')}
                     >
-                      {quiz.steps[quiz.current_quiz_step].title}
+                      {quiz?.current_question?.description}
                     </p>
                     <img
                       className={style.question__card}
@@ -672,8 +679,19 @@ const Home = ({ userStore, partyId }) => {
                       alt=""
                     />
                   </div>
-                  <div>
-                    <div className={style.quiz__answers}>
+                  <div className={[style.ready_button__container]}>
+                    <button
+                      className={[
+                        style.ready__button,
+                        style.button,
+                        style.t1,
+                        style[`ready_button${ready ? '__ready' : ''}`],
+                      ].join(' ')}
+                      onClick={handleReady}
+                    >
+                      {ready ? "I'm ready!" : 'Ready up'}
+                    </button>
+                    {/* <div className={style.quiz__answers}>
                       {quiz?.current_question?.answers?.map((answer, i) => (
                         <>
                           <button
@@ -682,6 +700,9 @@ const Home = ({ userStore, partyId }) => {
                               style.quiz__answer,
                               style[`quiz__answer${i + 1}`],
                               style.t1,
+                              correctAnswerId === answer?.answer_id
+                                ? style.correct__quiz_answer
+                                : undefined,
                             ].join(' ')}
                             key={i}
                             onClick={(e) => handleAnswer(e, answer?.answer_id)}
@@ -691,79 +712,9 @@ const Home = ({ userStore, partyId }) => {
                               : null}
                             {answer?.answer}
                           </button>{' '}
-                          {quiz?.answered_questions?.[
-                            quiz?.current_question?.question_id
-                          ]?.[answer?.answer_id]?.map((item, j) => {
-                            return <span key={j}> - {item.username}</span>;
-                          })}
                         </>
                       ))}
-                    </div>
-                    {/* edit who answered! */}
-                    {/* <div className={style.quiz__userfieldpone}>
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                    </div>
-                    <div className={style.quiz__userfieldptwo}>
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                    </div>
-                    <div className={style.quiz__userfieldpthree}>
-                      <img
-                        class={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                    </div>
-                    <div className={style.quiz__userfieldpfour}>
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                    </div>*/}
+                    </div> */}
                   </div>
                   <div className={style.quiz__steps}>
                     {showTakeAShot ? <h5>TAKE A SHOT!!!</h5> : null}
@@ -774,7 +725,7 @@ const Home = ({ userStore, partyId }) => {
                         className={style.steps__picture}
                         src={[
                           '../assets/images/progressbar/step',
-                          quiz.current_quiz_step,
+                          quiz.step,
                           '.png',
                         ].join('')}
                         width="493.5"
