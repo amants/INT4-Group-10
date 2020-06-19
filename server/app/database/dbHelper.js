@@ -30,7 +30,7 @@ exports.getRandomCocktail = function () {
 
 exports.getById = function (tableName, id) {
   return new Promise((resolve) => {
-    sql.query("SELECT * FROM ?? WHERE id = ?", [tableName, id], function (
+    sql.query("SELECT * FROM ?? WHERE user_id = ?", [tableName, id], function (
       err,
       res
     ) {
@@ -280,6 +280,38 @@ exports.sendMessage = function (message) {
     return sql.query(
       "INSERT INTO chat (lobby_id, user_id, message) VALUES (?)",
       [[message.lobbyId, message.userId, message.message]],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.uploadCocktailLobby = function (link, lobbyId, userId, cocktailId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO lobby_cocktail_photos (photo_url, lobby_id, cocktail_id, user_id) VALUES (?)",
+      [[link, lobbyId, cocktailId, userId]],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.uploadCocktailUser = function (link, userId, cocktailId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO lobby_cocktail_photos (photo_url, cocktail_id, user_id) VALUES (?)",
+      [[link, cocktailId, userId]],
       function (err, res) {
         if (err) {
           resolve(err);

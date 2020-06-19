@@ -1,7 +1,8 @@
 import Head from 'next/head';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { inject, observer } from 'mobx-react';
 import io from 'socket.io-client';
+import Webcam from 'react-webcam';
 import style from './Style.module.css';
 
 const socket = io('http://localhost:5000');
@@ -10,6 +11,8 @@ const Home = ({ userStore, partyId }) => {
   const [messages, setMessages] = useState([]);
   const [ready, setReady] = useState(false);
   const [players, setPlayers] = useState([]);
+  const [picture, setPicture] = useState(null);
+  const [pictures, setPictures] = useState({});
   const [quiz, setQuiz] = useState({});
   const [showTakeAShot, setShowTakeAShot] = useState(false);
   const [showPlusPoints, setShowPlusPoints] = useState(false);
@@ -17,6 +20,19 @@ const Home = ({ userStore, partyId }) => {
   const [correctAnswerId, setCorrectAnswerId] = useState(null);
   const [answerId, setAnswerId] = useState(null);
   const [inRoom, setInRoom] = useState(true);
+
+  const videoConstraints = {
+    width: 400,
+    height: 600,
+    facingMode: 'user',
+  };
+
+  const webcamRef = useRef(null);
+
+  const capture = useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setPicture(imageSrc);
+  }, [webcamRef]);
 
   useEffect(() => {
     if (inRoom) {
@@ -35,6 +51,11 @@ const Home = ({ userStore, partyId }) => {
   useEffect(() => {
     if (quiz?.current_question?.type === 'recipe') {
       setReady(false);
+    }
+    if (quiz?.current_question?.type === 'lobby') {
+      setPictures({});
+      setCorrectAnswerId(null);
+      setAnswerId(null);
     }
   }, [quiz?.current_question?.type]);
 
@@ -73,10 +94,12 @@ const Home = ({ userStore, partyId }) => {
   }, [showPlusPoints]);
 
   useEffect(() => {
-    if (answerId !== correctAnswerId) {
-      setShowTakeAShot(true);
-    } else {
-      setShowPlusPoints(true);
+    if (answerId && correctAnswerId) {
+      if (answerId !== correctAnswerId) {
+        setShowTakeAShot(true);
+      } else {
+        setShowPlusPoints(true);
+      }
     }
   }, [correctAnswerId]);
 
@@ -86,6 +109,8 @@ const Home = ({ userStore, partyId }) => {
       setMessages(payload.chats);
       setPlayers(payload.members);
       setQuiz(payload.quiz);
+      setPictures(payload.quiz.pictures);
+
       console.log(payload);
       document.title = `new messages have been emitted`;
     });
@@ -108,6 +133,10 @@ const Home = ({ userStore, partyId }) => {
 
     socket.on('player update', (payload) => {
       setPlayers(payload.members);
+    });
+
+    socket.on('pictures update', (payload) => {
+      setPictures(payload.pictures);
     });
 
     socket.on('ready error', (payload) => {
@@ -138,6 +167,13 @@ const Home = ({ userStore, partyId }) => {
     e.preventDefault();
     socket.emit('start game', {
       lobby_id: partyId,
+    });
+  };
+
+  const handlePicture = (e) => {
+    e.preventDefault();
+    socket.emit('upload picture', {
+      picture,
     });
   };
 
@@ -266,7 +302,7 @@ const Home = ({ userStore, partyId }) => {
                           >
                             <img
                               className={style.user__picture}
-                              src="../assets/images/lara.jpg"
+                              src="/assets/images/lara.jpg"
                               width="160"
                               height="160"
                               alt=""
@@ -295,12 +331,11 @@ const Home = ({ userStore, partyId }) => {
                       );
                     } else {
                       return (
-                        // Show users that are not current user
                         <>
                           <div className={style.friends__userS}>
                             <img
                               className={style.user__picture}
-                              src="../assets/images/lara.jpg"
+                              src="/assets/images/lara.jpg"
                               width="160"
                               height="160"
                               alt=""
@@ -333,7 +368,6 @@ const Home = ({ userStore, partyId }) => {
                   })}
                 </div>
               </div>
-              {console.log(quiz)}
               {/* CONTENT */}
               <div className={style.quiz__content}>
                 <div className={style.quiz__contentquiz}>
@@ -367,7 +401,6 @@ const Home = ({ userStore, partyId }) => {
                       alt=""
                     />
                   </div>
-                  {console.log(quiz)}
                   <div>
                     <div className={style.quiz__answers}>
                       {quiz?.current_question?.answers?.map((answer, i) => (
@@ -606,7 +639,6 @@ const Home = ({ userStore, partyId }) => {
                   })}
                 </div>
               </div>
-              {console.log(quiz)}
               {/* CONTENT */}
               <div className={style.quiz__content}>
                 <div className={style.quiz__contentquiz}>
@@ -640,7 +672,6 @@ const Home = ({ userStore, partyId }) => {
                       alt=""
                     />
                   </div>
-                  {console.log(quiz)}
                   <div>
                     <div className={style.quiz__answers}>
                       {quiz?.current_question?.answers?.map((answer, i) => (
@@ -773,6 +804,66 @@ const Home = ({ userStore, partyId }) => {
               className={style.background}
             />
           </>
+        ) : null}
+        {quiz?.current_question?.type === 'end_screen' ? (
+          !pictures?.[userStore.user.id] ? (
+            <>
+              <h1>Upload your picture </h1>
+              <br />
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                videoConstraints={videoConstraints}
+              />
+              <button onClick={capture}>Take picture</button>
+              <br />
+              {picture ? <img src={picture} /> : ''}
+              <br />
+              <button onClick={handlePicture}>Continue</button>
+              <br />
+              <div>
+                <h1>Players</h1>
+                {players.map((item, i) => (
+                  <p key={i}>
+                    {item.username} - {item.online ? 'online' : 'offline'} -{' '}
+                    score: {item.score} - shots: {item.shots} -{' '}
+                    {item.ready ? 'Ready' : 'waiting ...'}
+                  </p>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <h1>Post game lobby</h1>
+              <br />
+              <h2>Uploaded pictures:</h2>
+              {Object.values(pictures)
+                .filter((item) => item.src)
+                .map((item) => (
+                  <div>
+                    <img src={`http://localhost:5000/${item.src}`} />
+                    <p>{item.username}</p>
+                  </div>
+                ))}
+              <br />
+              <h2>Score:</h2>
+              <button onClick={handleReady}>
+                {ready && `Unready`}
+                {!ready && `Ready`}
+              </button>
+              <div>
+                <h1>Players</h1>
+                {players.map((item, i) => (
+                  <p key={i}>
+                    {item.username} - {item.online ? 'online' : 'offline'} -{' '}
+                    score: {item.score} - shots: {item.shots} -{' '}
+                    {item.ready ? 'Ready' : 'waiting ...'}
+                  </p>
+                ))}
+              </div>
+            </>
+          )
         ) : null}
       </main>
     </div>

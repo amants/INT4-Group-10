@@ -123,7 +123,6 @@ exports.getAllQuestionsOfCocktail = async function (cocktail_id) {
 
 exports.getNQuestions = async function (cocktailId, questionLength) {
   const questions = await Lobby.getNQuestions(cocktailId, questionLength);
-  console.log("length: ", questions.length);
   if (questions) {
     return new Promise((resolve) => {
       questions.map(async (item, i) => {

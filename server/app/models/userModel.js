@@ -36,7 +36,15 @@ class User {
     });
   }
 
-  static getUserByUsernameOrEmail(identification, result) {
+  static uploadCocktailLobby(link, lobbyId, userId, cocktailId) {
+    return DbHelper.uploadCocktailLobby(link, lobbyId, userId, cocktailId);
+  }
+
+  static uploadCocktailUser(link, userId, cocktailId) {
+    return DbHelper.uploadCocktailUser(link, userId, cocktailId);
+  }
+
+  static uploadCocktailUser(identification, result) {
     return DbHelper.getByIdentification(DbTableName, identification, result);
   }
 
@@ -48,8 +56,8 @@ class User {
     );
   }
 
-  static getUserById(userId, result) {
-    return DbHelper.getById(DbTableName, userId, result);
+  static getUserById(userId) {
+    return DbHelper.getById(DbTableName, userId);
   }
 
   static getUserSimple(username) {

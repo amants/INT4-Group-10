@@ -1,31 +1,36 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-param-reassign */
-import React from 'react';
+import React, { useRef, cloneElement } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { inject, observer } from 'mobx-react';
 
-const PopUp = ({ name, children, interfaceStore }) => {
+const PopUp = ({ name, children, interfaceStore, ...props }) => {
   const { togglePopUp } = interfaceStore;
-  const closeHandler = e => {
-    if (!e) e = '';
-    e.stopPropagation();
-    togglePopUp(name, false);
-  }
+  const popupRef = useRef();
+  const closeHandler = (e) => {
+    if (e?.stopPropagation) e?.stopPropagation();
+    popupRef.current.style.opacity = 0;
+    setTimeout(() => {
+      togglePopUp(name, false);
+    }, 200);
+  };
+
+  const PopUpChildren = cloneElement(children, { closePopUp: closeHandler });
 
   return (
-    <Container onClick={closeHandler}>
-      <LoginContainer onClick={e => e.stopPropagation()}>
-        {children}
+    <Container ref={popupRef} onClick={closeHandler} {...props}>
+      <LoginContainer onClick={(e) => e.stopPropagation()}>
+        {PopUpChildren}
       </LoginContainer>
     </Container>
   );
 };
 
-PopUp.getInitialProps = async ({store: { interfaceStore }}) => {
+PopUp.getInitialProps = async ({ store: { interfaceStore } }) => {
   return {
     interfaceStore,
   };
-}
+};
 
 const fadeIn = keyframes`
  0% { opacity: 0; }
@@ -38,8 +43,7 @@ const LoginContainer = styled.div`
   max-height: 90%;
   overflow-y: auto;
   background-color: white;
-  border-radius: .5rem;
-
+  border-radius: 0.5rem;
 `;
 
 const Container = styled.div`
@@ -49,13 +53,14 @@ const Container = styled.div`
   bottom: 0;
   left: 0;
   z-index: 999;
-  background-color: rgba(0,0,0,0.65);
+  background-color: rgba(0, 0, 0, 0.65);
   display: flex;
   justify-content: space-around;
+  transition: opacity 0.2s ease;
   align-items: center;
   animation-name: ${fadeIn};
-   animation-duration: .2s;
-   animation-iteration-count: 1;
+  animation-duration: 0.2s;
+  animation-iteration-count: 1;
 `;
 
 export default inject('interfaceStore', 'userStore')(observer(PopUp));
