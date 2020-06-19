@@ -2,10 +2,15 @@ import Head from 'next/head';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { inject, observer } from 'mobx-react';
 import io from 'socket.io-client';
+import getConfig from 'next/config';
 import Webcam from 'react-webcam';
 import style from './Style.module.css';
 
-const socket = io('http://localhost:5000');
+const {
+  publicRuntimeConfig: { API_URL }, // Available both client and server side
+} = getConfig();
+
+const socket = io(API_URL);
 
 const Home = ({ userStore, partyId }) => {
   const [messages, setMessages] = useState([]);
