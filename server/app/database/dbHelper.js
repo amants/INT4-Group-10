@@ -30,7 +30,7 @@ exports.getRandomCocktail = function () {
 
 exports.getById = function (tableName, id) {
   return new Promise((resolve) => {
-    sql.query("SELECT * FROM ?? WHERE id = ?", [tableName, id], function (
+    sql.query("SELECT * FROM ?? WHERE user_id = ?", [tableName, id], function (
       err,
       res
     ) {

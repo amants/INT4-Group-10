@@ -69,8 +69,11 @@ const generateQuizSteps = async (cocktailId) => {
     recipeStep.type = "recipe";
     tempSteps.push(recipeStep);
   }
+  // tempSteps.push({
+  //   type: "countryQuestion",
+  // });
   tempSteps.push({
-    type: "countryQuestion",
+    type: "end_screen",
   });
   return tempSteps;
 };

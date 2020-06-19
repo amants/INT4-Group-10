@@ -13,7 +13,7 @@ const privateKEYAccess = fs.readFileSync(
 const i = "Integration"; // Issuer
 const a = "https://int4.neolol.com"; // Audience
 
-const expiresIn = "24h";
+const expiresIn = "1h";
 
 exports.encrypt = async function (credentials) {
   try {

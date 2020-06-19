@@ -1,14 +1,21 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { string, node } from 'prop-types';
 import { inject, observer } from 'mobx-react';
 import PopUpComponent from './PopUpComponent';
 import LoginForm from './LoginForm';
 
-const Layout = ({ currentPage, children, interfaceStore }) => {
-  const { showPopup } = interfaceStore;
+const Layout = ({ children, interfaceStore, userStore }) => {
+  const { showPopup, togglePopUp } = interfaceStore;
   const { login } = showPopup;
+
+  useEffect(() => {
+    if (!userStore.user) {
+      togglePopUp('login', true);
+      console.log('show login popup');
+    }
+  }, []);
 
   return (
     <Container>
@@ -58,4 +65,4 @@ const Main = styled.div`
   min-height: calc(100vh - 15rem);
 `;
 
-export default inject('interfaceStore')(observer(Layout));
+export default inject('interfaceStore', 'userStore')(observer(Layout));

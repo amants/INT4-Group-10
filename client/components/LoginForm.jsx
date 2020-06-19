@@ -9,9 +9,15 @@ import TextInput from './TextInput';
 import ActionButton from './ActionButton';
 import { auth, getMe } from '../services/apiRouterService';
 
-const LoginForm = ({ userStore, interfaceStore, title, subTitle }) => {
+const LoginForm = ({
+  userStore,
+  interfaceStore,
+  title,
+  subTitle,
+  closePopUp,
+}) => {
   const { setUser, setAuth } = userStore;
-  const { togglePopUp } = interfaceStore;
+  // const { togglePopUp } = interfaceStore;
   const SignupSchema = Yup.object().shape({
     username,
     password,
@@ -29,8 +35,7 @@ const LoginForm = ({ userStore, interfaceStore, title, subTitle }) => {
       if (status2 === 200) {
         setUser(resp2);
         setAuth(true);
-        togglePopUp('login', false);
-        togglePopUp('loginFirst', false);
+        closePopUp();
       } else {
         setAuth(false);
       }

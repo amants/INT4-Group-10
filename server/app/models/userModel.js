@@ -48,8 +48,8 @@ class User {
     );
   }
 
-  static getUserById(userId, result) {
-    return DbHelper.getById(DbTableName, userId, result);
+  static getUserById(userId) {
+    return DbHelper.getById(DbTableName, userId);
   }
 
   static getUserSimple(username) {
