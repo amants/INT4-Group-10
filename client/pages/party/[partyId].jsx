@@ -260,7 +260,7 @@ const Home = ({ userStore, partyId }) => {
                         <>
                           <div
                             className={[
-                              style.friends__user,
+                              style.friends__userS,
                               style.friends__userself,
                             ].join(' ')}
                           >
@@ -272,19 +272,19 @@ const Home = ({ userStore, partyId }) => {
                               alt=""
                             />
                             <span
-                              className={[style.user__name, style.h2].join(' ')}
+                              className={[style.user__name, style.t2].join(' ')}
                             >
-                              {item.username}
+                              score: {item.store}
                             </span>
                             <span
                               className={[style.user__country, style.t2].join(
                                 ' ',
                               )}
                             >
-                              Dummy Country
+                              shots : {item.shots}
                             </span>
                             <img
-                              className={style.user__background}
+                              className={style.user__backgroundS}
                               src="/assets/images/PassportMed.png"
                               width="244"
                               height="346"
@@ -297,7 +297,7 @@ const Home = ({ userStore, partyId }) => {
                       return (
                         // Show users that are not current user
                         <>
-                          <div className={style.friends__user}>
+                          <div className={style.friends__userS}>
                             <img
                               className={style.user__picture}
                               src="../assets/images/lara.jpg"
@@ -306,16 +306,16 @@ const Home = ({ userStore, partyId }) => {
                               alt=""
                             />
                             <span
-                              className={[style.user__name, style.h2].join(' ')}
+                              className={[style.user__name, style.t2].join(' ')}
                             >
-                              {item.username}
+                              score: {item.score}
                             </span>
                             <span
                               className={[style.user__country, style.t2].join(
                                 ' ',
                               )}
                             >
-                              Dummy Country
+                              shots : {item.shots}
                             </span>
                             <img
                               className={style.user__background}
@@ -533,7 +533,7 @@ const Home = ({ userStore, partyId }) => {
                         <>
                           <div
                             className={[
-                              style.friends__user,
+                              style.friends__userS,
                               style.friends__userself,
                             ].join(' ')}
                           >
@@ -545,19 +545,19 @@ const Home = ({ userStore, partyId }) => {
                               alt=""
                             />
                             <span
-                              className={[style.user__name, style.h2].join(' ')}
+                              className={[style.user__name, style.t2].join(' ')}
                             >
-                              {item.username}
+                              score: {item.score}
                             </span>
                             <span
                               className={[style.user__country, style.t2].join(
                                 ' ',
                               )}
                             >
-                              Dummy Country
+                              shots : {item.shots}
                             </span>
                             <img
-                              className={style.user__background}
+                              className={style.user__backgroundS}
                               src="/assets/images/PassportMed.png"
                               width="244"
                               height="346"
@@ -570,7 +570,7 @@ const Home = ({ userStore, partyId }) => {
                       return (
                         // Show users that are not current user
                         <>
-                          <div className={style.friends__user}>
+                          <div className={style.friends__userS}>
                             <img
                               className={style.user__picture}
                               src="../assets/images/lara.jpg"
@@ -579,16 +579,16 @@ const Home = ({ userStore, partyId }) => {
                               alt=""
                             />
                             <span
-                              className={[style.user__name, style.h2].join(' ')}
+                              className={[style.user__name, style.t2].join(' ')}
                             >
-                              {item.username}
+                              score: {item.score}
                             </span>
                             <span
                               className={[style.user__country, style.t2].join(
                                 ' ',
                               )}
                             >
-                              Dummy Country
+                              shots : {item.shots}
                             </span>
                             <img
                               className={style.user__background}

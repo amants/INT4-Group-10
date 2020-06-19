@@ -256,8 +256,12 @@
   width: min-content;
 }
 
-.party__sidebar, .party__content, .quiz__sidebar {
+.party__sidebar, .party__content{
   margin: 4rem 0rem 0 8rem;
+}
+
+.quiz__sidebar {
+  margin: 4rem 0rem 0 0rem;
 }
 
 .sidebar__input {
@@ -297,6 +301,17 @@
   color: #f6f2ee;
 }
 
+.friends__userS {
+  grid-area: 1;
+  display: grid;
+  grid-template-columns: min-content auto;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas:
+    "image name"
+    "image country";
+  color: #102146;
+}
+
 .friends__userself {
   margin-top: 4rem;
 }
@@ -322,6 +337,12 @@
 .user__background {
   position: absolute;
   z-index: -1;
+}
+
+.user__backgroundS {
+  position: absolute;
+  z-index: -1;
+  margin-left: -15rem;
 }
 
 .content__needs {
