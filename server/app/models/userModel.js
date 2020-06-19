@@ -44,7 +44,7 @@ class User {
     return DbHelper.uploadCocktailUser(link, userId, cocktailId);
   }
 
-  static uploadCocktailUser(identification, result) {
+  static getUserByUsernameOrEmail(identification, result) {
     return DbHelper.getByIdentification(DbTableName, identification, result);
   }
 

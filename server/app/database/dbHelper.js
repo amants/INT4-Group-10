@@ -150,7 +150,7 @@ exports.getLobbyCompletedCocktails = function (id) {
 exports.getAnswersOfQuestion = function (id) {
   return new Promise((resolve) => {
     sql.query(
-      "SELECT answer_id, answer, question_id, correct FROM answers WHERE question_id = ?",
+      "SELECT answer_id, answer, question_id, correct FROM answers WHERE question_id = ? ORDER BY RAND()",
       [id],
       function (err, res) {
         if (err) {
