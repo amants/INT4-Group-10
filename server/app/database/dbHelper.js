@@ -291,6 +291,38 @@ exports.sendMessage = function (message) {
   });
 };
 
+exports.uploadCocktailLobby = function (link, lobbyId, userId, cocktailId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO lobby_cocktail_photos (photo_url, lobby_id, cocktail_id, user_id) VALUES (?)",
+      [[link, lobbyId, cocktailId, userId]],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.uploadCocktailUser = function (link, userId, cocktailId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO lobby_cocktail_photos (photo_url, cocktail_id, user_id) VALUES (?)",
+      [[link, cocktailId, userId]],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
 exports.createLobby = function (party, leader, cocktail) {
   return new Promise((resolve) => {
     const lobby_key = uuidv4();

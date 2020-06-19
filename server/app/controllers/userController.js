@@ -38,6 +38,18 @@ exports.create = async function (req, res) {
   return res.status(code.success).send(msg.success);
 };
 
+exports.uploadCocktail = async function (link, cocktailId, userId, lobbyId) {
+  if (lobbyId) {
+    await User.uploadCocktailLobby(link, lobbyId, userId, cocktailId);
+  }
+  const cocktailUser = await User.uploadCocktailUser(link, userId, cocktailId);
+  if (cocktailUser) {
+    return cocktailUser;
+  } else {
+    return null;
+  }
+};
+
 exports.getMe = async function (req, res) {
   const { username } = req.verified;
   const user = await User.getUserSimple(username);
