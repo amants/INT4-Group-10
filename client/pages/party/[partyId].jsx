@@ -902,7 +902,7 @@ const Home = ({ userStore, partyId }) => {
                 .filter((item) => item.src)
                 .map((item) => (
                   <div>
-                    <img src={`http://localhost:5000/${item.src}`} />
+                    <img src={`${API_URL}${item.src}`} />
                     <p>{item.username}</p>
                   </div>
                 ))}
