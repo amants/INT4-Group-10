@@ -135,7 +135,6 @@ const Home = ({ userStore, partyId }) => {
     });
 
     socket.on('pictures update', (payload) => {
-      console.log(payload);
       setPictures(payload.pictures);
     });
 
@@ -366,12 +365,14 @@ const Home = ({ userStore, partyId }) => {
               <h1>Post game lobby</h1>
               <br />
               <h2>Uploaded pictures:</h2>
-              {Object.values(pictures).map((item) => (
-                <div>
-                  <img src={`http://localhost:5000/${item.src}`} />
-                  <p>{item.username}</p>
-                </div>
-              ))}
+              {Object.values(pictures)
+                .filter((item) => item.src)
+                .map((item) => (
+                  <div>
+                    <img src={`http://localhost:5000/${item.src}`} />
+                    <p>{item.username}</p>
+                  </div>
+                ))}
               <br />
               <h2>Score:</h2>
               <button onClick={handleReady}>

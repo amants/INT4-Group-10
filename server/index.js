@@ -264,17 +264,20 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("upload picture", async (data) => {
-    let base64Image = data.picture.split(";base64,").pop();
-    const fileName = `${lobby_id}-${quizInstances[lobby_id]?.cocktail_id}-${user.user_id}.jpg`;
-    require("fs").writeFile(
-      `./public/assets/img/cocktails/${fileName}`,
-      base64Image,
-      { encoding: "base64" },
-      function (err) {
-        console.log(err);
-      }
-    );
-    await UserController.uploadCocktail(fileName);
+    let fileName = null;
+    if (data.picture) {
+      fileName = `${lobby_id}-${quizInstances[lobby_id]?.cocktail_id}-${user.user_id}.jpg`;
+      let base64Image = data.picture.split(";base64,").pop();
+      require("fs").writeFile(
+        `./public/assets/img/cocktails/${fileName}`,
+        base64Image,
+        { encoding: "base64" },
+        function (err) {
+          console.log(err);
+        }
+      );
+      await UserController.uploadCocktail(fileName);
+    }
     if (!quizInstances[lobby_id].pictures[quizInstances[lobby_id].cocktail_id])
       quizInstances[lobby_id].pictures[
         quizInstances[lobby_id].cocktail_id
@@ -292,7 +295,7 @@ io.on("connection", async (socket) => {
     ] = {
       username: user.username,
       avatar: user.avatar,
-      src: `/assets/img/cocktails/${fileName}`,
+      src: fileName ? `/assets/img/cocktails/${fileName}` : undefined,
     };
     socket.broadcast.to(lobby_id).emit("pictures update", {
       pictures:
