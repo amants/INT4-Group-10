@@ -2,6 +2,7 @@ import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
 import { inject, observer } from 'mobx-react';
 import io from 'socket.io-client';
+import style from './Style.module.css';
 
 const socket = io('http://localhost:5000');
 
@@ -177,7 +178,7 @@ const Home = ({ userStore, partyId }) => {
   }
 
   return (
-    <div className="container">
+    <div className={style.container}>
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
@@ -230,70 +231,547 @@ const Home = ({ userStore, partyId }) => {
         ) : null}
         {quiz?.current_question?.type === 'quiz' ? (
           <>
-            <h1>Quiz {quiz?.time_to_answer}</h1>
-            <h2>{quiz?.current_question?.title}</h2>
-            <h3>{quiz?.current_question?.description}</h3>
-            {showTakeAShot ? <h5>TAKE A SHOT!!!</h5> : null}
-            {showPlusPoints ? <h5>CORRECT!!! +20 points</h5> : null}
-            <br />
-            <div>
-              {quiz?.current_question?.answers?.map((answer, i) => (
-                <div key={i}>
-                  <br />
-                  <button
-                    key={i}
-                    onClick={(e) => handleAnswer(e, answer?.answer_id)}
-                  >
-                    {correctAnswerId === answer?.answer_id
-                      ? 'correct -> '
-                      : null}
-                    {answer?.answer}
-                  </button>{' '}
-                  {quiz?.answered_questions?.[
-                    quiz?.current_question?.question_id
-                  ]?.[answer?.answer_id]?.map((item, j) => {
-                    return <span key={j}> - {item.username}</span>;
+            {/* Header */}
+            <h1 className={style.hidden}>home</h1>
+            <span className={[style.logo, style.h1].join(' ')}>
+              Throw A Knife
+            </span>
+
+            {/* Quiz Container */}
+            <div className={style.quiz__container}>
+              <div className={style.quiz__header}>
+                <span
+                  className={[style.party__participants, style.h2].join(' ')}
+                >
+                  Participants {players.length}/6
+                </span>
+                <h1 className={[style.party__title, style.h1].join(' ')}>
+                  {quiz.name} - {quiz?.time_to_answer}
+                </h1>
+              </div>
+              {/* FRIENDSLIST */}
+              <div className={style.quiz__sidebar}>
+                <div className={style.sidebar__friends}>
+                  {console.log(players, 'players')}
+                  {players.map((item, i) => {
+                    if (userStore.user.id == item.user_id) {
+                      return (
+                        // Show user that is current user
+                        <>
+                          <div
+                            className={[
+                              style.friends__user,
+                              style.friends__userself,
+                            ].join(' ')}
+                          >
+                            <img
+                              className={style.user__picture}
+                              src="../assets/images/lara.jpg"
+                              width="160"
+                              height="160"
+                              alt=""
+                            />
+                            <span
+                              className={[style.user__name, style.h2].join(' ')}
+                            >
+                              {item.username}
+                            </span>
+                            <span
+                              className={[style.user__country, style.t2].join(
+                                ' ',
+                              )}
+                            >
+                              Dummy Country
+                            </span>
+                            <img
+                              className={style.user__background}
+                              src="/assets/images/PassportMed.png"
+                              width="244"
+                              height="346"
+                              alt=""
+                            />
+                          </div>
+                        </>
+                      );
+                    } else {
+                      return (
+                        // Show users that are not current user
+                        <>
+                          <div className={style.friends__user}>
+                            <img
+                              className={style.user__picture}
+                              src="../assets/images/lara.jpg"
+                              width="160"
+                              height="160"
+                              alt=""
+                            />
+                            <span
+                              className={[style.user__name, style.h2].join(' ')}
+                            >
+                              {item.username}
+                            </span>
+                            <span
+                              className={[style.user__country, style.t2].join(
+                                ' ',
+                              )}
+                            >
+                              Dummy Country
+                            </span>
+                            <img
+                              className={style.user__background}
+                              src="/assets/images/PassportMed.png"
+                              width="244"
+                              height="346"
+                              alt=""
+                            />
+                            {/* {item.online ? 'online' : 'offline'} - score:{' '}
+                          {item.score} - shots: {item.shots} */}
+                          </div>
+                        </>
+                      );
+                    }
                   })}
-                  <br />
                 </div>
-              ))}
+              </div>
+              {console.log(quiz)}
+              {/* CONTENT */}
+              <div className={style.quiz__content}>
+                <div className={style.quiz__contentquiz}>
+                  <div className={style.quiz__question}>
+                    <span
+                      className={[style.question__number, style.t4].join(' ')}
+                    >
+                      {quiz.current_quiz_step == 0
+                        ? '1'
+                        : quiz.current_quiz_step / 2 + 1}{' '}
+                      / 5
+                    </span>
+                    <span
+                      className={[style.question__title, style.t2].join(' ')}
+                    >
+                      question{' '}
+                      {quiz.current_quiz_step == 0
+                        ? '1'
+                        : quiz.current_quiz_step / 2}
+                    </span>
+                    <p
+                      className={[style.question__question, style.h2].join(' ')}
+                    >
+                      {quiz.steps[quiz.current_quiz_step].title}
+                    </p>
+                    <img
+                      className={style.question__card}
+                      src="../assets/images/questioncard.png"
+                      width="327"
+                      height="215"
+                      alt=""
+                    />
+                  </div>
+                  {console.log(quiz)}
+                  <div>
+                    <div className={style.quiz__answers}>
+                      {quiz?.current_question?.answers?.map((answer, i) => (
+                        <>
+                          <button
+                            className={[
+                              style.button,
+                              style.quiz__answer,
+                              style[`quiz__answer${i + 1}`],
+                              style.t1,
+                            ].join(' ')}
+                            key={i}
+                            onClick={(e) => handleAnswer(e, answer?.answer_id)}
+                          >
+                            {correctAnswerId === answer?.answer_id
+                              ? 'correct -> '
+                              : null}
+                            {answer?.answer}
+                          </button>{' '}
+                          {quiz?.answered_questions?.[
+                            quiz?.current_question?.question_id
+                          ]?.[answer?.answer_id]?.map((item, j) => {
+                            return <span key={j}> - {item.username}</span>;
+                          })}
+                        </>
+                      ))}
+                    </div>
+                    {/* edit who answered! */}
+                    {/* <div className={style.quiz__userfieldpone}>
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                    </div>
+                    <div className={style.quiz__userfieldptwo}>
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                    </div>
+                    <div className={style.quiz__userfieldpthree}>
+                      <img
+                        class={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                    </div>
+                    <div className={style.quiz__userfieldpfour}>
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                    </div>*/}
+                  </div>
+                  <div className={style.quiz__steps}>
+                    {showTakeAShot ? <h5>TAKE A SHOT!!!</h5> : null}
+                    {showPlusPoints ? <h5>CORRECT!!! +20 points</h5> : null}
+
+                    <div class={style.steps__feedback}>
+                      <img
+                        className={style.steps__picture}
+                        src={[
+                          '../assets/images/progressbar/step',
+                          quiz.current_quiz_step,
+                          '.png',
+                        ].join('')}
+                        width="493.5"
+                        height="26.25"
+                        alt=""
+                      />
+                    </div>
+                    <span className={[style.steps__bottom, style.h3].join(' ')}>
+                      you are ready for the next step
+                    </span>
+                  </div>
+                </div>
+                <div className={style.quiz__contentrecipe}>
+                  <img
+                    src="../assets/images/Postit.png"
+                    width="300"
+                    height="303"
+                    alt=""
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <h1>Players</h1>
-              {players.map((item, i) => (
-                <p key={i}>
-                  {item.username} - {item.online ? 'online' : 'offline'} -{' '}
-                  score: {item.score} - shots: {item.shots}
-                </p>
-              ))}
-            </div>
+            {/* BACKGROUND */}
+            <img
+              src="../assets/images/Card-Back.jpg"
+              alt=""
+              className={style.background}
+            />
           </>
         ) : null}
         {quiz?.current_question?.type === 'recipe' ? (
           <>
-            <h1>Recipe step unlocked: {quiz?.current_question?.step}</h1>
-            <br />
-            <div>
-              <h2>{quiz?.current_question?.name}</h2>
-              <h3>{quiz?.current_question?.description}</h3>
+            {/* Header */}
+            <h1 className={style.hidden}>home</h1>
+            <span className={[style.logo, style.h1].join(' ')}>
+              Throw A Knife
+            </span>
+
+            {/* Quiz Container */}
+            <div className={style.quiz__container}>
+              <div className={style.quiz__header}>
+                <span
+                  className={[style.party__participants, style.h2].join(' ')}
+                >
+                  Participants {players.length}/6
+                </span>
+                <h1 className={[style.party__title, style.h1].join(' ')}>
+                  {quiz.name} - {quiz?.time_to_answer}
+                </h1>
+              </div>
+
+              {/* FRIENDSLIST */}
+              <div className={style.quiz__sidebar}>
+                <div className={style.sidebar__friends}>
+                  {console.log(players, 'players')}
+                  {players.map((item, i) => {
+                    if (userStore.user.id == item.user_id) {
+                      return (
+                        // Show user that is current user
+                        <>
+                          <div
+                            className={[
+                              style.friends__user,
+                              style.friends__userself,
+                            ].join(' ')}
+                          >
+                            <img
+                              className={style.user__picture}
+                              src="../assets/images/lara.jpg"
+                              width="160"
+                              height="160"
+                              alt=""
+                            />
+                            <span
+                              className={[style.user__name, style.h2].join(' ')}
+                            >
+                              {item.username}
+                            </span>
+                            <span
+                              className={[style.user__country, style.t2].join(
+                                ' ',
+                              )}
+                            >
+                              Dummy Country
+                            </span>
+                            <img
+                              className={style.user__background}
+                              src="/assets/images/PassportMed.png"
+                              width="244"
+                              height="346"
+                              alt=""
+                            />
+                          </div>
+                        </>
+                      );
+                    } else {
+                      return (
+                        // Show users that are not current user
+                        <>
+                          <div className={style.friends__user}>
+                            <img
+                              className={style.user__picture}
+                              src="../assets/images/lara.jpg"
+                              width="160"
+                              height="160"
+                              alt=""
+                            />
+                            <span
+                              className={[style.user__name, style.h2].join(' ')}
+                            >
+                              {item.username}
+                            </span>
+                            <span
+                              className={[style.user__country, style.t2].join(
+                                ' ',
+                              )}
+                            >
+                              Dummy Country
+                            </span>
+                            <img
+                              className={style.user__background}
+                              src="/assets/images/PassportMed.png"
+                              width="244"
+                              height="346"
+                              alt=""
+                            />
+                            {/* {item.online ? 'online' : 'offline'} - score:{' '}
+                          {item.score} - shots: {item.shots} */}
+                          </div>
+                        </>
+                      );
+                    }
+                  })}
+                </div>
+              </div>
+              {console.log(quiz)}
+              {/* CONTENT */}
+              <div className={style.quiz__content}>
+                <div className={style.quiz__contentquiz}>
+                  <div className={style.quiz__question}>
+                    <span
+                      className={[style.question__number, style.t4].join(' ')}
+                    >
+                      {quiz.current_quiz_step == 0
+                        ? '1'
+                        : quiz.current_quiz_step / 2 + 1}{' '}
+                      / 5
+                    </span>
+                    <span
+                      className={[style.question__title, style.t2].join(' ')}
+                    >
+                      cocktail step{' '}
+                      {quiz.current_quiz_step == 0
+                        ? '1'
+                        : quiz.current_quiz_step / 2}
+                    </span>
+                    <p
+                      className={[style.question__question, style.h2].join(' ')}
+                    >
+                      {quiz.steps[quiz.current_quiz_step].title}
+                    </p>
+                    <img
+                      className={style.question__card}
+                      src="../assets/images/questioncard.png"
+                      width="327"
+                      height="215"
+                      alt=""
+                    />
+                  </div>
+                  {console.log(quiz)}
+                  <div>
+                    <div className={style.quiz__answers}>
+                      {quiz?.current_question?.answers?.map((answer, i) => (
+                        <>
+                          <button
+                            className={[
+                              style.button,
+                              style.quiz__answer,
+                              style[`quiz__answer${i + 1}`],
+                              style.t1,
+                            ].join(' ')}
+                            key={i}
+                            onClick={(e) => handleAnswer(e, answer?.answer_id)}
+                          >
+                            {correctAnswerId === answer?.answer_id
+                              ? 'correct -> '
+                              : null}
+                            {answer?.answer}
+                          </button>{' '}
+                          {quiz?.answered_questions?.[
+                            quiz?.current_question?.question_id
+                          ]?.[answer?.answer_id]?.map((item, j) => {
+                            return <span key={j}> - {item.username}</span>;
+                          })}
+                        </>
+                      ))}
+                    </div>
+                    {/* edit who answered! */}
+                    {/* <div className={style.quiz__userfieldpone}>
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                    </div>
+                    <div className={style.quiz__userfieldptwo}>
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                    </div>
+                    <div className={style.quiz__userfieldpthree}>
+                      <img
+                        class={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                    </div>
+                    <div className={style.quiz__userfieldpfour}>
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                      <img
+                        className={style.quiz__usericon}
+                        src="../assets/images/lara.jpg"
+                        width="30"
+                        height="30"
+                        alt=""
+                      />
+                    </div>*/}
+                  </div>
+                  <div className={style.quiz__steps}>
+                    {showTakeAShot ? <h5>TAKE A SHOT!!!</h5> : null}
+                    {showPlusPoints ? <h5>CORRECT!!! +20 points</h5> : null}
+
+                    <div class={style.steps__feedback}>
+                      <img
+                        className={style.steps__picture}
+                        src={[
+                          '../assets/images/progressbar/step',
+                          quiz.current_quiz_step,
+                          '.png',
+                        ].join('')}
+                        width="493.5"
+                        height="26.25"
+                        alt=""
+                      />
+                    </div>
+                    <span className={[style.steps__bottom, style.h3].join(' ')}>
+                      you are ready for the next step
+                    </span>
+                  </div>
+                </div>
+                <div className={style.quiz__contentrecipe}>
+                  <img
+                    src="../assets/images/Postit.png"
+                    width="300"
+                    height="303"
+                    alt=""
+                  />
+                </div>
+              </div>
             </div>
-            <br />
-            <button onClick={handleReady}>
-              {ready && `Unready`}
-              {!ready && `Ready`}
-            </button>
-            <br />
-            <br />
-            <div>
-              <h1>Players</h1>
-              {players.map((item, i) => (
-                <p key={i}>
-                  {item.username} - {item.online ? 'online' : 'offline'} -{' '}
-                  score: {item.score} - shots: {item.shots} -{' '}
-                  {item.ready ? 'Ready' : 'waiting ...'}
-                </p>
-              ))}
-            </div>
+            {/* BACKGROUND */}
+            <img
+              src="../assets/images/Card-Back.jpg"
+              alt=""
+              className={style.background}
+            />
           </>
         ) : null}
       </main>

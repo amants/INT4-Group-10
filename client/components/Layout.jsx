@@ -51,11 +51,8 @@ const Container = styled.div`
 `;
 
 const Main = styled.div`
-  max-width: 1180px;
-  margin-left: auto;
-  margin-right: auto;
   width: 100%;
-  min-height: calc(100vh - 15rem);
+
 `;
 
 export default inject('interfaceStore')(observer(Layout));

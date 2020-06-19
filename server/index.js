@@ -107,7 +107,7 @@ const startNextQuestion = (socket, lobby_id, user) => {
   );
 
   if (currentQuestion.type === "quiz") {
-    quizInstances[lobby_id].time_to_answer = 20;
+    quizInstances[lobby_id].time_to_answer = 100000;
 
     socket.emit("status update", {
       total_steps: quizInstances[lobby_id]?.steps?.length,
@@ -381,7 +381,7 @@ io.on("connection", async (socket) => {
         error: "Not all members are ready",
         members: notReadyMembers,
       });
-    quizInstances[data.lobby_id].time_to_answer = 20;
+    quizInstances[data.lobby_id].time_to_answer = 100000;
     socket.emit("status update", {
       total_steps: quizInstances[data.lobby_id]?.steps?.length,
       step: quizInstances[data.lobby_id]?.current_quiz_step,

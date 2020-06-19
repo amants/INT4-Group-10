@@ -1,0 +1,59 @@
+@value tokens: "./tokens.module.css";
+@value fontSizeLarge, fontSizeMedium, background, spacer1 from tokens;
+
+
+.h1 {
+  font-family: sirenne-text-mvb, serif;
+  font-weight: bold;
+  font-style: normal;
+  font-size: 2.8rem;
+  line-height: 3rem;
+}
+
+.h2 {
+  font-family: sirenne-text-mvb, serif;
+  font-weight: bold;
+  font-style: normal;
+  font-size: 2rem;
+  line-height: 2.4rem;
+}
+
+.h3 {
+  font-family: sirenne-text-mvb, serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 2.4rem;
+}
+
+.h4 {
+  font-family: sirenne-text-mvb, serif;
+  font-weight: 700;
+  font-style: bold;
+  font-size: 1.4rem;
+  line-height: 2.4rem;
+}
+
+.t1 {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.8rem;
+  line-height: 2.4rem;
+}
+
+.t2 {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.4rem;
+  line-height: 2.1rem;
+}
+
+.t3 {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 1.2rem;
+  line-height: 1.8rem;
+}
