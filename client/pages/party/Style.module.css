@@ -284,9 +284,71 @@
 .party__content {
   margin: 4rem 0rem 0 8rem;
 }
+.needs__wrapper {
+  max-width: 35rem;
+}
+.needs__info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: auto;
+  grid-template-areas:
+  "text text time time"
+  "feedback feedback feedback start";
+
+}
+.info__text, .info__time, .info__feedback, .info__start {
+  border: .2rem solid #102146;
+  padding: 1rem .5rem;
+}
+
+.info__text {
+  grid-area: text;
+}
+
+.info__time {
+  grid-area: time;
+  border-left: none;
+  text-align: center;
+}
+
+.info__feedback {
+  grid-area: feedback;
+  border-top: none;
+}
+
+.info__start {
+  grid-area: start;
+  border-top: none;
+  border-left: none;
+}
+
+.needs__chat {
+  padding-top: 5rem;
+}
+.chat__chatbox {
+
+  height: 30rem;
+}
+
+.chat__chatinput{
+ width: max-content;
+ border: none;
+ padding: 1rem;
+ background-color: #F1F1F1;
+}
+
+.chat__wrapper {
+  width: 35rem;
+  display: flex;
+  flex-flow: row;
+  border: .2rem solid #102146;
+  border-radius: 20rem;
+  justify-content: space-between;
+  padding: 1rem;
+}
 
 .quiz__sidebar {
-  margin: 4rem 0rem 0 0rem;
+  margin: 4rem 0 0 0;
 }
 
 .sidebar__input {
@@ -361,7 +423,6 @@
 .user__background {
   position: absolute;
   z-index: -1;
-  margin-left: -15rem;
 }
 
 .user__backgroundS {
@@ -394,6 +455,9 @@
 .needs__background {
   grid-area: main;
   z-index: -1;
+  margin-top: -15rem;
+  margin-left: -8rem;
+  position: absolute;
 }
 
 /* quiz */
@@ -413,6 +477,10 @@
 
 .quiz__contentquiz {
   justify-self: center;
+}
+
+.quiz__contentrecipe {
+  transform: rotate(-6deg);
 }
 
 .quiz__question {
@@ -543,4 +611,28 @@
 
 .steps__bottom {
   margin-top: 2rem;
+}
+
+
+.recipe__step {
+
+}
+
+.recipe__steps {
+  list-style-type: none;
+  padding-left: 0;
+  font-size: 1.4rem;
+  display: flex;
+  flex-flow: column;
+  max-width: 26rem;
+  padding-top: 2rem;
+}
+
+.recipe__background {
+  position: absolute;
+  top: 0;
+  z-index: -50;
+  margin-left: -4rem;
+  margin-top: -2rem;
+  
 }

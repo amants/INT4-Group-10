@@ -231,10 +231,133 @@ const Home = ({ userStore, partyId }) => {
       <main>
         {quiz?.current_question?.type === 'lobby' ? (
           <>
+            <div className={style.container}>
+              <h1 className={style.hidden}>home</h1>
+              <span className={[style.logo, style.h1].join(' ')}>
+                Throw A Knife
+              </span>
+              <div className={style.party__container}>
+                <div className={style.party__header}>
+                  <span
+                    className={[style.party__participants, style.h2].join(' ')}
+                  >
+                    Participants 5/6
+                  </span>
+                  <h1 className={[style.party__title, style.h1].join(' ')}>
+                    Plan a new party
+                  </h1>
+                  <span className={[style.uiz__info, style.h2].join(' ')}>
+                    This party is complete, <br /> registrations are closed.
+                  </span>
+                </div>
+                <div className={style.party__sidebar}>
+                  <h2 className={(style.sidebar__title, style.h2)}>
+                    Add friends
+                  </h2>
+                  <form className={style.sidebar__input}>
+                    <input
+                      className={[
+                        style.input,
+                        style.inputsidebar,
+                        style.h2,
+                      ].join(' ')}
+                      type="text"
+                      size="20"
+                      placeholder="search for friends"
+                    />
+                    <img
+                      src="/assets/images/search-icon.png"
+                      alt="search icon"
+                    />
+                  </form>
+                  <div className={style.sidebar__friends}>
+                    <div
+                      className={[
+                        style.friends__user,
+                        style.friends__userself,
+                      ].join(' ')}
+                    >
+                      <img
+                        className={style.user__picture}
+                        src="../assets/images/lara.jpg"
+                        width="160"
+                        height="160"
+                        alt=""
+                      />
+                      <span className={[style.user__name, style.h2].join(' ')}>
+                        Lara Maddens
+                      </span>
+                      <span
+                        className={[style.user__country, style.t2].join(' ')}
+                      >
+                        🇧🇪 Belgium
+                      </span>
+                      <img
+                        className={style.user__background}
+                        src="/assets/images/PassportMed.png"
+                        width="244"
+                        height="346"
+                        alt=""
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className={style.party__content}>
+                  <div className={style.content__needs}>
+                    <div className={style.needs__wrapper}>
+                      <div className={style.needs__info}>
+                        <span
+                          className={[style.info__text, style.h2].join(' ')}
+                        >
+                          This party starts
+                        </span>
+                        <span
+                          className={[style.info__time, style.h2].join(' ')}
+                        >
+                          now
+                        </span>
+                        <span
+                          className={[style.info__feedback, style.t2].join(' ')}
+                        >
+                          You can only start the game if you are party leader
+                        </span>
+                        <div className={style.info__start}>
+                          <button className={style.button}>start</button>
+                        </div>
+                      </div>
+                      <div className={style.needs__chat}>
+                        <span
+                          className={[style.chat__title, style.h2].join(' ')}
+                        >
+                          Chat
+                        </span>
+                        <div className={style.chat__chatbox}></div>
+                        <div className={style.chat__wrapper}>
+                          <input
+                            className={style.chat__chatinput}
+                            type="text"
+                            size="35"
+                            placeholder="type your message here"
+                          />
+                          <button className={style.chat__chatbutton}>send</button>
+                        </div>
+                      </div>
+                    </div>
+                    <img
+                      className={style.needs__background}
+                      src="../assets/images/clipboard.png"
+                      alt=""
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* LOGICA HIERONDER */}
+            
             <h1>
               {quiz?.name} - {userStore.user.username}
             </h1>
-            <br />
+
             <div>
               <h1>Messages</h1>
               {messages.map((item, i) => (
@@ -272,6 +395,13 @@ const Home = ({ userStore, partyId }) => {
                 <button onClick={handleStart}>Start game</button>
               </div>
             ) : null}
+
+            {/* BACKGROUND */}
+            <img
+              src="../assets/images/Card-Back.jpg"
+              alt=""
+              className={style.background}
+            />
           </>
         ) : null}
         {quiz?.current_question?.type === 'quiz' ? (
@@ -288,7 +418,8 @@ const Home = ({ userStore, partyId }) => {
                 <span
                   className={[style.party__participants, style.h2].join(' ')}
                 >
-                  Participants {players.length}/6
+                  Participants {players.filter((item) => item.online).length} /{' '}
+                  {players.length}
                 </span>
                 <h1 className={[style.party__title, style.h1].join(' ')}>
                   {quiz.name} - {quiz?.time_to_answer}
@@ -378,6 +509,7 @@ const Home = ({ userStore, partyId }) => {
                 </div>
               </div>
               {/* CONTENT */}
+              {console.log(quiz)}
               <div className={style.quiz__content}>
                 <div className={style.quiz__contentquiz}>
                   <div className={style.quiz__question}>
@@ -389,7 +521,7 @@ const Home = ({ userStore, partyId }) => {
                     <span
                       className={[style.question__title, style.t2].join(' ')}
                     >
-                      question {quiz?.step == 0 ? '1' : quiz?.step / 2}
+                      question {quiz?.step == 0 ? '1' : quiz?.step / 2 + 1} :
                     </span>
                     <p
                       className={[style.question__question, style.h2].join(' ')}
@@ -450,71 +582,6 @@ const Home = ({ userStore, partyId }) => {
                         </div>
                       ))}
                     </div>
-                    {/* edit who answered! */}
-                    {/* <div className={style.quiz__userfieldpone}>
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                    </div>
-                    <div className={style.quiz__userfieldptwo}>
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                    </div>
-                    <div className={style.quiz__userfieldpthree}>
-                      <img
-                        class={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                    </div>
-                    <div className={style.quiz__userfieldpfour}>
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                      <img
-                        className={style.quiz__usericon}
-                        src="../assets/images/lara.jpg"
-                        width="30"
-                        height="30"
-                        alt=""
-                      />
-                    </div>*/}
                   </div>
                   <div className={style.quiz__steps}>
                     {showTakeAShot ? <h5>TAKE A SHOT!!!</h5> : null}
@@ -538,11 +605,26 @@ const Home = ({ userStore, partyId }) => {
                     </span>
                   </div>
                 </div>
-                <div className={style.quiz__contentrecipe}>
+                <div className={style.quiz__contentrecipe} id="recipe">
+                  <h3 className={style.h1}>Cocktail Recipe</h3>
+                  <div className={[style.recipe__steps, style.t1].join(' ')}>
+                    {quiz.recipe.map((item, i) => {
+                      return (
+                        <li key={i} className={style.recipe__step}>
+                          <img
+                            src="../assets/images/checkbox_outline.png"
+                            alt=""
+                          />
+                          {item.description}
+                        </li>
+                      );
+                    })}
+                  </div>
                   <img
+                    className={style.recipe__background}
                     src="../assets/images/Postit.png"
                     width="300"
-                    height="303"
+                    height="450"
                     alt=""
                   />
                 </div>
@@ -570,10 +652,11 @@ const Home = ({ userStore, partyId }) => {
                 <span
                   className={[style.party__participants, style.h2].join(' ')}
                 >
-                  Participants {players.length}/6
+                  Participants {players.filter((item) => item.online).length} /{' '}
+                  {players.length}
                 </span>
                 <h1 className={[style.party__title, style.h1].join(' ')}>
-                  {quiz.name} - {quiz?.time_to_answer}
+                  {quiz.name}
                 </h1>
               </div>
 
@@ -668,12 +751,14 @@ const Home = ({ userStore, partyId }) => {
                     <span
                       className={[style.question__number, style.t4].join(' ')}
                     >
+                      {console.log(quiz)}
                       {quiz.step == 0 ? '1' : quiz.step / 2 + 1} / 5
                     </span>
                     <span
                       className={[style.question__title, style.t2].join(' ')}
                     >
-                      cocktail step {quiz.step == 0 ? '1' : quiz.step / 2}
+                      cocktail step{' '}
+                      {quiz.step == 0 ? '1' : Math.ceil(quiz.step / 2)} :
                     </span>
                     <p
                       className={[style.question__question, style.h2].join(' ')}
@@ -700,35 +785,8 @@ const Home = ({ userStore, partyId }) => {
                     >
                       {ready ? "I'm ready!" : 'Ready up'}
                     </button>
-                    {/* <div className={style.quiz__answers}>
-                      {quiz?.current_question?.answers?.map((answer, i) => (
-                        <>
-                          <button
-                            className={[
-                              style.button,
-                              style.quiz__answer,
-                              style[`quiz__answer${i + 1}`],
-                              style.t1,
-                              correctAnswerId === answer?.answer_id
-                                ? style.correct__quiz_answer
-                                : undefined,
-                            ].join(' ')}
-                            key={i}
-                            onClick={(e) => handleAnswer(e, answer?.answer_id)}
-                          >
-                            {correctAnswerId === answer?.answer_id
-                              ? 'correct -> '
-                              : null}
-                            {answer?.answer}
-                          </button>{' '}
-                        </>
-                      ))}
-                    </div> */}
                   </div>
                   <div className={style.quiz__steps}>
-                    {showTakeAShot ? <h5>TAKE A SHOT!!!</h5> : null}
-                    {showPlusPoints ? <h5>CORRECT!!! +20 points</h5> : null}
-
                     <div class={style.steps__feedback}>
                       <img
                         className={style.steps__picture}
@@ -747,11 +805,26 @@ const Home = ({ userStore, partyId }) => {
                     </span>
                   </div>
                 </div>
-                <div className={style.quiz__contentrecipe}>
+                <div className={style.quiz__contentrecipe} id="recipe">
+                  <h3 className={style.h1}>Cocktail Recipe</h3>
+                  <div className={[style.recipe__steps, style.t1].join(' ')}>
+                    {quiz.recipe.map((item, i) => {
+                      return (
+                        <li key={i} className={style.recipe__step}>
+                          <img
+                            src="../assets/images/checkbox_outline.png"
+                            alt=""
+                          />
+                          {item.description}
+                        </li>
+                      );
+                    })}
+                  </div>
                   <img
+                    className={style.recipe__background}
                     src="../assets/images/Postit.png"
                     width="300"
-                    height="303"
+                    height="450"
                     alt=""
                   />
                 </div>
