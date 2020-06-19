@@ -49,7 +49,11 @@ const Home = ({ userStore, partyId }) => {
   }, [inRoom]);
 
   useEffect(() => {
-    if (quiz?.current_question?.type === 'recipe') {
+    if (
+      quiz?.current_question?.type === 'recipe' ||
+      quiz?.current_question?.type === 'end_screen' ||
+      quiz?.current_question?.type === 'lobby'
+    ) {
       setReady(false);
     }
     if (quiz?.current_question?.type === 'lobby') {

@@ -79,8 +79,87 @@ const generateQuizSteps = async (cocktailId) => {
   return tempSteps;
 };
 
-const resetLobby = () => {
-  console.log("resetting");
+const resetLobby = async (socket, lobbyId, user) => {
+  const party = await LobbyController.localFindPartyById(user.user_id, lobbyId);
+  quizInstances[lobbyId].members.forEach((item, key) => {
+    quizInstances[lobbyId].members[key].ready = false;
+  });
+  quizInstances[lobbyId] = {
+    members: quizInstances[lobbyId].members,
+    name: quizInstances[lobbyId].name,
+    leader: quizInstances[lobbyId].leader,
+    startDate: quizInstances[lobbyId].startDate,
+    status: 0,
+    answers: [],
+    time_to_answer: 0,
+    unlocked_cocktails: await LobbyController.getLobbyCompletedCocktails(
+      lobbyId
+    ),
+    recipe_step: undefined,
+    recipe: [],
+    pictures: {},
+    steps: await generateQuizSteps(party?.current_cocktail),
+    cocktail_id: party?.current_cocktail,
+    current_question: { type: "lobby" },
+    current_quiz_step: 0,
+    cocktail_questions: {},
+    answered_questions: {},
+  };
+
+  const chats = await chatController.getMessages(lobbyId);
+  socket.broadcast.to(lobbyId).emit("player update", {
+    members: quizInstances[lobbyId].members,
+  });
+  socket.emit("player update", {
+    members: quizInstances[lobbyId].members,
+  });
+  socket.emit("initial messages", {
+    chats,
+    members: quizInstances[lobbyId].members,
+    quiz: {
+      leader: quizInstances[lobbyId].leader,
+      name: quizInstances[lobbyId].name,
+      steps: quizInstances[lobbyId].steps,
+      pictures:
+        quizInstances[lobbyId].pictures[quizInstances[lobbyId].cocktail_id],
+      step: quizInstances[lobbyId].current_quiz_step,
+      recipe_step: quizInstances[lobbyId]?.recipe_step,
+      answers: quizInstances[lobbyId].answers,
+      cocktail_id: quizInstances[lobbyId].cocktail_id,
+      recipe: quizInstances[lobbyId].recipe,
+      time_to_answer: quizInstances[lobbyId].time_to_answer,
+      answered_questions: quizInstances[lobbyId].time_to_answer,
+      unlocked_cocktails: quizInstances[lobbyId].unlocked_cocktails,
+      current_question: quizInstances[lobbyId].current_question,
+      answered_questions: quizInstances[lobbyId].answered_questions,
+      startDate: quizInstances[lobbyId].startDate,
+    },
+  });
+  socket.broadcast.to(lobbyId).emit("initial messages", {
+    chats,
+    members: quizInstances[lobbyId].members,
+    quiz: {
+      leader: quizInstances[lobbyId].leader,
+      name: quizInstances[lobbyId].name,
+      steps: quizInstances[lobbyId].steps,
+      pictures:
+        quizInstances[lobbyId].pictures[quizInstances[lobbyId].cocktail_id],
+      step: quizInstances[lobbyId].current_quiz_step,
+      recipe_step: quizInstances[lobbyId]?.recipe_step,
+      answers: quizInstances[lobbyId].answers,
+      cocktail_id: quizInstances[lobbyId].cocktail_id,
+      recipe: quizInstances[lobbyId].recipe,
+      time_to_answer: quizInstances[lobbyId].time_to_answer,
+      answered_questions: quizInstances[lobbyId].time_to_answer,
+      unlocked_cocktails: quizInstances[lobbyId].unlocked_cocktails,
+      current_question: quizInstances[lobbyId].current_question,
+      answered_questions: quizInstances[lobbyId].answered_questions,
+      startDate: quizInstances[lobbyId].startDate,
+    },
+  });
+  socket.broadcast.to(lobbyId).emit("player update", {
+    members: quizInstances[lobbyId].members,
+  });
   // SET COCKTAIL AS UNLOCKED
 
   // GET NEW COCKTAIL FOR LOBBY
@@ -387,7 +466,7 @@ io.on("connection", async (socket) => {
           error: "Not all members are ready",
           members: notReadyMembers,
         });
-      else resetLobby();
+      else resetLobby(socket, lobby_id, user);
     }
   });
 
