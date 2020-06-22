@@ -78,6 +78,15 @@ exports.getLobbyCompletedCocktails = async function (lobbyId) {
   }
 };
 
+exports.getCocktailIngredients = async function (cocktailId) {
+  const ingredients = await Lobby.getCocktailIngredients(cocktailId);
+  if (ingredients) {
+    return ingredients;
+  } else {
+    return [];
+  }
+};
+
 exports.updateUserScores = async function (list) {
   const scores = await Lobby.updateUserScores(list);
   if (scores) {

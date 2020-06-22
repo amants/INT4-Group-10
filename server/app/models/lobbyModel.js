@@ -27,6 +27,10 @@ class Lobby {
     return DbHelper.getRecipeStepsByCocktailId(cocktailId);
   }
 
+  static getCocktailIngredients(cocktailId) {
+    return DbHelper.getCocktailIngredients(cocktailId);
+  }
+
   static updateUserScores(list) {
     return DbHelper.updateUserScores(list);
   }

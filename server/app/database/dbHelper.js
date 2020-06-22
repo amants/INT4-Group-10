@@ -28,6 +28,55 @@ exports.getRandomCocktail = function () {
   });
 };
 
+exports.getUnlockedCocktailsByUserId = function (userId, order) {
+  return new Promise((resolve) => {
+    const query = `SELECT cocktails.cocktail_id, cocktails.name, countries.country_key, cocktails.difficulty, cocktails.price, cocktails.duration, countries.flag_url, cocktails.image, cock.time_unlocked, user_cocktail_photos.photo_url, countries.name AS country_name FROM user_unlocked_cocktails AS cock INNER JOIN cocktails ON cock.cocktail_id = cocktails.cocktail_id INNER JOIN countries ON countries.country_id = cocktails.country_id LEFT OUTER JOIN user_cocktail_photos ON user_cocktail_photos.cocktail_id = cock.cocktail_id WHERE cock.user_id = ? ORDER BY ${
+      order !== "none" ? `cocktails.${order}` : `cock.time_unlocked`
+    } ASC`;
+    sql.query(query, [userId], function (err, res) {
+      if (err) {
+        console.log(err);
+        resolve(null);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+};
+
+exports.isCocktailUnlocked = function (cocktailId, userId) {
+  return new Promise((resolve) => {
+    sql.query(
+      `SELECT * FROM user_unlocked_cocktails WHERE cocktail_id = ? AND user_id = ?`,
+      [cocktailId, userId],
+      function (err, res) {
+        if (err) {
+          console.log(err);
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getNotUnlockedCocktailCountByUserId = function (userId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT Count(M.cocktail_id) AS not_unlocked_count FROM cocktails AS M WHERE M.cocktail_id NOT IN (SELECT F.cocktail_id FROM user_unlocked_cocktails AS F WHERE user_id = ?)",
+      [userId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
 exports.getById = function (tableName, id) {
   return new Promise((resolve) => {
     sql.query("SELECT * FROM ?? WHERE user_id = ?", [tableName, id], function (
@@ -75,6 +124,23 @@ exports.getRecipeStepsByCocktailId = function (cocktailId) {
       [cocktailId],
       function (err, res) {
         if (err) {
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getCocktailIngredients = function (cocktailId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM cocktail_ingredients WHERE cocktail_id = ?",
+      [cocktailId],
+      function (err, res) {
+        if (err) {
+          console.log(err);
           resolve(null);
         } else {
           resolve(res);

@@ -1,6 +1,5 @@
-@value tokens: "./tokens.module.css";
-@value fontSizeLarge, fontSizeMedium, background, spacer1 from tokens;
-
+/* @value tokens: "./tokens.module.css";
+@value fontSizeLarge, fontSizeMedium, background, spacer1 from tokens; */
 
 .h1 {
   font-family: sirenne-text-mvb, serif;

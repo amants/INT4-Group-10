@@ -40,6 +40,14 @@ class User {
     return DbHelper.uploadCocktailLobby(link, lobbyId, userId, cocktailId);
   }
 
+  static getNotUnlockedCocktailCountByUserId(userId) {
+    return DbHelper.getNotUnlockedCocktailCountByUserId(userId);
+  }
+
+  static getUnlockedCocktailsByUserId(userId, order) {
+    return DbHelper.getUnlockedCocktailsByUserId(userId, order);
+  }
+
   static uploadCocktailUser(link, userId, cocktailId) {
     return DbHelper.uploadCocktailUser(link, userId, cocktailId);
   }

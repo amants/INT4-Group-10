@@ -658,6 +658,9 @@ io.on("connection", async (socket) => {
         status: 0,
         answers: [],
         time_to_answer: 0,
+        cocktail_ingredients: await LobbyController.getCocktailIngredients(
+          party?.current_cocktail
+        ),
         unlocked_cocktails: await LobbyController.getLobbyCompletedCocktails(
           data.lobby_id
         ),
@@ -691,6 +694,7 @@ io.on("connection", async (socket) => {
           quizInstances[data.lobby_id].pictures[
             quizInstances[data.lobby_id].cocktail_id
           ],
+        cocktail_ingredients: quizInstances[data.lobby_id].cocktail_ingredients,
         step: quizInstances[data.lobby_id].current_quiz_step,
         recipe_step: quizInstances[data.lobby_id]?.recipe_step,
         answers: quizInstances[data.lobby_id].answers,

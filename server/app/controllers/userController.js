@@ -67,3 +67,50 @@ exports.getMe = async function (req, res) {
   };
   return res.status(code.success).json(payload);
 };
+
+exports.getUserCocktails = async function (req, res) {
+  const { params, verified } = req;
+  const { order } = params;
+  const { username, user_id } = verified;
+  const user = await User.getUserSimple(username);
+  if (user === null)
+    return res.status(code.notAuthenticated).json(msg.notAuthenticated);
+  // else
+  const payload = {};
+
+  const unlockedCocktails = await User.getUnlockedCocktailsByUserId(
+    user_id,
+    order
+  );
+
+  if (unlockedCocktails !== null) payload.items = unlockedCocktails;
+  else payload.items = [];
+
+  const lockedCocktailCount = await User.getNotUnlockedCocktailCountByUserId(
+    user_id
+  );
+
+  if (lockedCocktailCount)
+    payload.not_unlocked_count = lockedCocktailCount?.not_unlocked_count;
+  return res.status(code.success).json(payload);
+};
+
+exports.getCocktailById = async function (req, res) {
+  const { params, verified } = req;
+  const { id } = params;
+  const { username, user_id } = verified;
+  const user = await User.getUserSimple(username);
+  if (user === null)
+    return res.status(code.notAuthenticated).json(msg.notAuthenticated);
+  // else
+
+  const isUnlocked = await User.isCocktailUnlocked(id, user_id);
+  if (!isUnlocked)
+    return res.status(code.noPermissions).json(msg.noPermissions);
+
+  const lockedCocktailCount = await User.getUnlockedCocktailById(
+    id,
+    user.user_id
+  );
+  return res.status(code.success).json(lockedCocktailCount);
+};

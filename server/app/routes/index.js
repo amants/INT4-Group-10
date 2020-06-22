@@ -11,6 +11,10 @@ module.exports = function (app) {
 
   app.route("/party/:id/members").get(Lobby.getPartyMembers);
 
+  app.route("/cocktails/:order").get(User.getUserCocktails);
+
+  app.route("/cocktail/:id").get(User.getCocktailById);
+
   // app.route("/party/:id/members/:memberId/add").get(Lobby.addPartyMember);
 
   app.route("/party").post(Lobby.create);

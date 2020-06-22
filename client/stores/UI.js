@@ -1,9 +1,10 @@
-import { BaseStore, getOrCreateStore } from "next-mobx-wrapper";
-import { observable, action } from "mobx";
+import { BaseStore, getOrCreateStore } from 'next-mobx-wrapper';
+import { observable, action } from 'mobx';
 
 class Store extends BaseStore {
   @observable showPopup = {
     login: false,
+    cocktails: true,
   };
 
   @action togglePopUp = (key, val) => (this.showPopup[key] = val);
@@ -17,4 +18,4 @@ class Store extends BaseStore {
 // AND must be same formula
 // Example: getUserStore => userStore
 // Example: getProductStore => productStore
-export const getInterfaceStore = getOrCreateStore("interfaceStore", Store);
+export const getInterfaceStore = getOrCreateStore('interfaceStore', Store);

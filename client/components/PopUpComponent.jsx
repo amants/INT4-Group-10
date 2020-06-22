@@ -1,13 +1,19 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-param-reassign */
-import React, { useRef, cloneElement } from 'react';
+import React, { useRef, cloneElement, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { inject, observer } from 'mobx-react';
 
 const PopUp = ({ name, children, interfaceStore, ...props }) => {
   const { togglePopUp } = interfaceStore;
   const popupRef = useRef();
+
+  useEffect(() => {
+    popupRef.current.style.opacity = 1;
+  }, []);
+
   const closeHandler = (e) => {
+    console.log('tets');
     if (e?.stopPropagation) e?.stopPropagation();
     popupRef.current.style.opacity = 0;
     setTimeout(() => {
@@ -19,9 +25,9 @@ const PopUp = ({ name, children, interfaceStore, ...props }) => {
 
   return (
     <Container ref={popupRef} onClick={closeHandler} {...props}>
-      <LoginContainer onClick={(e) => e.stopPropagation()}>
-        {PopUpChildren}
-      </LoginContainer>
+      <BookContainer onClick={(e) => e.stopPropagation()}>
+        <ContentContainer>{PopUpChildren}</ContentContainer>
+      </BookContainer>
     </Container>
   );
 };
@@ -36,13 +42,30 @@ const fadeIn = keyframes`
  0% { opacity: 0; }
  100% { opacity: 1 }`;
 
-const LoginContainer = styled.div`
-  padding: 4rem;
-  max-width: 40rem;
-  width: 90%;
-  max-height: 90%;
-  overflow-y: auto;
-  background-color: white;
+const ContentContainer = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 2rem;
+`;
+
+const BookContainer = styled.div`
+  max-width: 76rem;
+  width: 80vw;
+  background-size: 100% 100%;
+  position: relative;
+  height: 58vw;
+  max-height: 54.9rem;
+  min-height: 45rem;
+  ${'' /* background-size: 100%; */}
+  background-repeat: no-repeat;
+  background-position: center center;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 80%;
+  background-image: url('/assets/images/PassportOpen.png');
   border-radius: 0.5rem;
 `;
 
@@ -53,8 +76,9 @@ const Container = styled.div`
   bottom: 0;
   left: 0;
   z-index: 999;
-  background-color: rgba(0, 0, 0, 0.65);
   display: flex;
+  flex-grow: 0;
+  flex-shrink: 0;
   justify-content: space-around;
   transition: opacity 0.2s ease;
   align-items: center;

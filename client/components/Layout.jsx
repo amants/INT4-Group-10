@@ -5,10 +5,11 @@ import { string, node } from 'prop-types';
 import { inject, observer } from 'mobx-react';
 import PopUpComponent from './PopUpComponent';
 import LoginForm from './LoginForm';
+import CocktailsContainer from './CocktailsContainer';
 
 const Layout = ({ children, interfaceStore, userStore }) => {
   const { showPopup, togglePopUp } = interfaceStore;
-  const { login } = showPopup;
+  const { login, cocktails } = showPopup;
 
   useEffect(() => {
     if (!userStore.user) {
@@ -22,6 +23,11 @@ const Layout = ({ children, interfaceStore, userStore }) => {
       {login ? (
         <PopUpComponent name="login">
           <LoginForm />
+        </PopUpComponent>
+      ) : null}
+      {cocktails ? (
+        <PopUpComponent name="login">
+          <CocktailsContainer />
         </PopUpComponent>
       ) : null}
       <Main>{children}</Main>
