@@ -5,6 +5,10 @@ import io from 'socket.io-client';
 import getConfig from 'next/config';
 import Webcam from 'react-webcam';
 import style from './Style.module.css';
+import SidebarBig from '../../containers/Sidebar/SidebarBig/SidebarBig';
+import SidebarSmall from '../../containers/Sidebar/SidebarSmall/SidebarSmall';
+import Header from '../../components/Header';
+import Background from '../../components/Background';
 
 const {
   publicRuntimeConfig: { API_URL }, // Available both client and server side
@@ -70,6 +74,7 @@ const Home = ({ userStore, partyId }) => {
   }, [quiz?.current_question?.type]);
 
   useEffect(() => {
+    console.log({ ready });
     socket.emit('ready', { ready });
 
     return () => {
@@ -249,10 +254,7 @@ const Home = ({ userStore, partyId }) => {
         {quiz?.current_question?.type === 'lobby' ? (
           <>
             <div className={style.container}>
-              <h1 className={style.hidden}>home</h1>
-              <span className={[style.logo, style.h1].join(' ')}>
-                Throw A Knife
-              </span>
+              <Header page={'lobby-round'} />
               <div className={style.party__container}>
                 <div className={style.party__header}>
                   <span
@@ -267,63 +269,7 @@ const Home = ({ userStore, partyId }) => {
                     This party is complete, <br /> registrations are closed.
                   </span>
                 </div>
-                <div className={style.party__sidebar}>
-                  <h2 className={(style.sidebar__title, style.h2)}>
-                    Add friends
-                  </h2>
-                  <form className={style.sidebar__input}>
-                    <input
-                      className={[
-                        style.input,
-                        style.inputsidebar,
-                        style.h2,
-                      ].join(' ')}
-                      type="text"
-                      size="20"
-                      placeholder="search for friends"
-                    />
-                    <img
-                      src="/assets/images/search-icon.png"
-                      alt="search icon"
-                    />
-                  </form>
-                  <br />
-                  <button className={style.button} onClick={handleReady}>
-                    {ready && `Unready`}
-                    {!ready && `Ready`}
-                  </button>
-                  <div className={style.sidebar__friends}>
-                    <div
-                      className={[
-                        style.friends__user,
-                        style.friends__userself,
-                      ].join(' ')}
-                    >
-                      <img
-                        className={style.user__picture}
-                        src="../assets/images/lara.jpg"
-                        width="160"
-                        height="160"
-                        alt=""
-                      />
-                      <span className={[style.user__name, style.h2].join(' ')}>
-                        Lara Maddens
-                      </span>
-                      <span
-                        className={[style.user__country, style.t2].join(' ')}
-                      >
-                        🇧🇪 Belgium
-                      </span>
-                      <img
-                        className={style.user__background}
-                        src="/assets/images/PassportMed.png"
-                        width="244"
-                        height="346"
-                        alt=""
-                      />
-                    </div>
-                  </div>
-                </div>
+                <SidebarBig handleReady={handleReady} ready={ready} />
                 <div className={style.party__content}>
                   <div className={style.content__needs}>
                     <div className={style.needs__wrapper}>
@@ -428,20 +374,13 @@ const Home = ({ userStore, partyId }) => {
             ))}
             <br />
             {/* BACKGROUND */}
-            <img
-              src="../assets/images/Card-Back.jpg"
-              alt=""
-              className={style.background}
-            />
+            <Background />
           </>
         ) : null}
         {quiz?.current_question?.type === 'quiz' ? (
           <>
             {/* Header */}
-            <h1 className={style.hidden}>home</h1>
-            <span className={[style.logo, style.h1].join(' ')}>
-              Throw A Knife
-            </span>
+            <Header />
 
             {/* Quiz Container */}
             <div className={style.quiz__container}>
@@ -457,87 +396,7 @@ const Home = ({ userStore, partyId }) => {
                 </h1>
               </div>
               {/* FRIENDSLIST */}
-              <div className={style.quiz__sidebar}>
-                <div className={style.sidebar__friends}>
-                  {players.map((item, i) => {
-                    if (userStore.user.id == item.user_id) {
-                      return (
-                        // Show user that is current user
-                        <>
-                          <div
-                            className={[
-                              style.friends__userS,
-                              style.friends__userself,
-                            ].join(' ')}
-                          >
-                            <img
-                              className={style.user__picture}
-                              src="/assets/images/lara.jpg"
-                              width="160"
-                              height="160"
-                              alt=""
-                            />
-                            <span
-                              className={[style.user__name, style.t2].join(' ')}
-                            >
-                              score: {item.store}
-                            </span>
-                            <span
-                              className={[style.user__country, style.t2].join(
-                                ' ',
-                              )}
-                            >
-                              shots : {item.shots}
-                            </span>
-                            <img
-                              className={style.user__backgroundS}
-                              src="/assets/images/PassportMed.png"
-                              width="244"
-                              height="346"
-                              alt=""
-                            />
-                          </div>
-                        </>
-                      );
-                    } else {
-                      return (
-                        <>
-                          <div className={style.friends__userS}>
-                            <img
-                              className={style.user__picture}
-                              src="/assets/images/lara.jpg"
-                              width="160"
-                              height="160"
-                              alt=""
-                            />
-                            <span
-                              className={[style.user__name, style.t2].join(' ')}
-                            >
-                              score: {item.score}
-                            </span>
-                            <span
-                              className={[style.user__country, style.t2].join(
-                                ' ',
-                              )}
-                            >
-                              shots : {item.shots}
-                            </span>
-                            <img
-                              className={style.user__background}
-                              src="/assets/images/PassportMed.png"
-                              width="244"
-                              height="346"
-                              alt=""
-                            />
-                            {/* {item.online ? 'online' : 'offline'} - score:{' '}
-                          {item.score} - shots: {item.shots} */}
-                          </div>
-                        </>
-                      );
-                    }
-                  })}
-                </div>
-              </div>
+              <SidebarSmall userStore={userStore} players={players} />
               {/* CONTENT */}
               <div className={style.quiz__content}>
                 <div className={style.quiz__contentquiz}>
@@ -660,20 +519,13 @@ const Home = ({ userStore, partyId }) => {
               </div>
             </div>
             {/* BACKGROUND */}
-            <img
-              src="../assets/images/Card-Back.jpg"
-              alt=""
-              className={style.background}
-            />
+            <Background />
           </>
         ) : null}
         {quiz?.current_question?.type === 'recipe' ? (
           <>
             {/* Header */}
-            <h1 className={style.hidden}>home</h1>
-            <span className={[style.logo, style.h1].join(' ')}>
-              Throw A Knife
-            </span>
+            <Header page={'recipe-round'} />
 
             {/* Quiz Container */}
             <div className={style.quiz__container}>
@@ -858,11 +710,7 @@ const Home = ({ userStore, partyId }) => {
               </div>
             </div>
             {/* BACKGROUND */}
-            <img
-              src="../assets/images/Card-Back.jpg"
-              alt=""
-              className={style.background}
-            />
+            <Background />
           </>
         ) : null}
         {quiz?.current_question?.type === 'end_screen' ? (

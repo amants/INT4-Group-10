@@ -1,482 +1,86 @@
-.h1 {
-    font-family: sirenne-text-mvb, serif;
-    font-weight: bold;
-    font-style: normal;
-    font-size: 2.8rem;
-    line-height: 3rem;
-  }
-  
-  .h2 {
-    font-family: sirenne-text-mvb, serif;
-    font-weight: bold;
-    font-style: normal;
-    font-size: 2rem;
-    line-height: 2.4rem;
-  }
-  
-  .h3 {
-    font-family: sirenne-text-mvb, serif;
-    font-weight: 500;
-    font-style: normal;
-    font-size: 1.4rem;
-    line-height: 2.4rem;
-  }
-  
-  .h4 {
-    font-family: sirenne-text-mvb, serif;
-    font-weight: 700;
-    font-style: bold;
-    font-size: 1.4rem;
-    line-height: 2.4rem;
-  }
-  
-  .t1 {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 1.8rem;
-    line-height: 2.4rem;
-  }
-  
-  .t2 {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 1.4rem;
-    line-height: 2.1rem;
-  }
-  
-  .t3 {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: bold;
-    font-size: 1.2rem;
-    line-height: 1.8rem;
-  }
-  
-  
-  .container {
-    margin: 0;
-    color: #102146;
-  }
-  .button {
-    border: #102146 0.2rem solid;
-    color: #102146;
-    background: none;
-    border-radius: 10rem;
-    padding: 0 2rem;
-  }
-  
-  .button a {
-    text-decoration: none;
-    color: #102146;
-  }
-  
-  .button--secondary {
-    border: #102146 0.2rem solid;
-    background: #102146;
-    color: #f6f2ee;
-  }
-  
-  .hidden {
-    display: none;
-  }
-  
-  .logo {
-    display: flex;
-    justify-content: center;
-    padding-top: 2rem;
-  }
-  
-  .background {
-    width: 100vw;
-    height: 100vh;
-    height: max-content;
-    position: absolute;
-    z-index: -100;
-    top: 0;
-    left: 0;
-  }
-  /* home */
-  .home__top {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-    margin: 0 auto;
-    width: auto;
-    margin-top: 8rem;
-  }
-  
-  .button--top-throw {
-    margin-bottom: 2rem;
-  }
-  
-  .top-party {
-    text-decoration: none;
-    color: #102146;
-  }
-  
-  /* stats */
-  
-  .home__stats {
-    right: 4rem;
-    z-index: 0;
-    position: absolute;
-    transform: rotate(-15deg);
-    width: 23rem;
-  }
-  
-  .stats__content {
-    position: absolute;
-    margin: 6rem 2rem 0;
-    padding-left: 1.5rem;
-    max-width: 19rem;
-  }
-  
-  .stats__background {
-    width: 23.35rem;
-    height: 29.25rem;
-    z-index: -1;
-    overflow-y: hidden;
-  }
-  .stats__title {
-    /*var: {h2}*/
-    padding-bottom: 2rem;
-  }
-  
-  .stats__detail {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .stats__detail--link {
-    color: #102146;
-  }
-  
-  .stats__detail--bold {
-    font-weight: bold;
-  }
-  
-  /* Account */
-  
-  .home__account {
-    right: 0;
-    z-index: 0;
-    position: absolute;
-    width: 18rem;
-  }
-  .account__background {
-    width: 17.2rem;
-    height: 24.3rem;
-    z-index: -1;
-  }
-  
-  .account__content {
-    position: absolute;
-    margin: 6rem 2rem 0 1rem;
-    padding-left: 1.5rem;
-    color: #f6f2ee;
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-  }
-  
-  .account__name {
-    z-index: 2;
-    margin-top: -1rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .account__profilepicture {
-    border-radius: 2rem;
-    width: 8rem;
-    height: 8rem;
-    transform: rotate(-6deg);
-  }
-  
-  .account__tape {
-    position: absolute;
-    z-index: 10;
-    width: 4.55rem;
-    height: 2.25rem;
-    margin-top: -1.3rem;
-  }
-  
-  .button--account {
-    color: #f6f2ee;
-    border-color: #f6f2ee;
-  }
-  
-  /* middle */
-  
-  .home__middle {
-    margin: 0rem auto;
-    width: 96rem;
-  }
-  
-  .middle__title {
-    font-size: 6.4rem;
-    line-height: 0;
-  }
-  
-  /* quiz - party */
-  
-  .party__container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas: 
-    "header header"
-    "sidebar content";
-  }
-  
-  
-  .party__header, .quiz__header {
-    grid-area: header;
-    display: flex;
-    flex-flow: column;
-    margin: 4rem 8rem 0;
-  }
-  
-  .quiz__progressbar {
-    margin-top: 2rem;
-  }
-  
-  .party__info {
-    font-size: 1.4rem;
-    line-height: 2rem;
-    font-weight: 500;
-  }
-  
-  .party__participants,
-  .party__info {
-    opacity: 40%;
-  }
-  
-  .party__content {
-    width: min-content;
-  }
-  
-  .party__sidebar, .party__content, .quiz__sidebar {
-    margin: 4rem 0rem 0 8rem;
-  }
-  
-  .sidebar__input {
-    display: flex;
-    border-bottom: 0.2rem solid #102146;
-    width: min-content;
-    padding-bottom: 0.3rem;
-  }
-  
-  .input {
-    background: none;
-    border: none;
-    color: #102146;
-    opacity: 40%;
-    font-weight: 500;
-  }
-  
-  .input--content {
-    border-bottom:  0.2rem solid #102146;;
-  }
-  
-  .sidebar__friends {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(6, 20px);
-    grid-template-areas:
-  
-  }
-  
-  .friends__user {
-    grid-area: 1;
-    display: grid;
-    grid-template-columns: min-content auto;
-    grid-template-rows: 1fr 1fr;
-    grid-template-areas:
-      "image name"
-      "image country";
-    color: #f6f2ee;
-  }
-  
-  .friends__userself {
-    margin-top: 4rem;
-  }
-  
-  .user__name {
-    grid-area: name;
-    align-self: flex-end;
-  }
-  
-  .user__country {
-    grid-area: country;
-    align-self: flex-start;
-  }
-  
-  .user__picture {
-    width: 6rem;
-    height: 6rem;
-    border-radius: 10rem;
-    grid-area: image;
-    margin: 2rem;
-  }
-  
-  .user__background {
-    position: absolute;
-    z-index: -1;
-  }
-  
-  .content__needs {
-    display: grid;
-    grid-template-areas: "main";
-  }
-  .needs__form {
-    grid-area: main;
-    display: flex;
-    flex-flow: column;
-    width: 20rem;
-    margin: 12rem 0 0 4rem;
-  }
-  
-  .needs__form label {
-    display: flex;
-    flex-flow: column;
-    padding-bottom: 2rem;
-  }
-  
-  .button--needs {
-    margin-top: 4rem;
-  }
-  .needs__background {
-    grid-area: main;
-    z-index: -1;
-  
-  }
-  
-  /* quiz */
-  
-  .quiz__container {
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-    grid-template-areas: 
-    "header header"
-    "sidebar content";
-  }
-  
-  
-  .quiz__content {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-  }
-  
-  .quiz__contentquiz {
-    justify-self: center;
-  }
-  
-  .quiz__question {
-    margin: 0 auto;
-    margin-bottom: 10rem;
-    width: 32.7rem;
-  }
-  
-  .question__number {
-    align-self: flex-start;
-    padding: 4rem 0 0 4rem
-  }
-  .question__question {
-    text-align: center;
-    padding: 0 4rem;
-  }
-  
-  .question__card {
-    z-index: -1;
-    position: absolute;
-  }
-  
-  .quiz__answers {
-    display: grid;
-    grid-template-columns: 21rem 6rem 21rem ;
-    grid-template-rows: 1fr 6rem 1fr 6rem;
-    grid-template-areas: "aone sp atwo"
-    "pone sp ptwo"
-    "athree sp afour"
-    "pthree sp pfour";
-    justify-content: center;
-  }
-  
-  .quiz__question {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-  }
-  
-  .quiz__answer {
-    padding: .75rem 3rem;
-    text-align: center;
-  }
-  .quiz__answer1 {
-    grid-area: aone;
-  }
-  .quiz__answer2 {
-    grid-area: atwo;
-  }
-  .quiz__answer3 {
-    grid-area: athree;
-  }
-  .quiz__answer4 {
-    grid-area: afour;
-  }
-  
-  .quiz__userfieldpone {
-    grid-area: pone;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .quiz__userfieldptwo {
-    grid-area: ptwo;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .quiz__userfieldpthree {
-    grid-area: pthree;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .quiz__userfieldpfour {
-    grid-area: pfour;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .quiz__usericon {
-    border-radius: 2rem;
-    border: #102146 solid .2rem;
-    margin-top: -.5rem;
-    margin-left: -1rem;
-  }
-  
-  .quiz__steps {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-  }
-  
-  .steps__picture {
-    margin-top: 4rem;
-  }
-  
-  .steps__feedback {
-    padding-bottom: .5rem;
-    border-bottom: .2rem dashed #102146;
-    justify-content: center;
-  }
-  
-  .steps__bottom {
-    margin-top: 2rem;
-  }
-  
-  
-  
-  
-  
+.party__content  {
+  width: min-content;
+}
+
+.party__sidebar {
+  margin: 4rem 0rem 0 8rem;
+}
+
+.chat__chatinput {
+  width: max-content;
+  border: none;
+  padding: 1rem;
+  background-color: #f1f1f1;
+}
+
+.chat__wrapper {
+  width: 35rem;
+  display: flex;
+  flex-flow: row;
+  border: 0.2rem solid #102146;
+  border-radius: 20rem;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.sidebar__wrapper {
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(6, 20px);
+  grid-template-areas: ;
+}
+
+.sidebar__user {
+  grid-area: 1;
+  display: grid;
+  grid-template-columns: min-content auto;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas:
+    'image name'
+    'image country';
+  color: #f6f2ee;
+}
+
+.friends__userS {
+  grid-area: 1;
+  display: grid;
+  grid-template-columns: min-content auto;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas:
+    'image name'
+    'image country';
+  color: #102146;
+}
+
+.sidebar__userself {
+  margin-top: 4rem;
+}
+
+.user__name {
+  grid-area: name;
+  align-self: flex-end;
+}
+
+.user__country {
+  grid-area: country;
+  align-self: flex-start;
+}
+
+.user__picture {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 10rem;
+  grid-area: image;
+  margin: 2rem;
+}
+
+.user__background {
+  position: absolute;
+  z-index: -1;
+}
+
+.user__backgroundS {
+  position: absolute;
+  z-index: -1;
+  margin-left: -15rem;
+}
+

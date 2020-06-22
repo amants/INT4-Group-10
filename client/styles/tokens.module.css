@@ -1,2 +1,4 @@
 @value colorPrimary: #102146;
-@value colorPrimary: #f6f2ee;
+@value colorSecondary: #f6f2ee;
+
+@value background: '../public/assets/backgrounds/backgrounds/Card-Back.jpg'

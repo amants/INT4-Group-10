@@ -4,7 +4,7 @@ import { observable, action } from 'mobx';
 class Store extends BaseStore {
   @observable showPopup = {
     login: false,
-    cocktails: true,
+    cocktails: false,
   };
 
   @action togglePopUp = (key, val) => (this.showPopup[key] = val);
