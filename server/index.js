@@ -2,16 +2,17 @@ require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const express = require("express");
-const socket = require("socket.io");
 const cors = require("cors");
 const tokenMiddleware = require("./app/middlewares/tokenMiddleware");
 const chatController = require("./app/controllers/chatController");
 const app = express();
+const socket = require("socket.io");
 const Lobby = require("./app/models/lobbyModel");
 const User = require("./app/models/userModel");
 const LobbyController = require("./app/controllers/lobbyController");
 const UserController = require("./app/controllers/userController");
 const port = process.env.PORT || 5000;
+
 const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
@@ -48,6 +49,8 @@ const corsOptionsDelegate = function (req, callback) {
   callback(null, corsOptions); // callback expects two parameters: error and options
 };
 const quizInstances = {};
+const onlineUsers = {};
+const callUsers = {};
 app.use(express.static("public"));
 app.use(cookieParser());
 app.use(cors(corsOptionsDelegate));
@@ -89,6 +92,7 @@ const resetLobby = async (socket, lobbyId, user) => {
     name: quizInstances[lobbyId].name,
     leader: quizInstances[lobbyId].leader,
     startDate: quizInstances[lobbyId].startDate,
+    // online_users: [socket.id],
     status: 0,
     answers: [],
     time_to_answer: 0,
@@ -221,6 +225,13 @@ const startNextQuestion = (socket, lobby_id, user) => {
         quizInstances[lobby_id].time_to_answer <= 0 ||
         !quizInstances[lobby_id].time_to_answer
       ) {
+        // hierzo
+        const notReadyMembers = quizInstances[lobby_id].members.filter(
+          (member) => !member.online
+        );
+        if (notReadyMembers.length > 0) {
+          delete quizInstances[lobby_id];
+        }
         const correctAnswer = await LobbyController.getCorrectAnswer(
           quizInstances[lobby_id].steps[
             quizInstances[lobby_id].current_quiz_step
@@ -247,7 +258,9 @@ const startNextQuestion = (socket, lobby_id, user) => {
             quizInstances[lobby_id].members[userIndex].user_id,
           ]);
         });
-        await LobbyController.updateUserScores(updateArray);
+        if (updateArray.length > 0) {
+          await LobbyController.updateUserScores(updateArray);
+        }
         socket.emit("correct answer", {
           correct_answer: correctAnswer,
         });
@@ -342,6 +355,38 @@ io.on("connection", async (socket) => {
     });
   });
 
+  // START VOICE CALL SERVER SETTINGS
+
+  socket.on("candidate", (data) => {
+    callUsers[data.target_user_id].emit("candidate", {
+      candidate: data.candidate,
+      request_user_id: user.user_id,
+    });
+  });
+
+  socket.on("answerCall", (data) => {
+    socket.lobby_id = lobby_id;
+    callUsers[data.target_user_id].emit("answerCall", {
+      answer: data.answer,
+      request_user_id: user.user_id,
+    });
+  });
+  socket.on("leave", () => {
+    socket.lobby_id = null;
+    quizInstances[lobby_id].members[user.user_id].inCall = false;
+    delete callUsers[user.user_id];
+  });
+
+  socket.on("offer", (data) => {
+    socket.lobby_id = lobby_id;
+    callUsers[data.target_user_id].emit("offer", {
+      offer: data.offer,
+      request_user_id: user.user_id,
+    });
+  });
+
+  // END VOICE CALL SERVER SETTINGS
+
   socket.on("upload picture", async (data) => {
     let fileName = null;
     if (data.picture) {
@@ -412,14 +457,18 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", () => {
+    delete onlineUsers[socket.id];
     if (!quizInstances[lobby_id]) {
       return;
     }
+    socket.lobby_id = null;
+    delete callUsers[user.user_id];
     const meIndex = quizInstances[lobby_id].members.findIndex(
       (elem) => elem.user_id === user.user_id
     );
     quizInstances[lobby_id].members[meIndex].ready = false;
     quizInstances[lobby_id].members[meIndex].online = false;
+    quizInstances[lobby_id].members[meIndex].inCall = false;
     socket.broadcast.to(lobby_id).emit("player update", {
       members: quizInstances[lobby_id].members,
     });
@@ -580,6 +629,12 @@ io.on("connection", async (socket) => {
         quizInstances[data.lobby_id].time_to_answer <= 0 ||
         !quizInstances[data.lobby_id].time_to_answer
       ) {
+        const notReadyMembers = quizInstances[lobby_id].members.filter(
+          (member) => !member.online
+        );
+        if (notReadyMembers.length > 0) {
+          delete quizInstances[lobby_id];
+        }
         const correctAnswer = await LobbyController.getCorrectAnswer(
           quizInstances[data.lobby_id].steps[
             quizInstances[data.lobby_id].current_quiz_step
@@ -606,7 +661,9 @@ io.on("connection", async (socket) => {
             quizInstances[lobby_id].members[userIndex].user_id,
           ]);
         });
-        await LobbyController.updateUserScores(updateArray);
+        if (updateArray.length > 0) {
+          await LobbyController.updateUserScores(updateArray);
+        }
         socket.emit("correct answer", {
           correct_answer: correctAnswer,
         });
@@ -638,6 +695,14 @@ io.on("connection", async (socket) => {
       user.user_id,
       data.lobby_id
     );
+    onlineUsers[socket.id] = {
+      username: user.username,
+    };
+
+    socket.username = user.username;
+
+    callUsers[user.user_id] = socket;
+    socket.user_id = user.user_id;
     if (!party) {
       return socket.emit("errormsg", { error: "NO_ACCESS" });
     }
@@ -648,6 +713,7 @@ io.on("connection", async (socket) => {
         if (item.user_id === user.user_id) {
           party.members[key].online = true;
           party.members[key].ready = false;
+          party.members[key].inCall = false;
         }
       });
       quizInstances[data.lobby_id] = {
@@ -679,6 +745,7 @@ io.on("connection", async (socket) => {
         if (item.user_id === user.user_id) {
           quizInstances[data.lobby_id].members[key].online = true;
           quizInstances[data.lobby_id].members[key].ready = false;
+          quizInstances[data.lobby_id].members[key].inCall = false;
         }
       });
     }

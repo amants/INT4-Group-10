@@ -4,6 +4,7 @@ import { inject, observer } from 'mobx-react';
 import io from 'socket.io-client';
 import getConfig from 'next/config';
 import Webcam from 'react-webcam';
+import styled from 'styled-components';
 import style from './Style.module.css';
 import SidebarBig from '../../containers/Sidebar/SidebarBig/SidebarBig';
 import SidebarSmall from '../../containers/Sidebar/SidebarSmall/SidebarSmall';
@@ -13,6 +14,12 @@ import Background from '../../components/Background';
 const {
   publicRuntimeConfig: { API_URL }, // Available both client and server side
 } = getConfig();
+
+let pcList = {};
+
+let localVideo;
+let videoRefs = {};
+let localPcList = {};
 
 const socket = io(API_URL);
 
@@ -24,6 +31,7 @@ const Home = ({ userStore, partyId }) => {
   const [chatFormInput, setChatFormInput] = useState('');
   const [pictures, setPictures] = useState({});
   const [quiz, setQuiz] = useState({});
+  const [stream, setStream] = useState();
   const [showTakeAShot, setShowTakeAShot] = useState(false);
   const [showPlusPoints, setShowPlusPoints] = useState(false);
   const [error, setError] = useState(false);
@@ -35,6 +43,11 @@ const Home = ({ userStore, partyId }) => {
     width: 400,
     height: 600,
     facingMode: 'user',
+  };
+
+  const offerOptions = {
+    offerToReceiveAudio: 1,
+    offerToReceiveVideo: 1,
   };
 
   const webcamRef = useRef(null);
@@ -118,14 +131,124 @@ const Home = ({ userStore, partyId }) => {
     }
   }, [correctAnswerId]);
 
+  const startMediaStream = (userId) => {
+    navigator.getUserMedia(
+      { video: true, audio: true },
+      function (myStream) {
+        const tempStream = myStream;
+
+        //displaying local audio stream on the page
+        if (localVideo?.srcObject) {
+          localVideo.srcObject = tempStream;
+        } else {
+          localVideo = document.querySelector('#localVideo');
+          localVideo.srcObject = tempStream;
+        }
+
+        //using Google public stun server
+        const configuration = {
+          iceServers: [{ url: 'stun:stun2.1.google.com:19302' }],
+        };
+
+        pcList[userId] = new webkitRTCPeerConnection(configuration);
+
+        // setup stream listening
+        pcList[userId].addStream(tempStream);
+
+        //when a remote user adds stream to the peer connection, we display it
+        pcList[userId].onaddstream = function (e) {
+          if (videoRefs[userId]) {
+            videoRefs[userId].srcObject = e.stream;
+          } else {
+            videoRefs[userId] = document.querySelector(
+              `#remoteVideo_${userId}`,
+            );
+            videoRefs[userId].srcObject = e.stream;
+          }
+        };
+
+        // Setup ice handling
+        pcList[userId].onicecandidate = function (event) {
+          if (event.candidate) {
+            socket.emit('candidate', {
+              type: 'candidate',
+              candidate: event.candidate,
+              target_user_id: userId,
+            });
+          }
+        };
+        setStream(tempStream);
+      },
+      function (error) {
+        console.log(error);
+      },
+    );
+  };
+
+  function handleOffer(offer, userId) {
+    pcList[userId].setRemoteDescription(new RTCSessionDescription(offer));
+
+    //create an answer to an offer
+    pcList[userId].createAnswer(
+      function (answer) {
+        pcList[userId].setLocalDescription(answer);
+
+        console.log('sending answers', answer);
+        socket.emit('answerCall', {
+          answer: answer,
+          target_user_id: userId,
+        });
+      },
+      function (error) {
+        alert('Error when creating an answer');
+      },
+    );
+  }
+
+  const StartCall = () => {
+    // create an offer
+    Object.keys(pcList).forEach((key) => {
+      pcList[key].createOffer(
+        function (offer) {
+          console.log('offers sending out', offer);
+          socket.emit('offer', {
+            type: 'offer',
+            target_user_id: key,
+            offer: offer,
+          });
+
+          pcList[key].setLocalDescription(offer);
+        },
+        function (error) {
+          alert('Error when creating an offer');
+        },
+      );
+    });
+  };
+
+  console.log(videoRefs);
+
   useEffect(() => {
+    setTimeout(() => StartCall(), 1000);
     setInRoom(true);
     socket.on('initial messages', (payload) => {
       setMessages(payload.chats.reverse());
       setPlayers(payload.members);
       setQuiz(payload.quiz);
       setPictures(payload.quiz.pictures);
-
+      const filtered = payload.members.filter(
+        (item) => item.user_id !== userStore.user.id && item.online,
+      );
+      if (filtered.length > 0) {
+        filtered.forEach((item) => {
+          pcList[item.user_id] = {};
+          localVideo = document.querySelector(`#localVideo`);
+          videoRefs[item.user_id] = document.querySelector(
+            `#remoteVideo_${item.user_id}`,
+          );
+          startMediaStream(item.user_id);
+        });
+      }
       console.log(payload);
       document.title = `new messages have been emitted`;
     });
@@ -161,8 +284,20 @@ const Home = ({ userStore, partyId }) => {
     });
 
     socket.on('player update', (payload) => {
-      console.log(payload.members);
       setPlayers(payload.members);
+      console.log(payload.members);
+      const filtered = payload.members.filter(
+        (item) => item.user_id !== userStore.user.id && item.online,
+      );
+      console.log(filtered);
+      filtered.forEach((item) => {
+        pcList[item.user_id] = {};
+        videoRefs[item.user_id] = document.querySelector(
+          `#remoteVideo_${item.user_id}`,
+        );
+        console.log(videoRefs[item.user_id]);
+        startMediaStream(item.user_id);
+      });
     });
 
     socket.on('pictures update', (payload) => {
@@ -173,14 +308,46 @@ const Home = ({ userStore, partyId }) => {
       console.log('Ready error', payload);
     });
 
+    socket.on('offer', (data) => {
+      console.log('offer incoming', data);
+      handleOffer(data.offer, data.request_user_id);
+    });
+
+    socket.on('answerCall', (data) => {
+      console.log('answer incoming', data);
+      handleAnswerCall(data.answer, data.request_user_id);
+    });
+
+    socket.on('candidate', (data) => {
+      console.log('candidate incoming', data);
+      handleCandidate(data.candidate, data.request_user_id);
+    });
+
+    socket.on('leave', () => {
+      handleLeave();
+    });
+
     socket.on('status update', (payload) => {
-      console.log('status update', payload);
       setQuiz((prevValue) => ({
         ...prevValue,
         ...payload,
       }));
     });
   }, []);
+
+  function handleLeave() {
+    Object.keys(pcList).forEach((key) => {
+      videoRefs[key].srcObject = null;
+      pcList[key].close();
+      pcList[key].onicecandidate = null;
+      pcList[key].onaddstream = null;
+    });
+  }
+
+  function handleCandidate(candidate, userId) {
+    console.log('candidate came in');
+    pcList[userId].addIceCandidate(new RTCIceCandidate(candidate));
+  }
 
   const handleReady = () => {
     setReady((prevValue) => !prevValue);
@@ -207,6 +374,11 @@ const Home = ({ userStore, partyId }) => {
       picture,
     });
   };
+
+  function handleAnswerCall(answer, userId) {
+    console.log('answering');
+    pcList[userId].setRemoteDescription(new RTCSessionDescription(answer));
+  }
 
   const handleAnswer = (e, answer_id) => {
     e.preventDefault();
@@ -251,6 +423,27 @@ const Home = ({ userStore, partyId }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+        <WebcamContainer>
+          <RemoteWebCam>
+            <video id={`localVideo`} height="100px" controls autoPlay></video>
+          </RemoteWebCam>
+          {players
+            .filter((item) => item.user_id !== userStore.user.id && item.online)
+            ?.map((item) =>
+              item.user_id !== userStore.user.id ? (
+                <RemoteWebCam>
+                  <p>{item.username}</p>
+                  <video
+                    height="100px"
+                    width="133px"
+                    id={`remoteVideo_${item.user_id}`}
+                    controls
+                    autoPlay
+                  ></video>
+                </RemoteWebCam>
+              ) : null,
+            )}
+        </WebcamContainer>
         {quiz?.current_question?.type === 'lobby' ? (
           <>
             <div className={style.container}>
@@ -777,6 +970,41 @@ const Home = ({ userStore, partyId }) => {
     </div>
   );
 };
+
+const RemoteWebCam = styled.div`
+  position: relative;
+  margin-top: 1rem;
+  box-shadow: 0 0 1rem;
+  height: 100px;
+  width: calc(400px / 3);
+  border-radius: 2rem;
+
+  & p {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background-color: white;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 0 0 2rem 2rem;
+  }
+`;
+
+const WebcamContainer = styled.div`
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+
+  & video {
+    border-radius: 2rem;
+    height: 100px;
+    width: calc(400px / 3);
+  }
+`;
 
 export async function getServerSideProps({ params }) {
   return { props: { partyId: params.partyId } };

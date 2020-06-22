@@ -1,4 +1,4 @@
-h1 {
+.h1 {
   font-family: sirenne-text-mvb, serif;
   font-weight: bold;
   font-style: normal;
@@ -115,7 +115,7 @@ h1 {
 .background {
   width: 100vw;
   height: 100vh;
-  height: max-content;
+  background-size: cover;
   position: absolute;
   z-index: -100;
   top: 0;
@@ -247,7 +247,7 @@ h1 {
 
 .party__container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   grid-template-areas:
     'header header'
     'sidebar content';
@@ -404,7 +404,6 @@ h1 {
 .sidebar__friends {
   grid-template-columns: 1fr;
   grid-template-rows: repeat(6, 20px);
-  grid-template-areas: ;
 }
 
 .friends__user {

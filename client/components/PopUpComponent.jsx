@@ -13,7 +13,6 @@ const PopUp = ({ name, children, interfaceStore, ...props }) => {
   }, []);
 
   const closeHandler = (e) => {
-    console.log('tets');
     if (e?.stopPropagation) e?.stopPropagation();
     popupRef.current.style.opacity = 0;
     setTimeout(() => {
@@ -79,6 +78,7 @@ const Container = styled.div`
   display: flex;
   flex-grow: 0;
   flex-shrink: 0;
+  background-image: url('/assets/images/Card-Back.jpg');
   justify-content: space-around;
   transition: opacity 0.2s ease;
   align-items: center;
