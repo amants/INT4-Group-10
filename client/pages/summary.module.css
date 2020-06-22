@@ -6,7 +6,16 @@
   line-height: 2.4rem;
 }
 
+.t1 {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.8rem;
+  line-height: 2.4rem;
+}
+
 .summary__wrapper {
+  font-family: sirenne-text-mvb, serif;
   color: #102146;
   max-width: 96rem;
   margin: 0 auto;
@@ -14,6 +23,7 @@
   display: flex;
   flex-flow: column;
   justify-content: space-between;
+  width: min-content;
 }
 
 .summary__title {
@@ -63,6 +73,7 @@
   border-radius: 10rem;
   padding: 0 2rem;
   transition: all 0.2s;
+  composes: t1;
 }
 .button__summary {
   max-width: max-content;

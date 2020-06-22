@@ -11,7 +11,9 @@ export default class MyDocument extends Document {
     const sheet = new ServerStyleSheet();
 
     // Step 2: Retrieve styles from components in the page
-    const page = renderPage(App => props => sheet.collectStyles(<App {...props} />));
+    const page = renderPage((App) => (props) =>
+      sheet.collectStyles(<App {...props} />),
+    );
 
     // Step 3: Extract the styles as <style> tags
     const styleTags = sheet.getStyleElement();
@@ -25,6 +27,9 @@ export default class MyDocument extends Document {
       <html lang="en">
         <Head>
           {/* Step 5: Output the styles in the head  */}
+          <link rel="stylesheet" href="https://use.typekit.net/lrp6hfl.css" />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+          />
           {this.props.styleTags}
         </Head>
         <body>

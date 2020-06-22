@@ -36,7 +36,7 @@ const Summary = () => {
             />
             <span>If you answer wrong, take a shot.</span>
           </div>
-          <button className={(style.button, style.button__summary)}>
+          <button  className={(style.button, style.button__summary)}>
             start a party
           </button>
         </div>
