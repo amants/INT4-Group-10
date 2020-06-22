@@ -138,6 +138,7 @@
   transition: all 0.2s;
   composes: t1;
 }
+
 .button__parties {
   max-width: max-content;
   justify-items: center;

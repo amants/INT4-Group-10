@@ -10,6 +10,8 @@ import SidebarBig from '../../containers/Sidebar/SidebarBig/SidebarBig';
 import SidebarSmall from '../../containers/Sidebar/SidebarSmall/SidebarSmall';
 import Header from '../../components/Header';
 import Background from '../../components/Background';
+import Postit from '../../components/Postit';
+
 
 const {
   publicRuntimeConfig: { API_URL }, // Available both client and server side
@@ -444,7 +446,7 @@ const Home = ({ userStore, partyId }) => {
               ) : null,
             )}
         </WebcamContainer>
-        {quiz?.current_question?.type === 'lobby' ? (
+        {quiz?.current_question?.type === '0' ? (
           <>
             <div className={style.container}>
               <Header page={'lobby-round'} />
@@ -686,36 +688,14 @@ const Home = ({ userStore, partyId }) => {
                     </span>
                   </div>
                 </div>
-                <div className={style.quiz__contentrecipe} id="recipe">
-                  <h3 className={style.h1}>Cocktail Recipe</h3>
-                  <div className={[style.recipe__steps, style.t1].join(' ')}>
-                    {quiz.recipe.map((item, i) => {
-                      return (
-                        <li key={i} className={style.recipe__step}>
-                          <img
-                            src="../assets/images/checkbox_outline.png"
-                            alt=""
-                          />
-                          {item.description}
-                        </li>
-                      );
-                    })}
-                  </div>
-                  <img
-                    className={style.recipe__background}
-                    src="../assets/images/Postit.png"
-                    width="300"
-                    height="450"
-                    alt=""
-                  />
-                </div>
+                <Postit title={'Cocktail recipe'} quiz={quiz} />
               </div>
             </div>
             {/* BACKGROUND */}
             <Background />
           </>
         ) : null}
-        {quiz?.current_question?.type === 'recipe' ? (
+        {quiz?.current_question?.type === 'lobby' ? (
           <>
             {/* Header */}
             <Header page={'recipe-round'} />
@@ -735,88 +715,7 @@ const Home = ({ userStore, partyId }) => {
               </div>
 
               {/* FRIENDSLIST */}
-              <div className={style.quiz__sidebar}>
-                <div className={style.sidebar__friends}>
-                  {players.map((item, i) => {
-                    if (userStore.user.id == item.user_id) {
-                      return (
-                        // Show user that is current user
-                        <>
-                          <div
-                            className={[
-                              style.friends__userS,
-                              style.friends__userself,
-                            ].join(' ')}
-                          >
-                            <img
-                              className={style.user__picture}
-                              src="../assets/images/lara.jpg"
-                              width="160"
-                              height="160"
-                              alt=""
-                            />
-                            <span
-                              className={[style.user__name, style.t2].join(' ')}
-                            >
-                              score: {item.score}
-                            </span>
-                            <span
-                              className={[style.user__country, style.t2].join(
-                                ' ',
-                              )}
-                            >
-                              shots : {item.shots}
-                            </span>
-                            <img
-                              className={style.user__backgroundS}
-                              src="/assets/images/PassportMed.png"
-                              width="244"
-                              height="346"
-                              alt=""
-                            />
-                          </div>
-                        </>
-                      );
-                    } else {
-                      return (
-                        // Show users that are not current user
-                        <>
-                          <div className={style.friends__userS}>
-                            <img
-                              className={style.user__picture}
-                              src="../assets/images/lara.jpg"
-                              width="160"
-                              height="160"
-                              alt=""
-                            />
-                            <span
-                              className={[style.user__name, style.t2].join(' ')}
-                            >
-                              score: {item.score}
-                            </span>
-                            <span
-                              className={[style.user__country, style.t2].join(
-                                ' ',
-                              )}
-                            >
-                              shots : {item.shots}
-                            </span>
-                            <img
-                              className={style.user__background}
-                              src="/assets/images/PassportMed.png"
-                              width="244"
-                              height="346"
-                              alt=""
-                            />
-                            {/* {item.online ? 'online' : 'offline'} - score:{' '}
-                          {item.score} - shots: {item.shots} */}
-                          </div>
-                        </>
-                      );
-                    }
-                  })}
-                </div>
-              </div>
+              <SidebarSmall userStore={userStore} players={players} />
               {/* CONTENT */}
               <div className={style.quiz__content}>
                 <div className={style.quiz__contentquiz}>
@@ -877,29 +776,7 @@ const Home = ({ userStore, partyId }) => {
                     </span>
                   </div>
                 </div>
-                <div className={style.quiz__contentrecipe} id="recipe">
-                  <h3 className={style.h1}>Cocktail Recipe</h3>
-                  <div className={[style.recipe__steps, style.t1].join(' ')}>
-                    {quiz.recipe.map((item, i) => {
-                      return (
-                        <li key={i} className={style.recipe__step}>
-                          <img
-                            src="../assets/images/checkbox_outline.png"
-                            alt=""
-                          />
-                          {item.description}
-                        </li>
-                      );
-                    })}
-                  </div>
-                  <img
-                    className={style.recipe__background}
-                    src="../assets/images/Postit.png"
-                    width="300"
-                    height="450"
-                    alt=""
-                  />
-                </div>
+                <Postit title={'Cocktail recipe'} quiz={quiz} />
               </div>
             </div>
             {/* BACKGROUND */}
