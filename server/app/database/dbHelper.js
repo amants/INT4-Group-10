@@ -28,6 +28,22 @@ exports.getRandomCocktail = function () {
   });
 };
 
+exports.getUnlockedCocktailById = function (cocktailId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT cocktails.cocktail_id, cocktails.name, countries.country_key, cocktails.difficulty, cocktails.price, cocktails.duration, countries.flag_url, cocktails.image, cock.time_unlocked, user_cocktail_photos.photo_url, countries.name AS country_name FROM user_unlocked_cocktails AS cock INNER JOIN cocktails ON cock.cocktail_id = cocktails.cocktail_id INNER JOIN countries ON countries.country_id = cocktails.country_id LEFT OUTER JOIN user_cocktail_photos ON user_cocktail_photos.cocktail_id = cock.cocktail_id WHERE cocktails.cocktail_id = ?",
+      [cocktailId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
 exports.getUnlockedCocktailsByUserId = function (userId, order) {
   return new Promise((resolve) => {
     const query = `SELECT cocktails.cocktail_id, cocktails.name, countries.country_key, cocktails.difficulty, cocktails.price, cocktails.duration, countries.flag_url, cocktails.image, cock.time_unlocked, user_cocktail_photos.photo_url, countries.name AS country_name FROM user_unlocked_cocktails AS cock INNER JOIN cocktails ON cock.cocktail_id = cocktails.cocktail_id INNER JOIN countries ON countries.country_id = cocktails.country_id LEFT OUTER JOIN user_cocktail_photos ON user_cocktail_photos.cocktail_id = cock.cocktail_id WHERE cock.user_id = ? ORDER BY ${

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getCocktails } from '../services/apiRouterService';
+import { getCocktails, getCocktailById } from '../services/apiRouterService';
 import { inject, observer } from 'mobx-react';
 import typo from '../styles/typo.module.css';
 import style from '../styles/components.module.css';
@@ -10,11 +10,13 @@ const LoginForm = ({
   // userStore,
   // interfaceStore,
   title,
+  // getCocktailById,
   // closePopUp,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [cocktailList, setCocktailList] = useState([]);
   const [orderBy, setOrderBy] = useState(null);
+  const [cocktailDetail, setCocktailDetail] = useState(null);
   const [pageType, setPageType] = useState('overview');
   // const [unlockedCocktails, setUnlockedCocktails] = useState(0);
   // const [lockCocktailCount, setLockedCocktailCount] = useState(0);
@@ -35,7 +37,43 @@ const LoginForm = ({
     loadCocktails();
   }, [orderBy]);
 
+  const goToDetail = async (cocktailId) => {
+    const [response, status] = await getCocktailById(cocktailId);
+    if (status !== 200) return;
+    setCocktailDetail(response);
+    setPageType('detail');
+  };
+
   if (pageType === 'detail') {
+    return (
+      <Container>
+        <Page>
+          <HeaderContainer>
+            <HeaderContent>
+              <Title className={typo.h1}>{cocktailDetail.name}</Title>
+              <OrderContainer>
+                <Button className={style.button}>
+                  Duration: {cocktailDetail.duration}
+                </Button>
+                <Button className={style.button}>
+                  Difficulty: {cocktailDetail.difficulty}
+                </Button>
+                <Button className={style.button}>
+                  Budget: {cocktailDetail.price}
+                </Button>
+              </OrderContainer>
+            </HeaderContent>
+          </HeaderContainer>
+        </Page>
+        <Page>
+          <HeaderContainer>
+            <HeaderContent>
+              <TitleDetail className={typo.h1}>Ingredients</TitleDetail>
+            </HeaderContent>
+          </HeaderContainer>
+        </Page>
+      </Container>
+    );
   } else {
     return (
       <Container>
@@ -88,9 +126,14 @@ const LoginForm = ({
             )
             .map((item) =>
               item.name ? (
-                <CocktailContainer onClick={() => goToDetail(item.cocktail_id)}>
+                <CocktailContainer
+                  key={item.cocktail_id}
+                  onClick={() => goToDetail(item.cocktail_id)}
+                >
                   <UnlockedCocktailItem>
-                    <CountryFlag src="/assets/images/flags/Cuba.png" />
+                    <CountryFlag
+                      src={`/assets/images/flags/${item.flag_url}`}
+                    />
                     <p>{item.name}</p>
                     <CocktailImage src="/assets/images/cocktailPlaceholder.png" />
                   </UnlockedCocktailItem>
@@ -121,7 +164,10 @@ const LoginForm = ({
             )
             .map((item) =>
               item.name ? (
-                <CocktailContainer>
+                <CocktailContainer
+                  key={item.cocktail_id}
+                  onClick={() => goToDetail(item.cocktail_id)}
+                >
                   <UnlockedCocktailItem>
                     <CountryFlag src="/assets/images/flags/Cuba.png" />
                     <p>{item.name}</p>
@@ -274,11 +320,15 @@ const Button = styled.button`
   padding: 0.5rem 1rem;
   font-size: 1.4rem;
   font-weight: 900;
-  margin-right: 1rem;
+  margin-right: 0.5rem;
   background-color: ${({ active }) => (active ? '#102146' : 'none')};
   color: ${({ active }) => (active ? 'white' : '#102146')};
   transition: all 0.2s ease;
   cursor: pointer;
+
+  &:last-child {
+    margin-right: 0;
+  }
 `;
 
 const Page = styled.div`
@@ -314,6 +364,29 @@ const Title = styled.h2`
     bottom: 0;
     top: 0.8rem;
     background-image: url('/assets/images/titleVector.svg');
+  }
+`;
+
+const TitleDetail = styled.h2`
+  font-size: 3rem;
+  margin-top: 4rem;
+  font-weight: 900;
+  padding-bottom: 1rem;
+  flex-grow: 0;
+  flex-shrink: 0;
+  padding-right: 2rem;
+  ${'' /* flex: 0 0 100%; */}
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    background-size: 100%;
+    left: 0rem;
+    right: 1rem;
+    bottom: 0rem;
+    top: 0rem;
+    background-image: url('/assets/images/Krulletje.svg');
   }
 `;
 

@@ -108,9 +108,6 @@ exports.getCocktailById = async function (req, res) {
   if (!isUnlocked)
     return res.status(code.noPermissions).json(msg.noPermissions);
 
-  const lockedCocktailCount = await User.getUnlockedCocktailById(
-    id,
-    user.user_id
-  );
+  const lockedCocktailCount = await User.getUnlockedCocktailById(id);
   return res.status(code.success).json(lockedCocktailCount);
 };

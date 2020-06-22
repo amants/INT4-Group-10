@@ -48,6 +48,14 @@ class User {
     return DbHelper.getUnlockedCocktailsByUserId(userId, order);
   }
 
+  static isCocktailUnlocked(cocktailId, userId) {
+    return DbHelper.isCocktailUnlocked(cocktailId, userId);
+  }
+
+  static getUnlockedCocktailById(cocktailId) {
+    return DbHelper.getUnlockedCocktailById(cocktailId);
+  }
+
   static uploadCocktailUser(link, userId, cocktailId) {
     return DbHelper.uploadCocktailUser(link, userId, cocktailId);
   }
