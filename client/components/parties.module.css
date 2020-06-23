@@ -60,7 +60,6 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  
 }
 
 .parties__header {
@@ -101,7 +100,6 @@
   margin-left: 7.5rem;
   width: 35rem;
   composes: t3;
-
 }
 
 .item2 {
@@ -109,7 +107,6 @@
   margin-left: 7rem;
   width: 35rem;
   composes: h1;
-
 }
 
 .item3 {
@@ -119,7 +116,6 @@
   display: flex;
   justify-content: space-between;
   composes: t1;
-
 }
 
 .parties__scroll {
@@ -135,7 +131,8 @@
   background: none;
   border-radius: 10rem;
   padding: 0 2rem;
-  transition: all 0.2s;
+  transition: all 0.1s;
+  cursor: pointer;
   composes: t1;
 }
 

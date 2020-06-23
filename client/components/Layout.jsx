@@ -6,10 +6,12 @@ import { inject, observer } from 'mobx-react';
 import PopUpComponent from './PopUpComponent';
 import LoginForm from './LoginForm';
 import CocktailsContainer from './CocktailsContainer';
+import PopUpPageComponent from './PopUpPageComponent';
+import PartiesComponent from './PartiesComponent';
 
 const Layout = ({ children, interfaceStore, userStore }) => {
   const { showPopup, togglePopUp } = interfaceStore;
-  const { login, cocktails } = showPopup;
+  const { login, cocktails, parties } = showPopup;
 
   useEffect(() => {
     if (!userStore.user) {
@@ -26,9 +28,14 @@ const Layout = ({ children, interfaceStore, userStore }) => {
         </PopUpComponent>
       ) : null}
       {cocktails ? (
-        <PopUpComponent name="login">
+        <PopUpComponent name="cocktails">
           <CocktailsContainer />
         </PopUpComponent>
+      ) : null}
+      {parties ? (
+        <PopUpPageComponent name="parties">
+          <PartiesComponent />
+        </PopUpPageComponent>
       ) : null}
       <Main>{children}</Main>
     </Container>

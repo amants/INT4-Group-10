@@ -5,6 +5,7 @@ class Store extends BaseStore {
   @observable showPopup = {
     login: false,
     cocktails: false,
+    parties: true,
   };
 
   @action togglePopUp = (key, val) => (this.showPopup[key] = val);

@@ -345,7 +345,7 @@ exports.getChatMessages = function (tableName, id) {
 exports.getPartiesFromUser = function (tableName, id) {
   return new Promise((resolve) => {
     return sql.query(
-      "SELECT lobbies.name, lobbies.lobby_id, lobbies.lobby_key, lobby_members.user_id, lobby_members.lobby_id, user.username AS leader FROM ?? INNER JOIN lobby_members ON lobbies.lobby_id=lobby_members.lobby_id INNER JOIN user ON lobbies.party_leader=user.user_id WHERE lobby_members.user_id = ?",
+      "SELECT lobbies.name, lobbies.start_date, lobbies.lobby_id, lobbies.lobby_key, lobby_members.user_id, lobby_members.lobby_id, user.username AS leader FROM ?? INNER JOIN lobby_members ON lobbies.lobby_id=lobby_members.lobby_id INNER JOIN user ON lobbies.party_leader=user.user_id WHERE lobby_members.user_id = ?",
       [tableName, id],
       function (err, res) {
         if (err) {

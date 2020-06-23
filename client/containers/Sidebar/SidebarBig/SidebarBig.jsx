@@ -3,18 +3,18 @@ import React, { useEffect } from 'react';
 import style from '../SidebarBig/SidebarBig.module.css';
 import AddFriends from '../../../components/AddFriends';
 
-
-const SidebarBig = ({handleReady, ready}) => {
+const SidebarBig = ({ handleReady, ready }) => {
   return (
     <>
       <div className={style.party__sidebar}>
         <AddFriends />
         <br />
-
-        <button className={style.button} onClick={handleReady}>
-          {ready && `Unready`}
-          {!ready && `Ready`}
-        </button>
+        {handleReady ? (
+          <button className={style.button} onClick={handleReady}>
+            {ready && `Unready`}
+            {!ready && `Ready`}
+          </button>
+        ) : null}
         <div className={style.sidebar__wrapper}>
           <div
             className={[style.sidebar__user, style.sidebar__userself].join(' ')}
