@@ -20,7 +20,6 @@ let pcList = {};
 
 let localVideo;
 let videoRefs = {};
-let localPcList = {};
 
 const socket = io(API_URL);
 
@@ -231,28 +230,31 @@ const Home = ({ userStore, partyId }) => {
   console.log(videoRefs);
 
   useEffect(() => {
-    setTimeout(() => StartCall(), 1000);
     setInRoom(true);
     socket.on('initial messages', (payload) => {
       setMessages(payload.chats.reverse());
       setPlayers(payload.members);
-      setQuiz(payload.quiz);
-      setPictures(payload.quiz.pictures);
-      setEndScreenStep(null);
-      const filtered = payload.members.filter(
-        (item) => item.user_id !== userStore.user.id && item.online,
-      );
-      if (filtered.length > 0) {
-        filtered.forEach((item) => {
-          pcList[item.user_id] = {};
-          localVideo = document.querySelector(`#localVideo`);
-          videoRefs[item.user_id] = document.querySelector(
-            `#remoteVideo_${item.user_id}`,
-          );
-          startMediaStream(item.user_id);
-        });
-      }
-      console.log(payload);
+      setTimeout(() => {
+        setQuiz(payload.quiz);
+        setPictures(payload.quiz.pictures);
+        setEndScreenStep(null);
+        const filtered = payload.members.filter(
+          (item) => item.user_id !== userStore.user.id && item.online,
+        );
+        if (filtered.length > 0) {
+          filtered.forEach((item) => {
+            pcList[item.user_id] = {};
+            localVideo = document.querySelector(`#localVideo`);
+            videoRefs[item.user_id] = document.querySelector(
+              `#remoteVideo_${item.user_id}`,
+            );
+            startMediaStream(item.user_id);
+          });
+        }
+        if (payload.members.length > 1) {
+          StartCall();
+        }
+      }, 1000);
       document.title = `new messages have been emitted`;
     });
     socket.on('receive message', (payload) => {
@@ -304,6 +306,7 @@ const Home = ({ userStore, partyId }) => {
     });
 
     socket.on('pictures update', (payload) => {
+      console.log(payload);
       setPictures(payload.pictures);
     });
 
@@ -373,10 +376,10 @@ const Home = ({ userStore, partyId }) => {
 
   const handlePicture = (e) => {
     e.preventDefault();
-    setEndScreenStep('overview');
     socket.emit('upload picture', {
       picture,
     });
+    setEndScreenStep('overview');
   };
 
   function handleAnswerCall(answer, userId) {
@@ -795,7 +798,7 @@ const Home = ({ userStore, partyId }) => {
           </>
         ) : null}
         {quiz?.current_question?.type === 'end_screen' ? (
-          endScreenStep === '0' ? (
+          endScreenStep === null ? (
             <>
               {/* Header */}
               <Header page={'endscreen'} />
@@ -852,7 +855,7 @@ const Home = ({ userStore, partyId }) => {
                 ))}
               </div>
             </>
-          ) : endScreenStep === null ? (
+          ) : endScreenStep === 'take_picture' ? (
             <>
               {/* Header */}
               <Header page={'endscreen'} />
@@ -875,50 +878,29 @@ const Home = ({ userStore, partyId }) => {
                 <SidebarSmall userStore={userStore} players={players} />
                 {/* CONTENT */}
                 <div className={style.endscreen__content}>
-                  <img
-                    className={style.endscreen__picture}
-                    src="../assets/images/endscreen/polaroidTemplate.png"
-                    width="499"
-                    height="541,75"
-                    alt=""
-                  />
-                  <button
-                    className={style.button}
-                    onClick={() => setEndScreenStep('take_picture')}
-                  >
-                    take a picture
-                  </button>
-                  <button onClick={() => setEndScreenStep('overview')}>
-                    no thanks
-                  </button>
+                  {!picture ? (
+                    <>
+                      <Webcam
+                        audio={false}
+                        ref={webcamRef}
+                        screenshotFormat="image/jpeg"
+                        videoConstraints={videoConstraints}
+                      />
+                      <button onClick={capture}>Take picture</button>
+                    </>
+                  ) : (
+                    <>
+                      <img src={picture} />
+                      <button onClick={() => setPicture(null)}>
+                        Retake picture
+                      </button>
+                    </>
+                  )}
+                  <button onClick={handlePicture}>Continue</button>
                 </div>
               </div>
               {/* BACKGROUND */}
               <Background />
-              <h1>Upload your picture </h1>
-              <br />
-              {picture ? (
-                <>
-                  <Webcam
-                    audio={false}
-                    ref={webcamRef}
-                    screenshotFormat="image/jpeg"
-                    videoConstraints={videoConstraints}
-                  />
-                  <button onClick={capture}>Take picture</button>
-                </>
-              ) : (
-                <>
-                  <img src={picture} />
-                  <button onClick={() => setPicture(null)}>
-                    Retake picture
-                  </button>
-                </>
-              )}
-              <br />
-              <br />
-              <button onClick={handlePicture}>Continue</button>
-              <br />
               <div>
                 <h1>Players</h1>
                 {players.map((item, i) => (
