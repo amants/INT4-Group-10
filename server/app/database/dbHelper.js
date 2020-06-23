@@ -313,7 +313,7 @@ exports.getAllPartyDataById = function (lobbyId) {
 exports.getByUsername = function (tableName, username) {
   return new Promise((resolve) => {
     return sql.query(
-      "SELECT * FROM ?? WHERE username = ?",
+      "SELECT * FROM ?? LEFT OUTER JOIN countries ON countries.country_id=user.country_id WHERE username = ?",
       [tableName, username],
       function (err, res) {
         if (err) {
@@ -377,10 +377,11 @@ exports.isUserLobbyMember = function (userId, lobbyId) {
 exports.getPartyMembers = function (lobbyId) {
   return new Promise((resolve) => {
     return sql.query(
-      "SELECT user.user_id, user.username, user.avatar, lobby_members.score, lobby_members.shots FROM lobby_members INNER JOIN user ON lobby_members.user_id=user.user_id WHERE lobby_members.lobby_id = ?",
+      "SELECT user.user_id, user.username, user.avatar, lobby_members.score, lobby_members.shots, countries.flag_url, countries.name, countries.country_key FROM lobby_members INNER JOIN user ON lobby_members.user_id=user.user_id LEFT OUTER JOIN countries ON countries.country_id=user.country_id WHERE lobby_members.lobby_id = ?",
       [lobbyId],
       function (err, res) {
         if (err) {
+          console.log(err);
           resolve([]);
         } else {
           resolve(res);
@@ -546,13 +547,14 @@ exports.getByIdentification = function (tableName, identification) {
   });
 };
 
-exports.getAllUsersByUsernameOrEmail = function (tableName, identification) {
+exports.getAllUsersByUsername = function (tableName, identification) {
   return new Promise((resolve) => {
     sql.query(
-      "SELECT user_id, username, avatar FROM ?? WHERE username LIKE ? OR email LIKE ?",
+      "SELECT user_id, username, avatar, user.country_id, countries.flag_url, countries.name, countries.country_key FROM ?? LEFT OUTER JOIN countries ON countries.country_id=user.country_id WHERE user.username LIKE ? ORDER BY username LIMIT 3",
       [tableName, `%${identification}%`, `%${identification}%`],
       function (err, res) {
         if (err) {
+          console.log(err);
           resolve(null);
         } else {
           resolve(res);

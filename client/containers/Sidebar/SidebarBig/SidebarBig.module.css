@@ -23,6 +23,16 @@
   padding: 1rem;
 }
 
+.button {
+  border: #102146 0.2rem solid;
+  color: #102146;
+  background: none;
+  border-radius: 10rem;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
 .sidebar__wrapper {
   grid-template-columns: 1fr;
   grid-template-rows: repeat(6, 20px);
@@ -83,4 +93,3 @@
   z-index: -1;
   margin-left: -15rem;
 }
-

@@ -1,35 +1,34 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import getConfig from 'next/config';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import style from '../SidebarBig/SidebarBig.module.css';
+import AddFriends from '../../../components/AddFriends';
 
-const {
-  publicRuntimeConfig: { API_URL }, // Available both client and server side
-} = getConfig();
-
-const SidebarBig = ({ handleReady, ready, user, players }) => {
+const SidebarBigNewParty = ({
+  usersList,
+  addedFriends,
+  setAddedFriends,
+  addFriendInput,
+  setAddFriendInput,
+  user,
+}) => {
   return (
-    <>
-      <FriendElement ready={ready} className={style.party__sidebar}>
-        <br />
-        {handleReady ? (
-          <button className={style.button} onClick={handleReady}>
-            {ready && `Unready`}
-            {!ready && `Ready`}
-          </button>
-        ) : null}
+    <div className={style.party__sidebar}>
+      <Container>
+        <AddFriends
+          usersList={usersList}
+          addedFriends={addedFriends}
+          setAddedFriends={setAddedFriends}
+          setAddFriendInput={setAddFriendInput}
+          addFriendInput={addFriendInput}
+        />
         <div className={style.sidebar__wrapper}>
           <div
             className={[style.sidebar__user, style.sidebar__userself].join(' ')}
           >
             <img
               className={style.user__picture}
-              src={
-                user.avatar
-                  ? `${API_URL}${user.avatar}`
-                  : '../assets/images/lara.jpg'
-              }
+              src={user.avatar || '../assets/images/lara.jpg'}
               width="160"
               height="160"
               alt=""
@@ -49,19 +48,11 @@ const SidebarBig = ({ handleReady, ready, user, players }) => {
               alt=""
             />
           </div>
-          {players.map((item) => (
-            <FriendElement
-              key={item.user_id}
-              ready={item.ready}
-              className={[style.sidebar__user].join(' ')}
-            >
+          {addedFriends.map((item) => (
+            <FriendElement className={[style.sidebar__user].join(' ')}>
               <img
                 className={style.user__picture}
-                src={
-                  item.avatar
-                    ? `${API_URL}${item.avatar}`
-                    : '../assets/images/lara.jpg'
-                }
+                src={item.avatar || '../assets/images/lara.jpg'}
                 width="160"
                 height="160"
                 alt=""
@@ -73,6 +64,18 @@ const SidebarBig = ({ handleReady, ready, user, players }) => {
                 <FlagImg src={`/assets/images/flags/${item.flag_url}`} />{' '}
                 {item.name}
               </span>
+              <button
+                onClick={() => {
+                  setAddedFriends((prevValue) => {
+                    const temp = prevValue.filter(
+                      (e) => e.user_id !== item.user_id,
+                    );
+                    return temp;
+                  });
+                }}
+              >
+                - Remove
+              </button>
               <img
                 className={style.user__background}
                 src="/assets/images/PassportMed.png"
@@ -83,14 +86,23 @@ const SidebarBig = ({ handleReady, ready, user, players }) => {
             </FriendElement>
           ))}
         </div>
-      </FriendElement>
-    </>
+      </Container>
+    </div>
   );
 };
 
+const fadeIn = keyframes`
+ 0% { opacity: 0;  }
+ 100% { opacity: 1; }`;
+
 const FriendElement = styled.div`
-  transition: all 0.2s ease;
-  ${({ ready }) => (!ready ? 'filter: grayscale(100%);' : '')};
+  animation-name: ${fadeIn};
+  animation-duration: 0.4s;
+  animation-iteration-count: 1;
+`;
+
+const Container = styled.div`
+  max-width: 240px;
 `;
 
 const FlagImg = styled.img`
@@ -98,4 +110,4 @@ const FlagImg = styled.img`
   margin-top: 5px;
 `;
 
-export default SidebarBig;
+export default SidebarBigNewParty;

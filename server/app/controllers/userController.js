@@ -64,6 +64,8 @@ exports.getMe = async function (req, res) {
     email: user.email,
     avatar: user.avatar,
     joined: user.joined,
+    flag_url: user.flag_url,
+    country_name: user.name,
   };
   return res.status(code.success).json(payload);
 };

@@ -25,6 +25,12 @@ export async function getCocktails(orderBy) {
   return [resp, status];
 }
 
+export async function getUsersByQ(q) {
+  const path = `/users/${q}`;
+  const [resp, status] = await request(path, 'GET');
+  return [resp, status];
+}
+
 export async function getPartiesFromUser() {
   const path = `/parties`;
   const [resp, status] = await request(path, 'GET');
@@ -44,6 +50,16 @@ export async function register({ email, password, nickname, username }) {
     password,
     nickname,
     username,
+  });
+  return [resp, status];
+}
+
+export async function createParty({ friends, name, startDate }) {
+  const path = '/party';
+  const [resp, status] = await request(path, 'POST', {
+    friends,
+    name,
+    startDate,
   });
   return [resp, status];
 }

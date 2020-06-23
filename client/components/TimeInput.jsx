@@ -13,7 +13,7 @@ import {
 import styled from 'styled-components';
 import Error, { getBorderColor } from './Error';
 
-const TextInput = forwardRef(
+const TimeInput = forwardRef(
   (
     {
       className,
@@ -41,12 +41,13 @@ const TextInput = forwardRef(
 
     const handleChange = (e) => {
       e.persist();
+      console.log({ name: e.target.name, value: e.target.value });
       onChange({ name: e.target.name, value: e.target.value });
     };
 
     return (
       <Container className={className}>
-        <StyledLabel disabled={disabled} error={error}>
+        <StyledLabel disabled={disabled}>
           <p>
             {children}
             <Error error={error} />
@@ -55,7 +56,7 @@ const TextInput = forwardRef(
             ref={ref}
             id={name}
             name={name}
-            type={type}
+            type="time"
             disabled={disabled}
             placeholder={placeholder}
             error={error}
@@ -81,14 +82,11 @@ const StyledLabel = styled.label`
   display: flex;
   flex-direction: column;
   position: relative;
-  width: 100%;
   font-family: sirenne-text-mvb, serif;
   font-weight: bold;
   font-style: normal;
   font-size: 2rem;
   line-height: 2.4rem;
-  transition: all 0.2s;
-  border-bottom: 2px solid ${({ error }) => getBorderColor(error)};
   line-height: 1rem;
 `;
 
@@ -96,8 +94,9 @@ const StyledInput = styled.input`
   ${'' /* background-color: ${(props) => (props.disabled ? '#F0F1F3' : 'white')}; */}
   background-color: rgba(0, 0, 0, 0);
   border: none;
+  border-bottom: 2px solid ${({ error }) => getBorderColor(error)};
   height: 3.5rem;
-  width: 100%;
+  width: 10rem;
   margin-top: 1rem;
   font-size: 2rem;
   color: #102146;
@@ -107,6 +106,7 @@ const StyledInput = styled.input`
 
   &:focus {
     outline: none;
+    border-color: gray;
   }
 
   &::placeholder {
@@ -115,7 +115,7 @@ const StyledInput = styled.input`
   }
 `;
 
-TextInput.defaultProps = {
+TimeInput.defaultProps = {
   disabled: false,
   placeholder: '',
   error: '',
@@ -126,7 +126,7 @@ TextInput.defaultProps = {
   value: '',
 };
 
-TextInput.propTypes = {
+TimeInput.propTypes = {
   className: string,
   children: node.isRequired,
   name: string.isRequired,
@@ -139,4 +139,4 @@ TextInput.propTypes = {
   value: oneOfType([string, number]),
 };
 
-export default TextInput;
+export default TimeInput;

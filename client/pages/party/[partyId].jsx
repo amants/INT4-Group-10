@@ -469,7 +469,14 @@ const Home = ({ userStore, partyId }) => {
                     This party is complete, <br /> registrations are closed.
                   </span>
                 </div>
-                <SidebarBig handleReady={handleReady} ready={ready} />
+                <SidebarBig
+                  players={players.filter(
+                    (item) => item.user_id !== userStore.user.id,
+                  )}
+                  user={userStore.user}
+                  handleReady={handleReady}
+                  ready={ready}
+                />
                 <div className={style.party__content}>
                   <div className={style.content__needs}>
                     <div className={style.needs__wrapper}>
@@ -918,7 +925,15 @@ const Home = ({ userStore, partyId }) => {
                         This party is complete, <br /> registrations are closed.
                       </span>
                     </div>
-                    <SidebarBig handleReady={handleReady} type={'no-add'} ready={ready} />
+                    <SidebarBig
+                      players={players.filter(
+                        (item) => item.user_id !== userStore.user.id,
+                      )}
+                      user={userStore.user}
+                      handleReady={handleReady}
+                      ready={ready}
+                    />
+                    />
                     <div className={style.endscreen__content_last}>
                       <div className={style.content__needs}>
                         <div className={style.needs__wrapper}>
@@ -1016,10 +1031,16 @@ const Home = ({ userStore, partyId }) => {
                           .filter((item) => item.src)
                           .map((item, i) => (
                             <div key={i} className={style.endscreen__item}>
-                              <img src={`${API_URL}${item.src}`} width="155" height="210" />
+                              <img
+                                src={`${API_URL}${item.src}`}
+                                width="155"
+                                height="210"
+                              />
                               <p>{item.username}</p>
                               <img
-                                className={style.endscreen__cocktail_backgroundSmall}
+                                className={
+                                  style.endscreen__cocktail_backgroundSmall
+                                }
                                 src="../assets/images/endscreen/polaroidTemplate.png"
                                 width="322"
                                 height="367"
@@ -1031,7 +1052,7 @@ const Home = ({ userStore, partyId }) => {
                     </div>
                   </div>
                 </div>
-        
+
                 {/* BACKGROUND */}
                 <Background />
               </>

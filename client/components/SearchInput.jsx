@@ -11,9 +11,8 @@ import {
   oneOfType,
 } from 'prop-types';
 import styled from 'styled-components';
-import Error, { getBorderColor } from './Error';
 
-const TextInput = forwardRef(
+const SeachInput = forwardRef(
   (
     {
       className,
@@ -23,9 +22,6 @@ const TextInput = forwardRef(
       disabled,
       placeholder,
       onChange,
-      error,
-      warning,
-      touched,
       value,
       ...otherProps
     },
@@ -45,62 +41,46 @@ const TextInput = forwardRef(
     };
 
     return (
-      <Container className={className}>
-        <StyledLabel disabled={disabled} error={error}>
-          <p>
-            {children}
-            <Error error={error} />
-          </p>
-          <StyledInput
-            ref={ref}
-            id={name}
-            name={name}
-            type={type}
-            disabled={disabled}
-            placeholder={placeholder}
-            error={error}
-            touched={touched}
-            value={inputValue}
-            onChange={handleChange}
-            {...otherProps}
-          />
-        </StyledLabel>
-      </Container>
+      <StyledLabel disabled={disabled}>
+        <StyledInput
+          ref={ref}
+          id={name}
+          name={name}
+          type={type}
+          disabled={disabled}
+          placeholder={placeholder}
+          value={inputValue}
+          onChange={handleChange}
+          {...otherProps}
+        />
+        <SearchImg src="/assets/images/search-icon.png" alt="search icon" />
+      </StyledLabel>
     );
   },
 );
 
-const Container = styled.div`
-  width: 100%;
-  position: relative;
-  height: 9rem;
-  margin-bottom: 2rem;
+const SearchImg = styled.img`
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 25px;
+  height: 25px;
 `;
 
 const StyledLabel = styled.label`
   display: flex;
-  flex-direction: column;
+  margin-top: 1rem;
   position: relative;
   width: 100%;
-  font-family: sirenne-text-mvb, serif;
-  font-weight: bold;
-  font-style: normal;
-  font-size: 2rem;
-  line-height: 2.4rem;
-  transition: all 0.2s;
-  border-bottom: 2px solid ${({ error }) => getBorderColor(error)};
-  line-height: 1rem;
+  border-bottom: 2px solid #102146;
+  align-items: center;
 `;
 
 const StyledInput = styled.input`
-  ${'' /* background-color: ${(props) => (props.disabled ? '#F0F1F3' : 'white')}; */}
   background-color: rgba(0, 0, 0, 0);
   border: none;
   height: 3.5rem;
   width: 100%;
-  margin-top: 1rem;
   font-size: 2rem;
-  color: #102146;
   box-sizing: border-box;
   font-family: sirenne-text-mvb, serif;
   font-style: normal;
@@ -110,15 +90,13 @@ const StyledInput = styled.input`
   }
 
   &::placeholder {
-    color: #c4c4c4;
-    font-weight: bold;
+    color: gray;
   }
 `;
 
-TextInput.defaultProps = {
+SeachInput.defaultProps = {
   disabled: false,
   placeholder: '',
-  error: '',
   className: '',
   type: 'text',
   onChange: () => {},
@@ -126,17 +104,16 @@ TextInput.defaultProps = {
   value: '',
 };
 
-TextInput.propTypes = {
+SeachInput.propTypes = {
   className: string,
   children: node.isRequired,
   name: string.isRequired,
   type: string,
   disabled: bool,
   placeholder: string,
-  error: string,
   onChange: func,
   otherProps: object,
   value: oneOfType([string, number]),
 };
 
-export default TextInput;
+export default SeachInput;

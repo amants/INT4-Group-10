@@ -49,7 +49,7 @@ exports.findUsers = async function (req, res) {
   if (check.isMissingData([params.q]))
     return res.status(code.missingData).send(msg.missingData);
   if (params.q?.length < 1) return res.status(code.tooShort).send(msg.tooShort);
-  const users = await User.getAllUsersByUsernameOrEmail(params.q);
+  const users = await User.getAllUsersByUsername(params.q);
   if (users) {
     res.status(200).send(users);
   } else {
