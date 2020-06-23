@@ -57,6 +57,19 @@ exports.findUsers = async function (req, res) {
   }
 };
 
+// exports.getNewCocktailForLobbyRest = async function (req, res) {
+//   if (!req.verified)
+//     return res.status(code.notAuthenticated).send(msg.notAuthenticated);
+
+//   const cocktail = await Lobby.getNewCocktailForLobby(17);
+//   console.log(cocktail);
+//   if (cocktail) {
+//     res.status(200).send({ cocktail });
+//   } else {
+//     res.status(code.notFound).send(msg.notFound);
+//   }
+// };
+
 // exports.getRandomCocktail = async function (req, res) {
 //   if (!req.verified)
 //     return res.status(code.notAuthenticated).send(msg.notAuthenticated);
@@ -126,6 +139,16 @@ exports.getCorrectAnswer = async function (answerId) {
   }
 };
 
+exports.getNewCocktailForLobby = async function (lobbyId) {
+  const newCocktailId = await Lobby.getNewCocktailForLobby(lobbyId);
+  await Lobby.updateLobbyCocktail(newCocktailId, lobbyId);
+  if (newCocktailId) {
+    return newCocktailId;
+  } else {
+    return false;
+  }
+};
+
 exports.addCocktailAsUnlocked = async function (cocktailId, lobby_id, user_id) {
   const cocktailAddedLobby = await Lobby.addCocktailAsUnlockedLobby(
     cocktailId,
@@ -133,7 +156,7 @@ exports.addCocktailAsUnlocked = async function (cocktailId, lobby_id, user_id) {
   );
   const cocktailAddedUser = await Lobby.addCocktailAsUnlockedUser(
     cocktailId,
-    lobby_id
+    user_id
   );
   if (cocktailAddedLobby && cocktailAddedUser) {
     return true;

@@ -55,6 +55,14 @@ class Lobby {
     return DbHelper.getAnswersOfQuestion(questionId);
   }
 
+  static updateLobbyCocktail(cocktailId, lobbyId) {
+    return DbHelper.updateLobbyCocktail(cocktailId, lobbyId);
+  }
+
+  static getNewCocktailForLobby(lobbyId) {
+    return DbHelper.getNewCocktailForLobby(lobbyId);
+  }
+
   static getNQuestions(cocktailId, questionLength) {
     return DbHelper.getNQuestions(cocktailId, questionLength);
   }

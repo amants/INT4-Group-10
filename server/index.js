@@ -87,24 +87,27 @@ const generateQuizSteps = async (cocktailId) => {
 const resetLobby = async (socket, lobbyId, user) => {
   await LobbyController.getNewCocktailForLobby(lobbyId);
   const party = await LobbyController.localFindPartyById(user.user_id, lobbyId);
+  console.log(party);
   quizInstances[lobbyId].members.forEach((item, key) => {
     quizInstances[lobbyId].members[key].ready = false;
   });
   quizInstances[lobbyId] = {
     members: quizInstances[lobbyId].members,
-    name: quizInstances[lobbyId].name,
+    name: party.name,
     leader: quizInstances[lobbyId].leader,
-    startDate: quizInstances[lobbyId].startDate,
-    // online_users: [socket.id],
+    startDate: party.startDate,
     status: 0,
     answers: [],
     time_to_answer: 0,
+    cocktail_ingredients: await LobbyController.getCocktailIngredients(
+      party?.current_cocktail
+    ),
     unlocked_cocktails: await LobbyController.getLobbyCompletedCocktails(
       lobbyId
     ),
     recipe_step: undefined,
     recipe: [],
-    pictures: {},
+    pictures: quizInstances[lobbyId].pictures,
     steps: await generateQuizSteps(party?.current_cocktail),
     cocktail_id: party?.current_cocktail,
     current_question: { type: "lobby" },
@@ -129,6 +132,7 @@ const resetLobby = async (socket, lobbyId, user) => {
       steps: quizInstances[lobbyId].steps,
       pictures:
         quizInstances[lobbyId].pictures[quizInstances[lobbyId].cocktail_id],
+      cocktail_ingredients: quizInstances[lobbyId].cocktail_ingredients,
       step: quizInstances[lobbyId].current_quiz_step,
       recipe_step: quizInstances[lobbyId]?.recipe_step,
       answers: quizInstances[lobbyId].answers,
@@ -151,6 +155,7 @@ const resetLobby = async (socket, lobbyId, user) => {
       steps: quizInstances[lobbyId].steps,
       pictures:
         quizInstances[lobbyId].pictures[quizInstances[lobbyId].cocktail_id],
+      cocktail_ingredients: quizInstances[lobbyId].cocktail_ingredients,
       step: quizInstances[lobbyId].current_quiz_step,
       recipe_step: quizInstances[lobbyId]?.recipe_step,
       answers: quizInstances[lobbyId].answers,
@@ -167,7 +172,6 @@ const resetLobby = async (socket, lobbyId, user) => {
   socket.broadcast.to(lobbyId).emit("player update", {
     members: quizInstances[lobbyId].members,
   });
-  // SET COCKTAIL AS UNLOCKED
 
   // GET NEW COCKTAIL FOR LOBBY
 

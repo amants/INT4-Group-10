@@ -28,6 +28,22 @@ exports.getRandomCocktail = function () {
   });
 };
 
+exports.updateLobbyCocktail = function (cocktailId, lobbyId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "UPDATE lobbies SET current_cocktail = ? WHERE lobby_id = ?",
+      [cocktailId, lobbyId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
 exports.getUnlockedCocktailById = function (cocktailId) {
   return new Promise((resolve) => {
     sql.query(
@@ -374,6 +390,25 @@ exports.getPartyMembers = function (lobbyId) {
   });
 };
 
+exports.getNewCocktailForLobby = function (lobbyId) {
+  return new Promise((resolve) => {
+    console.log("test");
+    return sql.query(
+      "SELECT M.cocktail_id FROM cocktails AS M WHERE M.cocktail_id NOT IN (SELECT F.cocktail_id FROM lobby_unlocked_cocktails AS F WHERE F.lobby_id = ?) AND M.active = 1 ORDER BY RAND() LIMIT 1",
+      [lobbyId],
+      function (err, res) {
+        console.log("fml");
+        if (err) {
+          console.error(err);
+          resolve(err);
+        } else {
+          // console.log(res);
+          resolve(res?.[0].cocktail_id);
+        }
+      }
+    );
+  });
+};
 exports.sendMessage = function (message) {
   return new Promise((resolve) => {
     return sql.query(
