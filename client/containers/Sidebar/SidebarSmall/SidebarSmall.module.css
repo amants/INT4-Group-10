@@ -2,6 +2,10 @@
   width: min-content;
 }
 
+.quiz__sidebar {
+  grid-area: sidebar;
+}
+
 .party__sidebar {
   margin: 4rem 0rem 0 8rem;
 }
