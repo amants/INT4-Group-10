@@ -31,6 +31,7 @@ const Home = ({ userStore, partyId }) => {
   const [picture, setPicture] = useState(null);
   const [chatFormInput, setChatFormInput] = useState('');
   const [pictures, setPictures] = useState({});
+  const [endScreenStep, setEndScreenStep] = useState(null);
   const [quiz, setQuiz] = useState({});
   const [stream, setStream] = useState();
   const [showTakeAShot, setShowTakeAShot] = useState(false);
@@ -237,6 +238,7 @@ const Home = ({ userStore, partyId }) => {
       setPlayers(payload.members);
       setQuiz(payload.quiz);
       setPictures(payload.quiz.pictures);
+      setEndScreenStep(null);
       const filtered = payload.members.filter(
         (item) => item.user_id !== userStore.user.id && item.online,
       );
@@ -371,6 +373,7 @@ const Home = ({ userStore, partyId }) => {
 
   const handlePicture = (e) => {
     e.preventDefault();
+    setEndScreenStep('overview');
     socket.emit('upload picture', {
       picture,
     });
@@ -563,7 +566,7 @@ const Home = ({ userStore, partyId }) => {
                       alt=""
                     />
                   </div>
-                <Postit type={'need'} title={'Need to buy'} quiz={quiz} />
+                  <Postit type={'need'} title={'Need to buy'} quiz={quiz} />
                 </div>
               </div>
             </div>
@@ -792,7 +795,31 @@ const Home = ({ userStore, partyId }) => {
           </>
         ) : null}
         {quiz?.current_question?.type === 'end_screen' ? (
-          !pictures?.[userStore.user.id] ? (
+          endScreenStep === null ? (
+            <>
+              <h1>Upload A picture </h1>
+              <br />
+              <br />
+              <br />
+              <button onClick={() => setEndScreenStep('take_picture')}>
+                Continue
+              </button>
+              <br />
+              <br />
+              <button onClick={() => setEndScreenStep('overview')}>Skip</button>
+              <br />
+              <div>
+                <h1>Players</h1>
+                {players.map((item, i) => (
+                  <p key={i}>
+                    {item.username} - {item.online ? 'online' : 'offline'} -{' '}
+                    score: {item.score} - shots: {item.shots} -{' '}
+                    {item.ready ? 'Ready' : 'waiting ...'}
+                  </p>
+                ))}
+              </div>
+            </>
+          ) : endScreenStep === 'take_picture' ? (
             <>
               <h1>Upload your picture </h1>
               <br />
@@ -819,7 +846,7 @@ const Home = ({ userStore, partyId }) => {
                 ))}
               </div>
             </>
-          ) : (
+          ) : endScreenStep === 'overview' ? (
             <>
               <h1>Post game lobby</h1>
               <br />
@@ -849,7 +876,7 @@ const Home = ({ userStore, partyId }) => {
                 ))}
               </div>
             </>
-          )
+          ) : null
         ) : null}
       </main>
     </div>
