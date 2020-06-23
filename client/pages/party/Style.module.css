@@ -278,6 +278,8 @@
 
 .party__content  {
   width: min-content;
+  display: flex;
+  flex-flow: row;
 }
 
 .party__sidebar,

@@ -12,7 +12,6 @@ import Header from '../../components/Header';
 import Background from '../../components/Background';
 import Postit from '../../components/Postit';
 
-
 const {
   publicRuntimeConfig: { API_URL }, // Available both client and server side
 } = getConfig();
@@ -446,7 +445,7 @@ const Home = ({ userStore, partyId }) => {
               ) : null,
             )}
         </WebcamContainer>
-        {quiz?.current_question?.type === '0' ? (
+        {quiz?.current_question?.type === 'lobby' ? (
           <>
             <div className={style.container}>
               <Header page={'lobby-round'} />
@@ -501,53 +500,57 @@ const Home = ({ userStore, partyId }) => {
                         ) : null}
                       </div>
                       {players?.length > 1 ? (
-                        <div className={style.needs__chat}>
-                          <span
-                            className={[style.chat__title, style.h2].join(' ')}
-                          >
-                            Chat
-                          </span>
-                          <div className={style.chat__chatbox}>
-                            {messages?.map((item, i) => (
-                              <div key={i} className={style.chat__row}>
-                                <span
-                                  className={
-                                    style[
-                                      `chat_bubble_${
-                                        item.username ===
-                                        userStore.user.username
-                                          ? 'me'
-                                          : 'other'
-                                      }`
-                                    ]
+                        <>
+                          <div className={style.needs__chat}>
+                            <span
+                              className={[style.chat__title, style.h2].join(
+                                ' ',
+                              )}
+                            >
+                              Chat
+                            </span>
+                            <div className={style.chat__chatbox}>
+                              {messages?.map((item, i) => (
+                                <div key={i} className={style.chat__row}>
+                                  <span
+                                    className={
+                                      style[
+                                        `chat_bubble_${
+                                          item.username ===
+                                          userStore.user.username
+                                            ? 'me'
+                                            : 'other'
+                                        }`
+                                      ]
+                                    }
+                                  >
+                                    {item.username}: {item.message}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className={style.chat__wrapper}>
+                              <form onSubmit={handleNewMessage}>
+                                <input
+                                  className={style.chat__chatinput}
+                                  type="text"
+                                  value={chatFormInput}
+                                  onChange={(e) =>
+                                    setChatFormInput(e.target.value)
                                   }
-                                >
-                                  {item.username}: {item.message}
-                                </span>
-                              </div>
-                            ))}
+                                  size="35"
+                                  name="chatMessage"
+                                  placeholder="type your message here"
+                                />
+                                <input
+                                  type="submit"
+                                  value="Send"
+                                  className={style.chat__chatbutton}
+                                />
+                              </form>
+                            </div>
                           </div>
-                          <div className={style.chat__wrapper}>
-                            <form onSubmit={handleNewMessage}>
-                              <input
-                                className={style.chat__chatinput}
-                                type="text"
-                                value={chatFormInput}
-                                onChange={(e) =>
-                                  setChatFormInput(e.target.value)
-                                }
-                                size="35"
-                                name="chatMessage"
-                                placeholder="type your message here"
-                              />
-                              <input
-                                type="submit"
-                                value="Send"
-                                className={style.chat__chatbutton}
-                              />
-                            </form>
-                          </div>
-                        </div>
+                        </>
                       ) : null}
                     </div>
                     <img
@@ -556,6 +559,7 @@ const Home = ({ userStore, partyId }) => {
                       alt=""
                     />
                   </div>
+                <Postit type={'need'} title={'Need to buy'} quiz={quiz} />
                 </div>
               </div>
             </div>
@@ -695,7 +699,7 @@ const Home = ({ userStore, partyId }) => {
             <Background />
           </>
         ) : null}
-        {quiz?.current_question?.type === 'lobby' ? (
+        {quiz?.current_question?.type === 'recipe' ? (
           <>
             {/* Header */}
             <Header page={'recipe-round'} />
