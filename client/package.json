@@ -32,6 +32,7 @@
     "react-dom": "16.13.1",
     "react-rtc-real": "^1.11.22",
     "react-webcam": "^5.2.0",
+    "sass": "^1.26.9",
     "socket.io-client": "^2.3.0",
     "styled-components": "^5.1.1",
     "use-debounce": "^3.4.2",

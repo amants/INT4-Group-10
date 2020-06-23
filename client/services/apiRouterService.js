@@ -25,6 +25,12 @@ export async function getCocktails(orderBy) {
   return [resp, status];
 }
 
+export async function getPartiesFromUser() {
+  const path = `/parties`;
+  const [resp, status] = await request(path, 'GET');
+  return [resp, status];
+}
+
 export async function getCocktailById(cocktailId) {
   const path = `/cocktail/${cocktailId}`;
   const [resp, status] = await request(path, 'GET');

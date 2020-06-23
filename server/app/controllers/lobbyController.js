@@ -87,11 +87,17 @@ exports.getAllParties = async function (req, res) {
     return res.status(code.notAuthenticated).send(msg.notAuthenticated);
 
   const parties = await Lobby.getPartiesFromUser(req.verified.user_id);
-  if (parties) {
-    res.status(200).send(parties);
-  } else {
-    res.status(code.notFound).send(msg.notFound);
-  }
+
+  parties.forEach(async (item, key) => {
+    parties[key].members = await Lobby.getPartyMembers(item.lobby_id);
+    if (parties.length === key + 1) {
+      if (parties) {
+        res.status(200).send(parties);
+      } else {
+        res.status(code.notFound).send(msg.notFound);
+      }
+    }
+  });
 };
 
 exports.getLobbyCompletedCocktails = async function (lobbyId) {
@@ -170,7 +176,7 @@ exports.getAllQuestionsOfCocktail = async function (cocktail_id) {
   const questionObject = {};
   if (questions) {
     return new Promise((resolve) => {
-      questions.map(async (item, i) => {
+      questions.forEach(async (item, i) => {
         const answers = await Lobby.getAnswersOfQuestion(item.question_id);
         questionObject[item.question_id] = item;
         questionObject[item.question_id].answers = answers;
