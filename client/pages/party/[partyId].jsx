@@ -45,8 +45,8 @@ const Home = ({ userStore, partyId }) => {
   const [inRoom, setInRoom] = useState(true);
 
   const videoConstraints = {
-    width: 400,
-    height: 600,
+    width: 310,
+    height: 420,
     facingMode: 'user',
   };
 
@@ -840,16 +840,6 @@ const Home = ({ userStore, partyId }) => {
               </div>
               {/* BACKGROUND */}
               <Background />
-              <div>
-                <h1>Players</h1>
-                {players.map((item, i) => (
-                  <p key={i}>
-                    {item.username} - {item.online ? 'online' : 'offline'} -{' '}
-                    score: {item.score} - shots: {item.shots} -{' '}
-                    {item.ready ? 'Ready' : 'waiting ...'}
-                  </p>
-                ))}
-              </div>
             </>
           ) : endScreenStep === 'take_picture' ? (
             <>
@@ -892,21 +882,18 @@ const Home = ({ userStore, partyId }) => {
                       </button>
                     </>
                   )}
-                  <button onClick={handlePicture}>Continue</button>
+                  <img
+                    className={style.endscreen__cocktail_background}
+                    src="../assets/images/endscreen/polaroidTemplate.png"
+                    width="644"
+                    height="739"
+                    alt=""
+                  />
+                  <button className={style.button} onClick={handlePicture}>Continue</button>
                 </div>
               </div>
               {/* BACKGROUND */}
               <Background />
-              <div>
-                <h1>Players</h1>
-                {players.map((item, i) => (
-                  <p key={i}>
-                    {item.username} - {item.online ? 'online' : 'offline'} -{' '}
-                    score: {item.score} - shots: {item.shots} -{' '}
-                    {item.ready ? 'Ready' : 'waiting ...'}
-                  </p>
-                ))}
-              </div>
             </>
           ) : endScreenStep === 'overview' ? (
             <>

@@ -698,3 +698,9 @@
   position: absolute;
   
 }
+
+.endscreen__cocktail_background {
+  position: absolute;
+  z-index: -1;
+  margin-top: -13rem;
+}
