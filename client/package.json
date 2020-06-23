@@ -13,6 +13,7 @@
     "@babel/polyfill": "^7.10.1",
     "axios": "^0.19.2",
     "babel": "^6.23.0",
+    "detect-browser": "^5.1.1",
     "es6-promise": "^4.2.8",
     "imagemin-mozjpeg": "^9.0.0",
     "imagemin-optipng": "^8.0.0",

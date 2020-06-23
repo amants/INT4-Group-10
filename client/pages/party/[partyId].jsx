@@ -11,6 +11,9 @@ import SidebarSmall from '../../containers/Sidebar/SidebarSmall/SidebarSmall';
 import Header from '../../components/Header';
 import Background from '../../components/Background';
 import Postit from '../../components/Postit';
+import { detect } from 'detect-browser';
+
+const supportedBrowsers = ['chrome', 'firefox'];
 
 const {
   publicRuntimeConfig: { API_URL }, // Available both client and server side
@@ -24,6 +27,7 @@ let videoRefs = {};
 const socket = io(API_URL);
 
 const Home = ({ userStore, partyId }) => {
+  const browser = detect();
   const [messages, setMessages] = useState([]);
   const [ready, setReady] = useState(false);
   const [players, setPlayers] = useState([]);
@@ -132,67 +136,62 @@ const Home = ({ userStore, partyId }) => {
     }
   }, [correctAnswerId]);
 
-  const startMediaStream = (userId) => {
-    navigator.getUserMedia(
-      { video: true, audio: true },
-      function (myStream) {
-        const tempStream = myStream;
+  const startMediaStream = async (userId) => {
+    const myStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    const tempStream = myStream;
 
-        //displaying local audio stream on the page
-        if (localVideo?.srcObject) {
-          localVideo.srcObject = tempStream;
-        } else {
-          localVideo = document.querySelector('#localVideo');
-          localVideo.srcObject = tempStream;
-        }
+    //displaying local audio stream on the page
+    if (localVideo?.srcObject) {
+      localVideo.srcObject = tempStream;
+    } else {
+      localVideo = document.querySelector('#localVideo');
+      localVideo.srcObject = tempStream;
+    }
 
-        //using Google public stun server
-        const configuration = {
-          iceServers: [{ url: 'stun:stun2.1.google.com:19302' }],
-        };
+    //using Google public stun server
+    const configuration = {
+      iceServers: [{ url: 'stun:stun2.1.google.com:19302' }],
+    };
 
-        pcList[userId] = new webkitRTCPeerConnection(configuration);
+    pcList[userId] = new RTCPeerConnection(configuration);
 
-        // setup stream listening
-        pcList[userId].addStream(tempStream);
+    // setup stream listening
+    pcList[userId].addStream(tempStream);
 
-        //when a remote user adds stream to the peer connection, we display it
-        pcList[userId].onaddstream = function (e) {
-          if (videoRefs[userId]) {
-            videoRefs[userId].srcObject = e.stream;
-          } else {
-            videoRefs[userId] = document.querySelector(
-              `#remoteVideo_${userId}`,
-            );
-            videoRefs[userId].srcObject = e.stream;
-          }
-        };
+    //when a remote user adds stream to the peer connection, we display it
+    pcList[userId].onaddstream = function (e) {
+      if (videoRefs[userId]) {
+        videoRefs[userId].srcObject = e.stream;
+      } else {
+        videoRefs[userId] = document.querySelector(`#remoteVideo_${userId}`);
+        videoRefs[userId].srcObject = e.stream;
+      }
+    };
 
-        // Setup ice handling
-        pcList[userId].onicecandidate = function (event) {
-          if (event.candidate) {
-            socket.emit('candidate', {
-              type: 'candidate',
-              candidate: event.candidate,
-              target_user_id: userId,
-            });
-          }
-        };
-        setStream(tempStream);
-      },
-      function (error) {
-        console.log(error);
-      },
-    );
+    // Setup ice handling
+    pcList[userId].onicecandidate = function (event) {
+      if (event.candidate) {
+        socket.emit('candidate', {
+          type: 'candidate',
+          candidate: event.candidate,
+          target_user_id: userId,
+        });
+      }
+    };
+    setStream(tempStream);
   };
 
-  function handleOffer(offer, userId) {
-    pcList[userId].setRemoteDescription(new RTCSessionDescription(offer));
+  async function handleOffer(offer, userId) {
+    console.log(pcList, userId, pcList[userId]);
+    await pcList[userId].setRemoteDescription(new RTCSessionDescription(offer));
 
     //create an answer to an offer
-    pcList[userId].createAnswer(
-      function (answer) {
-        pcList[userId].setLocalDescription(answer);
+    await pcList[userId].createAnswer(
+      async function (answer) {
+        await pcList[userId].setLocalDescription(answer);
 
         console.log('sending answers', answer);
         socket.emit('answerCall', {
@@ -209,9 +208,9 @@ const Home = ({ userStore, partyId }) => {
   const StartCall = () => {
     // create an offer
     Object.keys(pcList).forEach((key) => {
+      console.log(pcList, key, pcList[key], typeof pcList[key]);
       pcList[key].createOffer(
         function (offer) {
-          console.log('offers sending out', offer);
           socket.emit('offer', {
             type: 'offer',
             target_user_id: key,
@@ -234,16 +233,15 @@ const Home = ({ userStore, partyId }) => {
     socket.on('initial messages', (payload) => {
       setMessages(payload.chats.reverse());
       setPlayers(payload.members);
-      setTimeout(() => {
-        setQuiz(payload.quiz);
-        setPictures(payload.quiz.pictures);
-        setEndScreenStep(null);
+      setQuiz(payload.quiz);
+      setPictures(payload.quiz.pictures);
+      setEndScreenStep(null);
+      if (supportedBrowsers.includes(browser.name)) {
         const filtered = payload.members.filter(
           (item) => item.user_id !== userStore.user.id && item.online,
         );
         if (filtered.length > 0) {
           filtered.forEach((item) => {
-            pcList[item.user_id] = {};
             localVideo = document.querySelector(`#localVideo`);
             videoRefs[item.user_id] = document.querySelector(
               `#remoteVideo_${item.user_id}`,
@@ -252,9 +250,11 @@ const Home = ({ userStore, partyId }) => {
           });
         }
         if (payload.members.length > 1) {
-          StartCall();
+          setTimeout(() => {
+            StartCall();
+          }, 2000);
         }
-      }, 1000);
+      }
       document.title = `new messages have been emitted`;
     });
     socket.on('receive message', (payload) => {
@@ -282,28 +282,41 @@ const Home = ({ userStore, partyId }) => {
         prevMessage.reverse();
         prevMessage.push(payload);
         const pushValue = prevMessage.reverse();
-        console.log(pushValue);
         return pushValue;
       });
-      document.title = `new messages have been emitted`;
     });
 
     socket.on('player update', (payload) => {
       setPlayers(payload.members);
-      console.log(payload.members);
-      const filtered = payload.members.filter(
-        (item) => item.user_id !== userStore.user.id && item.online,
-      );
-      console.log(filtered);
-      filtered.forEach((item) => {
-        pcList[item.user_id] = {};
-        videoRefs[item.user_id] = document.querySelector(
-          `#remoteVideo_${item.user_id}`,
+      if (supportedBrowsers.includes(browser.name)) {
+        const filtered = payload.members.filter(
+          (item) => item.user_id !== userStore.user.id && item.online,
         );
-        console.log(videoRefs[item.user_id]);
-        startMediaStream(item.user_id);
-      });
+        filtered.forEach((item) => {
+          videoRefs[item.user_id] = document.querySelector(
+            `#remoteVideo_${item.user_id}`,
+          );
+          startMediaStream(item.user_id);
+        });
+      }
     });
+
+    if (supportedBrowsers.includes(browser.name)) {
+      socket.on('offer', (data) => {
+        console.log('offer incoming', data);
+        handleOffer(data.offer, data.request_user_id);
+      });
+
+      socket.on('answerCall', (data) => {
+        console.log('answer incoming', data);
+        handleAnswerCall(data.answer, data.request_user_id);
+      });
+
+      socket.on('candidate', (data) => {
+        console.log('candidate incoming', data);
+        handleCandidate(data.candidate, data.request_user_id);
+      });
+    }
 
     socket.on('pictures update', (payload) => {
       console.log(payload);
@@ -312,21 +325,6 @@ const Home = ({ userStore, partyId }) => {
 
     socket.on('ready error', (payload) => {
       console.log('Ready error', payload);
-    });
-
-    socket.on('offer', (data) => {
-      console.log('offer incoming', data);
-      handleOffer(data.offer, data.request_user_id);
-    });
-
-    socket.on('answerCall', (data) => {
-      console.log('answer incoming', data);
-      handleAnswerCall(data.answer, data.request_user_id);
-    });
-
-    socket.on('candidate', (data) => {
-      console.log('candidate incoming', data);
-      handleCandidate(data.candidate, data.request_user_id);
     });
 
     socket.on('leave', () => {
@@ -351,7 +349,6 @@ const Home = ({ userStore, partyId }) => {
   }
 
   function handleCandidate(candidate, userId) {
-    console.log('candidate came in');
     pcList[userId].addIceCandidate(new RTCIceCandidate(candidate));
   }
 
@@ -430,10 +427,10 @@ const Home = ({ userStore, partyId }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        {players.length > 1 ? (
+        {players.length > 1 && supportedBrowsers.includes(browser.name) ? (
           <WebcamContainer>
             <RemoteWebCam>
-              <video id={`localVideo`} height="100px" controls autoPlay></video>
+              <video id={`localVideo`} height="100px" autoPlay></video>
             </RemoteWebCam>
             {players
               .filter(
@@ -447,7 +444,6 @@ const Home = ({ userStore, partyId }) => {
                       height="100px"
                       width="133px"
                       id={`remoteVideo_${item.user_id}`}
-                      controls
                       autoPlay
                     ></video>
                   </RemoteWebCam>

@@ -16,7 +16,6 @@ const Layout = ({ children, interfaceStore, userStore }) => {
   useEffect(() => {
     if (!userStore.user) {
       togglePopUp('login', true);
-      console.log('show login popup');
     }
   }, []);
 
