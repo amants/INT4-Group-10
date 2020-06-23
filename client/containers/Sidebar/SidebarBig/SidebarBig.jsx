@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import style from '../SidebarBig/SidebarBig.module.css';
 import AddFriends from '../../../components/AddFriends';
 
-const SidebarBig = ({ handleReady, ready }) => {
+const SidebarBig = ({ handleReady, ready, type }) => {
   return (
     <>
       <div className={style.party__sidebar}>

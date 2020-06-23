@@ -889,7 +889,9 @@ const Home = ({ userStore, partyId }) => {
                     height="739"
                     alt=""
                   />
-                  <button className={style.button} onClick={handlePicture}>Continue</button>
+                  <button className={style.button} onClick={handlePicture}>
+                    Continue
+                  </button>
                 </div>
               </div>
               {/* BACKGROUND */}
@@ -897,33 +899,142 @@ const Home = ({ userStore, partyId }) => {
             </>
           ) : endScreenStep === 'overview' ? (
             <>
-              <h1>Post game lobby</h1>
-              <br />
-              <h2>Uploaded pictures:</h2>
-              {Object.values(pictures)
-                .filter((item) => item.src)
-                .map((item) => (
-                  <div>
-                    <img src={`${API_URL}${item.src}`} />
-                    <p>{item.username}</p>
+              <>
+                <div className={style.container}>
+                  <Header page={'lobby-round'} />
+                  <div className={style.party__container}>
+                    <div className={style.party__header}>
+                      <span
+                        className={[style.party__participants, style.h2].join(
+                          ' ',
+                        )}
+                      >
+                        Participants 5/6
+                      </span>
+                      <h1 className={[style.party__title, style.h1].join(' ')}>
+                        Plan a new party
+                      </h1>
+                      <span className={[style.uiz__info, style.h2].join(' ')}>
+                        This party is complete, <br /> registrations are closed.
+                      </span>
+                    </div>
+                    <SidebarBig handleReady={handleReady} type={'no-add'} ready={ready} />
+                    <div className={style.endscreen__content_last}>
+                      <div className={style.content__needs}>
+                        <div className={style.needs__wrapper}>
+                          <div className={style.needs__info}>
+                            <span
+                              className={[style.info__text, style.h2].join(' ')}
+                            >
+                              Your score this game
+                            </span>
+                            <span
+                              className={[style.info__time, style.h2].join(' ')}
+                            >
+                              score hier nog
+                            </span>
+                            <span
+                              className={[style.info__feedback, style.t2].join(
+                                ' ',
+                              )}
+                            >
+                              You can go back to the party lobby.
+                            </span>
+                            <div className={style.info__start}>
+                              <button
+                                className={style.button}
+                                onClick={handleReady}
+                              >
+                                Lobby
+                              </button>
+                            </div>
+                          </div>
+                          {players?.length > 1 ? (
+                            <>
+                              <div className={style.needs__chat}>
+                                <span
+                                  className={[style.chat__title, style.h2].join(
+                                    ' ',
+                                  )}
+                                >
+                                  Chat
+                                </span>
+                                <div className={style.chat__chatbox}>
+                                  {messages?.map((item, i) => (
+                                    <div key={i} className={style.chat__row}>
+                                      <span
+                                        className={
+                                          style[
+                                            `chat_bubble_${
+                                              item.username ===
+                                              userStore.user.username
+                                                ? 'me'
+                                                : 'other'
+                                            }`
+                                          ]
+                                        }
+                                      >
+                                        {item.username}: {item.message}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className={style.chat__wrapper}>
+                                  <form onSubmit={handleNewMessage}>
+                                    <input
+                                      className={style.chat__chatinput}
+                                      type="text"
+                                      value={chatFormInput}
+                                      onChange={(e) =>
+                                        setChatFormInput(e.target.value)
+                                      }
+                                      size="35"
+                                      name="chatMessage"
+                                      placeholder="type your message here"
+                                    />
+                                    <input
+                                      type="submit"
+                                      value="Send"
+                                      className={style.chat__chatbutton}
+                                    />
+                                  </form>
+                                </div>
+                              </div>
+                            </>
+                          ) : null}
+                        </div>
+                        <img
+                          className={style.needs__background}
+                          src="../assets/images/clipboard.png"
+                          alt=""
+                        />
+                      </div>
+                      <Postit type={'end'} title={'Need to buy'} quiz={quiz} />
+                      <div className={style.endscreen__pictures}>
+                        {console.log(Object.values(pictures), 'pictures')}
+                        {Object.values(pictures)
+                          .filter((item) => item.src)
+                          .map((item, i) => (
+                            <div key={i} className={style.endscreen__item}>
+                              <img src={`${API_URL}${item.src}`} width="155" height="210" />
+                              <p>{item.username}</p>
+                              <img
+                                className={style.endscreen__cocktail_backgroundSmall}
+                                src="../assets/images/endscreen/polaroidTemplate.png"
+                                width="322"
+                                height="367"
+                                alt=""
+                              />
+                            </div>
+                          ))}
+                      </div>
+                    </div>
                   </div>
-                ))}
-              <br />
-              <h2>Score:</h2>
-              <button onClick={handleReady}>
-                {ready && `Unready`}
-                {!ready && `Ready`}
-              </button>
-              <div>
-                <h1>Players</h1>
-                {players.map((item, i) => (
-                  <p key={i}>
-                    {item.username} - {item.online ? 'online' : 'offline'} -{' '}
-                    score: {item.score} - shots: {item.shots} -{' '}
-                    {item.ready ? 'Ready' : 'waiting ...'}
-                  </p>
-                ))}
-              </div>
+                </div>
+        
+                {/* BACKGROUND */}
+                <Background />
+              </>
             </>
           ) : null
         ) : null}

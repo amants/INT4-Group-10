@@ -57,10 +57,16 @@
 .postit_wrapper {
   transform: rotate(-6deg);
 }
-.postit__title {
-    color: #102146;
-    composes: h1;
 
+.postit_wrapper_end {
+  transform: rotate(-6deg);
+  min-width: 20rem;
+  margin-left: 10rem;
+}
+
+.postit__title {
+  color: #102146;
+  composes: h1;
 }
 .postit__steps {
   list-style-type: none;
@@ -74,13 +80,13 @@
 }
 
 .postit__step {
+  padding-bottom: 1rem;
 
 }
-
 .postit__background {
-    position: absolute;
-    top: 0;
-    z-index: -50;
-    margin-left: -4rem;
-    margin-top: -2rem;
-  }
+  position: absolute;
+  top: 0;
+  z-index: -50;
+  margin-left: -4rem;
+  margin-top: -2rem;
+}
