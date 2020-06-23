@@ -31,6 +31,14 @@ class Lobby {
     return DbHelper.getCocktailIngredients(cocktailId);
   }
 
+  static addCocktailAsUnlockedLobby(cocktailId, lobby_id, user_id) {
+    return DbHelper.addCocktailAsUnlockedLobby(cocktailId, lobby_id, user_id);
+  }
+
+  static addCocktailAsUnlockedUser(cocktailId, user_id) {
+    return DbHelper.addCocktailAsUnlockedUser(cocktailId, user_id);
+  }
+
   static updateUserScores(list) {
     return DbHelper.updateUserScores(list);
   }
@@ -49,6 +57,10 @@ class Lobby {
 
   static getNQuestions(cocktailId, questionLength) {
     return DbHelper.getNQuestions(cocktailId, questionLength);
+  }
+
+  static getLastQuestion(cocktailId) {
+    return DbHelper.getLastQuestion(cocktailId);
   }
 
   static getCorrectAnswer(questionId) {

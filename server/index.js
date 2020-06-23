@@ -63,7 +63,7 @@ const generateQuizSteps = async (cocktailId) => {
   const recipe = await LobbyController.getRecipeStepsByCocktailId(cocktailId);
   const questions = await LobbyController.getNQuestions(
     cocktailId,
-    recipe.length
+    recipe.length - 1
   );
   for (let i = 0; i < recipe.length; i++) {
     const question = questions[i];
@@ -73,6 +73,8 @@ const generateQuizSteps = async (cocktailId) => {
     recipeStep.type = "recipe";
     tempSteps.push(recipeStep);
   }
+
+  console.log(tempSteps);
   // tempSteps.push({
   //   type: "countryQuestion",
   // });
@@ -83,6 +85,7 @@ const generateQuizSteps = async (cocktailId) => {
 };
 
 const resetLobby = async (socket, lobbyId, user) => {
+  await LobbyController.getNewCocktailForLobby(lobbyId);
   const party = await LobbyController.localFindPartyById(user.user_id, lobbyId);
   quizInstances[lobbyId].members.forEach((item, key) => {
     quizInstances[lobbyId].members[key].ready = false;
@@ -184,19 +187,10 @@ const cleanStepForClient = (step) => {
   return step;
 };
 
-const startNextQuestion = (socket, lobby_id, user) => {
+const startNextQuestion = async (socket, lobby_id, user) => {
   if (!quizInstances[lobby_id]) {
     return;
   }
-  // const notReadyMembers = quizInstances[lobby_id].members.filter(
-  //   (member) => !member.ready
-  // );
-  // if (notReadyMembers.length > 0) {
-  //   return socket.emit("ready error", {
-  //     error: "Not all members are ready",
-  //     members: notReadyMembers,
-  //   });
-  // }
 
   quizInstances[lobby_id].current_quiz_step += 1;
 
@@ -315,6 +309,15 @@ const startNextQuestion = (socket, lobby_id, user) => {
     quizInstances[lobby_id].members.forEach((item, key) => {
       quizInstances[lobby_id].members[key].ready = false;
     });
+
+    console.log("this one here");
+
+    await LobbyController.addCocktailAsUnlocked(
+      quizInstances[lobby_id].cocktail_id,
+      lobby_id,
+      user.user_id
+    );
+
     socket.emit("player update", {
       members: quizInstances[lobby_id].members,
     });
@@ -400,8 +403,16 @@ io.on("connection", async (socket) => {
           console.log(err);
         }
       );
-      await UserController.uploadCocktail(fileName);
+      await UserController.uploadCocktail(
+        fileName,
+        quizInstances[lobby_id]?.cocktail_id,
+        user.user_id,
+        lobby_id
+      );
     }
+    //[quizInstances[lobby_id].cocktail_id]
+    if (!quizInstances[lobby_id].pictures)
+      quizInstances[lobby_id].pictures = {};
     if (!quizInstances[lobby_id].pictures[quizInstances[lobby_id].cocktail_id])
       quizInstances[lobby_id].pictures[
         quizInstances[lobby_id].cocktail_id
@@ -599,7 +610,10 @@ io.on("connection", async (socket) => {
     const notReadyMembers = quizInstances[data.lobby_id].members.filter(
       (member) => !member.ready
     );
-    if (notReadyMembers.length > 0)
+    if (
+      notReadyMembers.length > 0 &&
+      quizInstances[data.lobby_id].members.length > 1
+    )
       return socket.emit("ready error", {
         error: "Not all members are ready",
         members: notReadyMembers,

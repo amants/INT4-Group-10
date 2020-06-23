@@ -424,27 +424,31 @@ const Home = ({ userStore, partyId }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <WebcamContainer>
-          <RemoteWebCam>
-            <video id={`localVideo`} height="100px" controls autoPlay></video>
-          </RemoteWebCam>
-          {players
-            .filter((item) => item.user_id !== userStore.user.id && item.online)
-            ?.map((item) =>
-              item.user_id !== userStore.user.id ? (
-                <RemoteWebCam>
-                  <p>{item.username}</p>
-                  <video
-                    height="100px"
-                    width="133px"
-                    id={`remoteVideo_${item.user_id}`}
-                    controls
-                    autoPlay
-                  ></video>
-                </RemoteWebCam>
-              ) : null,
-            )}
-        </WebcamContainer>
+        {players.length > 1 ? (
+          <WebcamContainer>
+            <RemoteWebCam>
+              <video id={`localVideo`} height="100px" controls autoPlay></video>
+            </RemoteWebCam>
+            {players
+              .filter(
+                (item) => item.user_id !== userStore.user.id && item.online,
+              )
+              ?.map((item) =>
+                item.user_id !== userStore.user.id ? (
+                  <RemoteWebCam>
+                    <p>{item.username}</p>
+                    <video
+                      height="100px"
+                      width="133px"
+                      id={`remoteVideo_${item.user_id}`}
+                      controls
+                      autoPlay
+                    ></video>
+                  </RemoteWebCam>
+                ) : null,
+              )}
+          </WebcamContainer>
+        ) : null}
         {quiz?.current_question?.type === 'lobby' ? (
           <>
             <div className={style.container}>

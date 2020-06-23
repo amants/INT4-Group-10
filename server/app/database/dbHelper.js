@@ -15,7 +15,7 @@ exports.executeQuery = function (query, parameters, result) {
 exports.getRandomCocktail = function () {
   return new Promise((resolve) => {
     sql.query(
-      "SELECT cocktail_id FROM ?? ORDER BY RAND() LIMIT 1",
+      "SELECT cocktail_id FROM ?? WHERE active = true ORDER BY RAND() LIMIT 1",
       ["cocktails"],
       function (err, res) {
         if (err) {
@@ -200,13 +200,30 @@ exports.getQuestionsByCocktailId = function (id) {
 exports.getNQuestions = function (cocktailId, questionLength) {
   return new Promise((resolve) => {
     sql.query(
-      "SELECT * FROM questions WHERE cocktail_id = ? ORDER BY RAND() LIMIT ?",
+      "SELECT * FROM questions WHERE cocktail_id = ? AND final_question = false ORDER BY RAND() LIMIT ?",
       [cocktailId, questionLength],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getLastQuestion = function (cocktailId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM questions WHERE cocktail_id = ? AND final_question = true ORDER BY RAND() LIMIT 1",
+      [cocktailId],
       function (err, res) {
         if (err) {
           resolve(null);
         } else {
-          resolve(res);
+          resolve(res?.[0]);
         }
       }
     );
@@ -373,6 +390,40 @@ exports.sendMessage = function (message) {
   });
 };
 
+exports.addCocktailAsUnlockedLobby = function (cocktailId, lobby_id) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO lobby_unlocked_cocktails (lobby_id, cocktail_id) VALUES (?)",
+      [[lobby_id, cocktailId]],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.addCocktailAsUnlockedUser = function (cocktailId, user_id) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO user_unlocked_cocktails (cocktail_id, user_id) VALUES (?)",
+      [[cocktailId, user_id]],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
 exports.uploadCocktailLobby = function (link, lobbyId, userId, cocktailId) {
   return new Promise((resolve) => {
     return sql.query(
@@ -380,6 +431,7 @@ exports.uploadCocktailLobby = function (link, lobbyId, userId, cocktailId) {
       [[link, lobbyId, cocktailId, userId]],
       function (err, res) {
         if (err) {
+          console.error(err);
           resolve(err);
         } else {
           resolve(res);
@@ -392,7 +444,7 @@ exports.uploadCocktailLobby = function (link, lobbyId, userId, cocktailId) {
 exports.uploadCocktailUser = function (link, userId, cocktailId) {
   return new Promise((resolve) => {
     return sql.query(
-      "INSERT INTO lobby_cocktail_photos (photo_url, cocktail_id, user_id) VALUES (?)",
+      "INSERT INTO user_cocktail_photos (photo_url, cocktail_id, user_id) VALUES (?)",
       [[link, cocktailId, userId]],
       function (err, res) {
         if (err) {

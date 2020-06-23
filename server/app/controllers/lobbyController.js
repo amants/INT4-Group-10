@@ -57,6 +57,18 @@ exports.findUsers = async function (req, res) {
   }
 };
 
+// exports.getRandomCocktail = async function (req, res) {
+//   if (!req.verified)
+//     return res.status(code.notAuthenticated).send(msg.notAuthenticated);
+
+//   const cocktail = await Lobby.getRandomCocktail();
+//   if (cocktail) {
+//     res.status(200).send(cocktail);
+//   } else {
+//     res.status(code.notFound).send(msg.notFound);
+//   }
+// };
+
 exports.getAllParties = async function (req, res) {
   if (!req.verified)
     return res.status(code.notAuthenticated).send(msg.notAuthenticated);
@@ -114,6 +126,22 @@ exports.getCorrectAnswer = async function (answerId) {
   }
 };
 
+exports.addCocktailAsUnlocked = async function (cocktailId, lobby_id, user_id) {
+  const cocktailAddedLobby = await Lobby.addCocktailAsUnlockedLobby(
+    cocktailId,
+    lobby_id
+  );
+  const cocktailAddedUser = await Lobby.addCocktailAsUnlockedUser(
+    cocktailId,
+    lobby_id
+  );
+  if (cocktailAddedLobby && cocktailAddedUser) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 exports.getAllQuestionsOfCocktail = async function (cocktail_id) {
   const questions = await Lobby.getQuestionsByCocktailId(cocktail_id);
   const questionObject = {};
@@ -132,6 +160,9 @@ exports.getAllQuestionsOfCocktail = async function (cocktail_id) {
 
 exports.getNQuestions = async function (cocktailId, questionLength) {
   const questions = await Lobby.getNQuestions(cocktailId, questionLength);
+  const lastQuestion = await Lobby.getLastQuestion(cocktailId);
+  questions.push(lastQuestion);
+  console.log(lastQuestion);
   if (questions) {
     return new Promise((resolve) => {
       questions.map(async (item, i) => {
