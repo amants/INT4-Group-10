@@ -822,7 +822,7 @@ const Home = ({ userStore, partyId }) => {
                     Want to capture this beautiful moment?
                   </span>
                   <img
-                  className={style.endscreen__picture}
+                    className={style.endscreen__picture}
                     src="../assets/images/endscreen/polaroid.png"
                     width="499"
                     height="541,75"
@@ -854,58 +854,68 @@ const Home = ({ userStore, partyId }) => {
             </>
           ) : endScreenStep === null ? (
             <>
-            {/* Header */}
-            <Header page={'endscreen'} />
+              {/* Header */}
+              <Header page={'endscreen'} />
 
-            {/* Quiz Container */}
-            <div className={style.endscreen__container}>
-              <div className={style.endscreen__header}>
-                <span
-                  className={[style.party__participants, style.h2].join(' ')}
-                >
-                  Participants {players.filter((item) => item.online).length}{' '}
-                  / {players.length}
-                </span>
-                <h1 className={[style.party__title, style.h1].join(' ')}>
-                  {quiz.name}
-                </h1>
-              </div>
+              {/* Quiz Container */}
+              <div className={style.endscreen__container}>
+                <div className={style.endscreen__header}>
+                  <span
+                    className={[style.party__participants, style.h2].join(' ')}
+                  >
+                    Participants {players.filter((item) => item.online).length}{' '}
+                    / {players.length}
+                  </span>
+                  <h1 className={[style.party__title, style.h1].join(' ')}>
+                    {quiz.name}
+                  </h1>
+                </div>
 
-              {/* FRIENDSLIST */}
-              <SidebarSmall userStore={userStore} players={players} />
-              {/* CONTENT */}
-              <div className={style.endscreen__content}>
-                <img
-                className={style.endscreen__picture}
-                  src="../assets/images/endscreen/polaroidTemplate.png"
-                  width="499"
-                  height="541,75"
-                  alt=""
-                />
-                <button
-                  className={style.button}
-                  onClick={() => setEndScreenStep('take_picture')}
-                >
-                  take a picture
-                </button>
-                <button onClick={() => setEndScreenStep('overview')}>
-                  no thanks
-                </button>
+                {/* FRIENDSLIST */}
+                <SidebarSmall userStore={userStore} players={players} />
+                {/* CONTENT */}
+                <div className={style.endscreen__content}>
+                  <img
+                    className={style.endscreen__picture}
+                    src="../assets/images/endscreen/polaroidTemplate.png"
+                    width="499"
+                    height="541,75"
+                    alt=""
+                  />
+                  <button
+                    className={style.button}
+                    onClick={() => setEndScreenStep('take_picture')}
+                  >
+                    take a picture
+                  </button>
+                  <button onClick={() => setEndScreenStep('overview')}>
+                    no thanks
+                  </button>
+                </div>
               </div>
-            </div>
-            {/* BACKGROUND */}
-            <Background />
+              {/* BACKGROUND */}
+              <Background />
               <h1>Upload your picture </h1>
               <br />
-              <Webcam
-                audio={false}
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                videoConstraints={videoConstraints}
-              />
-              <button onClick={capture}>Take picture</button>
+              {picture ? (
+                <>
+                  <Webcam
+                    audio={false}
+                    ref={webcamRef}
+                    screenshotFormat="image/jpeg"
+                    videoConstraints={videoConstraints}
+                  />
+                  <button onClick={capture}>Take picture</button>
+                </>
+              ) : (
+                <>
+                  <img src={picture} />
+                  <button onClick={() => setPicture(null)}>
+                    Retake picture
+                  </button>
+                </>
+              )}
               <br />
-              {picture ? <img src={picture} /> : ''}
               <br />
               <button onClick={handlePicture}>Continue</button>
               <br />
