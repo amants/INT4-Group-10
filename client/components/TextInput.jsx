@@ -84,6 +84,7 @@ const StyledLabel = styled.label`
   width: 100%;
   font-family: sirenne-text-mvb, serif;
   font-weight: bold;
+  color: #102146;
   font-style: normal;
   font-size: 2rem;
   line-height: 2.4rem;

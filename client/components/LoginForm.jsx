@@ -35,7 +35,7 @@ const LoginForm = ({
       if (status2 === 200) {
         setUser(resp2);
         setAuth(true);
-        closePopUp();
+        location.reload();
       } else {
         setAuth(false);
       }
@@ -49,31 +49,55 @@ const LoginForm = ({
 
   return (
     <Container>
-      <Title>{title || 'Already a member?'}</Title>
-      <p>{subTitle || 'Welcome back, we missed you!'}</p>
-      <Form onSubmit={formSubmitHandler}>
-        <TextInput
-          type="text"
-          name="username"
-          placeholder=""
-          value={values.username}
-          onChange={handleChange}
-          error={errors.username}
-        >
-          Email or username
-        </TextInput>
-        <TextInput
-          type="password"
-          name="password"
-          placeholder=""
-          value={values.password}
-          onChange={handleChange}
-          error={errors.password}
-        >
-          Password
-        </TextInput>
-        <ActionButton type="submit">Login</ActionButton>
-      </Form>
+      <Page>
+        <HeaderContainer>
+          <HeaderContent>
+            <Title>{title || 'Log in'}</Title>
+          </HeaderContent>
+        </HeaderContainer>
+        <Form onSubmit={formSubmitHandler}>
+          <TextInput
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={values.username}
+            onChange={handleChange}
+            error={errors.username}
+          >
+            01. Username
+          </TextInput>
+          <TextInput
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={values.password}
+            onChange={handleChange}
+            error={errors.password}
+          >
+            02. Password
+          </TextInput>
+          <ButtonContainer>
+            <Hint>Log in if you already have a username and password.</Hint>
+            <StyledActionButton type="submit">Login</StyledActionButton>
+          </ButtonContainer>
+        </Form>
+      </Page>
+      <Page>
+        <HeaderContainer>
+          <HeaderContent>
+            <Title>{title || 'Register'}</Title>
+          </HeaderContent>
+        </HeaderContainer>
+        <RegisterImageContainer>
+          <RegisterImage src="/assets/images/registerIcon.png" />
+        </RegisterImageContainer>
+        <ButtonContainer>
+          <Hint>Travel anywhere you want by creating your own passport.</Hint>
+          <StyledRegisterActionButton type="submit">
+            Create a passport
+          </StyledRegisterActionButton>
+        </ButtonContainer>
+      </Page>
     </Container>
   );
 };
@@ -87,10 +111,87 @@ LoginForm.getInitialProps = async ({
   };
 };
 
+const RegisterImageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const RegisterImage = styled.img``;
+
+const StyledActionButton = styled(ActionButton)`
+  padding: 1rem 2rem;
+`;
+
+const StyledRegisterActionButton = styled(ActionButton)`
+  padding: 1rem 2rem;
+  background-color: #102146;
+  color: white;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  flex-wrap: wrap;
+  bottom: 3rem;
+  left: 0;
+  right: 0;
+`;
+
+const HeaderContainer = styled.div`
+  grid-column: 1 / span 2;
+`;
+
+const HeaderContent = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  height: 0;
+  padding-bottom: calc(100% / 2);
+  padding-left: 1rem;
+`;
+
+const Page = styled.div`
+  width: 50%;
+  height: 100%;
+  flex-grow: 0;
+  padding: 2rem;
+  padding-top: 0;
+  position: relative;
+  padding-bottom: 4rem;
+`;
+
 const Title = styled.h2`
   font-size: 3rem;
+  margin-top: 4rem;
   font-weight: 900;
   margin-bottom: 0.5rem;
+  width: auto;
+  flex-grow: 0;
+  flex-shrink: 0;
+  ${'' /* flex: 0 0 100%; */}
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    background-size: cover;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0.8rem;
+    background-image: url('/assets/images/titleVector.svg');
+  }
+`;
+
+const Hint = styled.p`
+  text-align: center;
+  width: 80%;
+  margin: auto;
+  margin-top: -2rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  color: #10214690;
 `;
 
 const Form = styled.form`
@@ -99,9 +200,9 @@ const Form = styled.form`
 `;
 
 const Container = styled.div`
-  & p {
-    margin-bottom: 3rem;
-  }
+  display: flex;
+  flex-wrap: no-wrap;
+  height: 100%;
 `;
 
 export default inject('interfaceStore', 'userStore')(observer(LoginForm));

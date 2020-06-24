@@ -4,7 +4,7 @@ import React, { useRef, cloneElement, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { inject, observer } from 'mobx-react';
 
-const PopUp = ({ name, children, interfaceStore, ...props }) => {
+const PopUp = ({ name, children, interfaceStore, allowClose, ...props }) => {
   const { togglePopUp } = interfaceStore;
   const popupRef = useRef();
 
@@ -14,6 +14,7 @@ const PopUp = ({ name, children, interfaceStore, ...props }) => {
 
   const closeHandler = (e) => {
     if (e?.stopPropagation) e?.stopPropagation();
+    if (!allowClose) return;
     popupRef.current.style.opacity = 0;
     setTimeout(() => {
       togglePopUp(name, false);
@@ -64,7 +65,7 @@ const BookContainer = styled.div`
   flex-grow: 0;
   flex-shrink: 0;
   flex-basis: 80%;
-  background-image: url('/assets/images/PassportOpen.png');
+  background-image: url('/assets/images/PassPortOpenBlue.png');
   border-radius: 0.5rem;
 `;
 
@@ -78,7 +79,8 @@ const Container = styled.div`
   display: flex;
   flex-grow: 0;
   flex-shrink: 0;
-  background-image: url('/assets/images/Card-Back.jpg');
+  background-image: url('/assets/images/Card/Card-Blurred.jpg');
+  background-size: cover;
   justify-content: space-around;
   transition: opacity 0.2s ease;
   align-items: center;

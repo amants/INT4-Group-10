@@ -67,7 +67,6 @@ exports.getUnlockedCocktailsByUserId = function (userId, order) {
     } ASC`;
     sql.query(query, [userId], function (err, res) {
       if (err) {
-        console.log(err);
         resolve(null);
       } else {
         resolve(res);
@@ -83,7 +82,6 @@ exports.isCocktailUnlocked = function (cocktailId, userId) {
       [cocktailId, userId],
       function (err, res) {
         if (err) {
-          console.log(err);
           resolve(null);
         } else {
           resolve(res);
@@ -172,7 +170,6 @@ exports.getCocktailIngredients = function (cocktailId) {
       [cocktailId],
       function (err, res) {
         if (err) {
-          console.log(err);
           resolve(null);
         } else {
           resolve(res);
@@ -381,7 +378,6 @@ exports.getPartyMembers = function (lobbyId) {
       [lobbyId],
       function (err, res) {
         if (err) {
-          console.log(err);
           resolve([]);
         } else {
           resolve(res);
@@ -393,17 +389,14 @@ exports.getPartyMembers = function (lobbyId) {
 
 exports.getNewCocktailForLobby = function (lobbyId) {
   return new Promise((resolve) => {
-    console.log("test");
     return sql.query(
       "SELECT M.cocktail_id FROM cocktails AS M WHERE M.cocktail_id NOT IN (SELECT F.cocktail_id FROM lobby_unlocked_cocktails AS F WHERE F.lobby_id = ?) AND M.active = 1 ORDER BY RAND() LIMIT 1",
       [lobbyId],
       function (err, res) {
-        console.log("fml");
         if (err) {
           console.error(err);
           resolve(err);
         } else {
-          // console.log(res);
           resolve(res?.[0].cocktail_id);
         }
       }
@@ -554,7 +547,6 @@ exports.getAllUsersByUsername = function (tableName, identification) {
       [tableName, `%${identification}%`, `%${identification}%`],
       function (err, res) {
         if (err) {
-          console.log(err);
           resolve(null);
         } else {
           resolve(res);
