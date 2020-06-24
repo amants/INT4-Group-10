@@ -73,7 +73,7 @@ const TextInput = forwardRef(
 const Container = styled.div`
   width: 100%;
   position: relative;
-  height: 9rem;
+  height: 8rem;
   margin-bottom: 2rem;
 `;
 
@@ -97,11 +97,11 @@ const StyledInput = styled.input`
   ${'' /* background-color: ${(props) => (props.disabled ? '#F0F1F3' : 'white')}; */}
   background-color: rgba(0, 0, 0, 0);
   border: none;
-  height: 3.5rem;
+  height: 3rem;
   width: 100%;
   margin-top: 1rem;
   font-size: 2rem;
-  color: #102146;
+  color: ${({ disabled }) => (disabled ? '#10214680' : '#102146')};
   box-sizing: border-box;
   font-family: sirenne-text-mvb, serif;
   font-style: normal;

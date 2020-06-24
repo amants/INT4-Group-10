@@ -92,7 +92,7 @@ const InputDiv = styled.div`
 const StyledInput = styled.input`
   background-color: rgba(0, 0, 0, 0);
   border: none;
-  height: 3.5rem;
+  height: 3rem;
   width: 100%;
   font-size: 2rem;
   box-sizing: border-box;

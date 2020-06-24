@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { inject, observer } from 'mobx-react';
-// import ActionButton from './ActionButton';
+import typo from '../styles/typo.module.css';
 import { logOutUser } from '../services/apiRouterService';
+import TextInput from './TextInput';
 import ActionButton from './ActionButton';
 
 const ProfileComponent = ({ userStore, interfaceStore }) => {
@@ -37,9 +38,63 @@ const ProfileComponent = ({ userStore, interfaceStore }) => {
           <StyledActionButton onClick={logoutUser}>Logout</StyledActionButton>
         </HeaderContainer>
       </Page>
+      <Page>
+        <HeaderContainer>
+          <HeaderContent>
+            <TitleDetail className={typo.h1}>Passport info</TitleDetail>
+          </HeaderContent>
+        </HeaderContainer>
+        <Form>
+          <TextInput
+            type="text"
+            name="username"
+            placeholder="************"
+            value={userStore.user.username}
+            disabled
+            onChange={() => {}}
+          >
+            01. Username
+          </TextInput>
+          <TextInput
+            type="text"
+            name="email"
+            placeholder="************"
+            disabled
+            value={userStore.user.email}
+            onChange={() => {}}
+          >
+            02. Email
+          </TextInput>
+          <TextInput
+            type="text"
+            name="email"
+            placeholder="************"
+            disabled
+            value={userStore.user.country_name}
+            onChange={() => {}}
+          >
+            03. Country
+          </TextInput>
+          <TextInput
+            type="text"
+            name="email"
+            placeholder="************"
+            disabled
+            value="************"
+            onChange={() => {}}
+          >
+            04. password
+          </TextInput>
+        </Form>
+      </Page>
     </Container>
   );
 };
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+`;
 
 const StyledActionButton = styled(ActionButton)`
   padding: 1rem 2rem;
@@ -88,6 +143,30 @@ const Page = styled.div`
   padding-top: 0;
   position: relative;
   padding-bottom: 4rem;
+`;
+
+const TitleDetail = styled.h2`
+  font-size: 3rem;
+  font-weight: 900;
+  padding-bottom: 4rem;
+  margin-bottom: -3rem;
+  flex-grow: 0;
+  flex-shrink: 0;
+  padding-right: 2rem;
+  ${'' /* flex: 0 0 100%; */}
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    background-size: 100%;
+    left: 0rem;
+    right: 1rem;
+    bottom: 0rem;
+    top: 0rem;
+    background-image: url('/assets/images/Krulletje.svg');
+    background-repeat: no-repeat;
+  }
 `;
 
 const Title = styled.h2`

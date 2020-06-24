@@ -26,6 +26,7 @@ const AddFriends = ({
         <ResultsContainer>
           {usersList.map((item) => (
             <ResultItem
+              key={item.user_id}
               onClick={() => {
                 setAddedFriends((prevValue) => {
                   const temp = [...prevValue];

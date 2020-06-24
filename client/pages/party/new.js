@@ -7,6 +7,7 @@ import style from './Style.module.css';
 import { useDebouncedCallback } from 'use-debounce';
 import { useRouter } from 'next/router';
 import moment from 'moment';
+import _ from 'lodash';
 import useForm from '../../hooks/useForm.js';
 import { getUsersByQ, createParty } from '../../services/apiRouterService';
 import SidebarBigNewParty from '../../containers/Sidebar/SidebarBig/SidebarBigNewParty';
@@ -31,8 +32,8 @@ const Home = ({ userStore }) => {
       setUsersList(
         response.filter(
           (item) =>
-            !addedFriends.includes(item.user_id) &&
-            !addedFriends.includes(userStore.user.user_id),
+            !addedFriends.filter((add) => add.user_id === item.user_id).length >
+              0 && item.user_id !== userStore.user.id,
         ),
       );
     } else {
