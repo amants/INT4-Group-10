@@ -64,7 +64,7 @@ const BookContainer = styled.div`
   flex-grow: 0;
   flex-shrink: 0;
   flex-basis: 80%;
-  background-image: url('/assets/images/PassportOpen.png');
+  background-image: url('/assets/images/PassPortOpenBlue.png');
   border-radius: 0.5rem;
 `;
 
@@ -78,7 +78,8 @@ const Container = styled.div`
   display: flex;
   flex-grow: 0;
   flex-shrink: 0;
-  background-image: url('/assets/images/Card-Back.jpg');
+  background-image: url('/assets/images/Card/Card-Blurred.jpg');
+  background-size: cover;
   justify-content: space-around;
   transition: opacity 0.2s ease;
   align-items: center;
