@@ -14,7 +14,7 @@ const Background = ({ page }) => {
     return (
       <>
         <img
-          src="../assets/images/Backgrounds/Card-Back.jpg"
+          src="../assets/images/backgrounds/Card-Back.jpg"
           alt=""
           className={style.background}
         />
