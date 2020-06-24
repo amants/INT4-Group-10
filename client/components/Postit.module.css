@@ -76,12 +76,12 @@
   flex-flow: column;
   max-width: 26rem;
   padding-top: 2rem;
+  width: 90%;
   composes: t1;
 }
 
 .postit__step {
   padding-bottom: 1rem;
-
 }
 .postit__background {
   position: absolute;

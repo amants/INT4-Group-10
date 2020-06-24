@@ -1,7 +1,7 @@
 import React from 'react';
 import style from './Postit.module.css';
 
-const Postit = ({ type, title, quiz }) => {
+const Postit = ({ type, title, quiz, className }) => {
   if (type === 'need') {
     return (
       <>
@@ -10,7 +10,7 @@ const Postit = ({ type, title, quiz }) => {
           <div className={style.postit__steps}>
             {quiz.cocktail_ingredients.map((item, i) => {
               return (
-                <li key={i} className={style.postit__step}>
+                <li key={i + 1} className={style.postit__step}>
                   {item.amount} {item.unit} {item.name}
                 </li>
               );
@@ -26,15 +26,15 @@ const Postit = ({ type, title, quiz }) => {
         </div>
       </>
     );
-  }else if (type === 'end') {
-    return  (
+  } else if (type === 'end') {
+    return (
       <>
         <div className={style.postit_wrapper_end} id="recipe">
           <h3 className={style.postit__title}>{title}</h3>
           <div className={style.postit__steps}>
             {quiz.recipe.map((item, i) => {
               return (
-                <li key={i} className={style.postit__step}>
+                <li key={i + 1} className={style.postit__step}>
                   {i}. {item.description}
                 </li>
               );
@@ -49,17 +49,17 @@ const Postit = ({ type, title, quiz }) => {
           />
         </div>
       </>
-    )
+    );
   } else {
     return (
       <>
-        <div className={style.postit_wrapper} id="recipe">
+        <div className={[style.postit_wrapper, className].join()} id="recipe">
           <h3 className={style.postit__title}>{title}</h3>
           <div className={style.postit__steps}>
             {quiz.recipe.map((item, i) => {
               return (
-                <li key={i} className={style.postit__step}>
-                  {i}. {item.description}
+                <li key={i + 1} className={style.postit__step}>
+                  {i + 1}. {item.description}
                 </li>
               );
             })}

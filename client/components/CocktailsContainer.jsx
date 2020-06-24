@@ -3,8 +3,14 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { getCocktails, getCocktailById } from '../services/apiRouterService';
 import { inject, observer } from 'mobx-react';
+import Postit from './Postit';
 import typo from '../styles/typo.module.css';
 import style from '../styles/components.module.css';
+import getConfig from 'next/config';
+
+const {
+  publicRuntimeConfig: { API_URL }, // Available both client and server side
+} = getConfig();
 
 const LoginForm = ({
   // userStore,
@@ -44,6 +50,12 @@ const LoginForm = ({
     setPageType('detail');
   };
 
+  const goBack = (e) => {
+    e.preventDefault();
+    setPageType('overview');
+    setCocktailDetail(null);
+  };
+
   if (pageType === 'detail') {
     return (
       <Container>
@@ -64,6 +76,18 @@ const LoginForm = ({
               </OrderContainer>
             </HeaderContent>
           </HeaderContainer>
+          <CocktailImageContainer>
+            <CocktailImg
+              src={
+                cocktailDetail.photo_url
+                  ? `${API_URL}/assets/img/cocktails/${cocktailDetail.photo_url}`
+                  : `/assets/images/cocktails/${cocktailDetail.image}`
+              }
+            />
+            <StyledGoBackButton onClick={goBack}>
+              {'<'} Go back
+            </StyledGoBackButton>
+          </CocktailImageContainer>
         </Page>
         <Page>
           <HeaderContainer>
@@ -71,7 +95,21 @@ const LoginForm = ({
               <TitleDetail className={typo.h1}>Ingredients</TitleDetail>
             </HeaderContent>
           </HeaderContainer>
+          <IngredientsContainer>
+            {cocktailDetail.ingredients.map((ingr) => (
+              <Ingredient>
+                <IngrName>{ingr.name}</IngrName>
+                <Amount>
+                  {ingr.amount} {ingr.unit}
+                </Amount>
+              </Ingredient>
+            ))}
+          </IngredientsContainer>
         </Page>
+        <StyledPostit
+          title={'Cocktail recipe'}
+          quiz={{ recipe: cocktailDetail.recipe }}
+        />
       </Container>
     );
   } else {
@@ -206,6 +244,36 @@ LoginForm.getInitialProps = async ({
   };
 };
 
+const StyledPostit = styled(Postit)`
+  z-index: 999;
+  right: -25rem;
+  top: 3rem;
+  transform: rotate(-10deg);
+  position: absolute;
+`;
+
+const Ingredient = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin: 0.7rem;
+`;
+
+const IngrName = styled.p`
+  font-size: 1.8rem;
+`;
+
+const Amount = styled.p`
+  font-family: sirenne-text-mvb, serif;
+  font-weight: 700;
+  font-style: bold;
+  font-size: 1.4rem;
+  line-height: 2.4rem;
+`;
+
+const IngredientsContainer = styled.div`
+  grid-column: 1 / span 2;
+`;
+
 const CountryFlag = styled.img`
   position: absolute;
   top: 1.5rem;
@@ -221,6 +289,18 @@ const HeaderContainer = styled.div`
 const CocktailContainer = styled.div`
   position: relative;
   padding-top: 100%;
+`;
+const CocktailImageContainer = styled.div`
+  width: 100%;
+  grid-column: 1 / span 2;
+  margin-top: 6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+const CocktailImg = styled.img`
+  height: 20rem;
 `;
 
 const CocktailImage = styled.img`
@@ -285,6 +365,33 @@ const PreviousPage = styled.button`
   &:hover {
     border-bottom: 2px solid #505050;
   }
+`;
+
+const StyledGoBackButton = styled.a`
+  border: none;
+  padding: 1rem 2rem;
+  border: #102146 0.2rem solid;
+  color: #102146;
+  background: none;
+  border-radius: 10rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 3rem;
+
+  :active {
+    transform: scale(0.95);
+  }
+
+  :focus {
+    outline: none;
+  }
+
+  &:hover {
+    background-color: #102146;
+    color: white;
+    text-decoration: none;
+  }
+  cursor: pointer;
 `;
 
 const NextPage = styled.button`
@@ -352,6 +459,7 @@ const Title = styled.h2`
   width: auto;
   flex-grow: 0;
   flex-shrink: 0;
+  font-family: sirenne-text-mvb, serif;
   ${'' /* flex: 0 0 100%; */}
   position: relative;
 
@@ -394,6 +502,7 @@ const Container = styled.div`
   display: flex;
   flex-wrap: no-wrap;
   height: 100%;
+  position: relative;
 `;
 
 export default inject('interfaceStore', 'userStore')(observer(LoginForm));

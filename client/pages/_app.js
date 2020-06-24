@@ -49,6 +49,7 @@ class MyApp extends App {
     const [resp, status, req] = await getUserData(cookie);
     if (status === 200) {
       ctx.store.userStore.setUser(resp);
+      console.log(resp);
       ctx.store.userStore.setAuth(true);
       pageProps = { ...pageProps, user: resp };
     }

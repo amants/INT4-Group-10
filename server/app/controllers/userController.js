@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const Lobby = require("../models/lobbyModel");
 const { msg, code } = require("../constants");
 const accessTokenService = require("../services/accessTokenService");
 const { cookieConfig, cookieConfigReset } = require("../config/cookies");
@@ -125,8 +126,10 @@ exports.getCocktailById = async function (req, res) {
   if (!isUnlocked)
     return res.status(code.noPermissions).json(msg.noPermissions);
 
-  const lockedCocktailCount = await User.getUnlockedCocktailById(id);
-  return res.status(code.success).json(lockedCocktailCount);
+  const cocktail = await User.getUnlockedCocktailById(id);
+  cocktail.ingredients = await Lobby.getCocktailIngredients(id);
+  cocktail.recipe = await Lobby.getRecipeStepsByCocktailId(id);
+  return res.status(code.success).json(cocktail);
 };
 
 exports.validateInput = async function (req, res) {

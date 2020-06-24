@@ -12,6 +12,7 @@ import { auth, getMe } from '../services/apiRouterService';
 const LoginForm = ({ userStore, interfaceStore, title }) => {
   const { setUser, setAuth } = userStore;
   const { togglePopUp } = interfaceStore;
+  const [loginError, setLoginError] = useState(null);
   const SignupSchema = Yup.object().shape({
     username,
     password,
@@ -31,8 +32,11 @@ const LoginForm = ({ userStore, interfaceStore, title }) => {
         setAuth(true);
         location.reload();
       } else {
+        setLoginError('Something went wrong');
         setAuth(false);
       }
+    } else {
+      setLoginError('Invalid username or password');
     }
   };
 
@@ -79,6 +83,7 @@ const LoginForm = ({ userStore, interfaceStore, title }) => {
           </TextInput>
           <ButtonContainer>
             <Hint>Log in if you already have a username and password.</Hint>
+            {loginError ? <Error>{loginError}</Error> : null}
             <StyledActionButton type="submit">Login</StyledActionButton>
           </ButtonContainer>
         </Form>
@@ -140,6 +145,15 @@ const StyledRegisterActionButton = styled.button`
   :focus {
     outline: none;
   }
+`;
+
+const Error = styled.p`
+  color: red;
+  width: 100%;
+  text-align: center;
+  height: 0px;
+  position: relative;
+  top: -12rem;
 `;
 
 const ButtonContainer = styled.div`
