@@ -1,0 +1,85 @@
+.h3 {
+  font-family: sirenne-text-mvb, serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 2.4rem;
+}
+
+.t1 {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.8rem;
+  line-height: 2.4rem;
+}
+
+.summary__wrapper {
+  font-family: sirenne-text-mvb, serif;
+  color: #102146;
+  max-width: 96rem;
+  margin: 0 auto;
+  margin-top: 12rem;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  width: min-content;
+}
+
+.summary__title {
+  font-size: 6.4rem;
+  font-weight: 700;
+  padding-bottom: 8rem;
+  text-align: center;
+}
+
+.summary__content {
+  display: grid;
+  margin: 0 auto;
+  grid-template-columns: repeat(3, 11.7rem);
+  grid-template-areas: 
+  "screen cocktail shots"
+  "screen-text cocktail-text shots-text";
+  gap: 8rem;
+  align-items: center;
+  composes: h3;
+}
+
+.summary__content span{
+  opacity: .6;
+  text-align: center;
+}
+
+.summary__content img{
+  justify-self: center;
+}
+
+.summary__image_screen {
+  grid-area: screen;
+}
+
+.summary__image_shots {
+  grid-area: shots;
+}
+
+.summary__image_cocktail {
+  grid-area: cocktail;
+}
+
+.button {
+  border: #102146 0.2rem solid;
+  color: #102146;
+  background: none;
+  border-radius: 10rem;
+  padding: 0 2rem;
+  transition: all 0.2s;
+  composes: t1;
+}
+.button__summary {
+  max-width: max-content;
+  justify-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 8rem;
+  composes: button;
+}

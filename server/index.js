@@ -2,15 +2,31 @@ require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const express = require("express");
-const socket = require("socket.io");
 const cors = require("cors");
 const tokenMiddleware = require("./app/middlewares/tokenMiddleware");
-
+const chatController = require("./app/controllers/chatController");
 const app = express();
+const socket = require("socket.io");
+const Lobby = require("./app/models/lobbyModel");
+const User = require("./app/models/userModel");
+const LobbyController = require("./app/controllers/lobbyController");
+const UserController = require("./app/controllers/userController");
 const port = process.env.PORT || 5000;
+
 const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+function readCookie(name, cookie) {
+  var nameEQ = name + "=";
+  var ca = cookie.split(";");
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == " ") c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+}
 
 const whitelist = [
   "",
@@ -32,7 +48,9 @@ const corsOptionsDelegate = function (req, callback) {
   }
   callback(null, corsOptions); // callback expects two parameters: error and options
 };
-
+const quizInstances = {};
+const onlineUsers = {};
+const callUsers = {};
 app.use(express.static("public"));
 app.use(cookieParser());
 app.use(cors(corsOptionsDelegate));
@@ -40,40 +58,738 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(tokenMiddleware.checkTokens);
 
+const generateQuizSteps = async (cocktailId) => {
+  const tempSteps = [];
+  const recipe = await LobbyController.getRecipeStepsByCocktailId(cocktailId);
+  const questions = await LobbyController.getNQuestions(
+    cocktailId,
+    recipe.length - 1
+  );
+  for (let i = 0; i < recipe.length; i++) {
+    const question = questions[i];
+    question.type = "quiz";
+    tempSteps.push(question);
+    const recipeStep = recipe[i];
+    recipeStep.type = "recipe";
+    tempSteps.push(recipeStep);
+  }
+  tempSteps.push({
+    type: "end_screen",
+  });
+  return tempSteps;
+};
+
+const resetLobby = async (socket, lobbyId, user) => {
+  await LobbyController.getNewCocktailForLobby(lobbyId);
+  const party = await LobbyController.localFindPartyById(user.user_id, lobbyId);
+  quizInstances[lobbyId].members.forEach((item, key) => {
+    quizInstances[lobbyId].members[key].ready = false;
+  });
+  quizInstances[lobbyId] = {
+    members: quizInstances[lobbyId].members,
+    name: party.name,
+    leader: quizInstances[lobbyId].leader,
+    startDate: party.startDate,
+    status: 0,
+    answers: [],
+    time_to_answer: 0,
+    cocktail_ingredients: await LobbyController.getCocktailIngredients(
+      party?.current_cocktail
+    ),
+    unlocked_cocktails: await LobbyController.getLobbyCompletedCocktails(
+      lobbyId
+    ),
+    recipe_step: undefined,
+    recipe: [],
+    pictures: quizInstances[lobbyId].pictures,
+    steps: await generateQuizSteps(party?.current_cocktail),
+    cocktail_id: party?.current_cocktail,
+    current_question: { type: "lobby" },
+    current_quiz_step: 0,
+    cocktail_questions: {},
+    answered_questions: {},
+  };
+
+  const chats = await chatController.getMessages(lobbyId);
+  socket.broadcast.to(lobbyId).emit("player update", {
+    members: quizInstances[lobbyId].members,
+  });
+  socket.emit("player update", {
+    members: quizInstances[lobbyId].members,
+  });
+  socket.emit("initial messages", {
+    chats,
+    members: quizInstances[lobbyId].members,
+    quiz: {
+      leader: quizInstances[lobbyId].leader,
+      name: quizInstances[lobbyId].name,
+      steps: quizInstances[lobbyId].steps,
+      pictures:
+        quizInstances[lobbyId].pictures[quizInstances[lobbyId].cocktail_id],
+      cocktail_ingredients: quizInstances[lobbyId].cocktail_ingredients,
+      step: quizInstances[lobbyId].current_quiz_step,
+      recipe_step: quizInstances[lobbyId]?.recipe_step,
+      answers: quizInstances[lobbyId].answers,
+      cocktail_id: quizInstances[lobbyId].cocktail_id,
+      recipe: quizInstances[lobbyId].recipe,
+      time_to_answer: quizInstances[lobbyId].time_to_answer,
+      answered_questions: quizInstances[lobbyId].time_to_answer,
+      unlocked_cocktails: quizInstances[lobbyId].unlocked_cocktails,
+      current_question: quizInstances[lobbyId].current_question,
+      answered_questions: quizInstances[lobbyId].answered_questions,
+      startDate: quizInstances[lobbyId].startDate,
+    },
+  });
+  socket.broadcast.to(lobbyId).emit("initial messages", {
+    chats,
+    members: quizInstances[lobbyId].members,
+    quiz: {
+      leader: quizInstances[lobbyId].leader,
+      name: quizInstances[lobbyId].name,
+      steps: quizInstances[lobbyId].steps,
+      pictures:
+        quizInstances[lobbyId].pictures[quizInstances[lobbyId].cocktail_id],
+      cocktail_ingredients: quizInstances[lobbyId].cocktail_ingredients,
+      step: quizInstances[lobbyId].current_quiz_step,
+      recipe_step: quizInstances[lobbyId]?.recipe_step,
+      answers: quizInstances[lobbyId].answers,
+      cocktail_id: quizInstances[lobbyId].cocktail_id,
+      recipe: quizInstances[lobbyId].recipe,
+      time_to_answer: quizInstances[lobbyId].time_to_answer,
+      answered_questions: quizInstances[lobbyId].time_to_answer,
+      unlocked_cocktails: quizInstances[lobbyId].unlocked_cocktails,
+      current_question: quizInstances[lobbyId].current_question,
+      answered_questions: quizInstances[lobbyId].answered_questions,
+      startDate: quizInstances[lobbyId].startDate,
+    },
+  });
+  socket.broadcast.to(lobbyId).emit("player update", {
+    members: quizInstances[lobbyId].members,
+  });
+
+  // GET NEW COCKTAIL FOR LOBBY
+
+  // PREPARE LOBBY CACHE FOR NEW COCKTAIL
+
+  // SET NEW CURRENT COCKTAIL ID
+};
+
+const cleanStepForClient = (step) => {
+  const tempStep = step;
+  if (tempStep?.type === "quiz") {
+    tempStep.answers.map((item) => {
+      delete item.correct;
+      return item;
+    });
+  }
+  return step;
+};
+
+const startNextQuestion = async (socket, lobby_id, user) => {
+  if (!quizInstances[lobby_id]) {
+    return;
+  }
+
+  quizInstances[lobby_id].current_quiz_step += 1;
+
+  quizInstances[lobby_id].current_question = cleanStepForClient(
+    quizInstances[lobby_id].steps[quizInstances[lobby_id]?.current_quiz_step]
+  );
+
+  if (quizInstances[lobby_id].current_question?.type === "quiz") {
+    quizInstances[lobby_id].time_to_answer = 20;
+
+    socket.emit("status update", {
+      total_steps: quizInstances[lobby_id]?.steps?.length,
+      step: quizInstances[lobby_id]?.current_quiz_step,
+      current_question: quizInstances[lobby_id].current_question,
+      time_to_answer: quizInstances[lobby_id].time_to_answer,
+    });
+    socket.broadcast.to(lobby_id).emit("status update", {
+      total_steps: quizInstances[lobby_id]?.steps?.length,
+      step: quizInstances[lobby_id]?.current_quiz_step,
+      current_question: quizInstances[lobby_id].current_question,
+      time_to_answer: quizInstances[lobby_id].time_to_answer,
+    });
+
+    const countdownTimer = setInterval(async () => {
+      if (
+        quizInstances[lobby_id].time_to_answer <= 0 ||
+        !quizInstances[lobby_id].time_to_answer
+      ) {
+        // hierzo
+        const notReadyMembers = quizInstances[lobby_id].members.filter(
+          (member) => !member.online
+        );
+        if (notReadyMembers.length > 0) {
+          delete quizInstances[lobby_id];
+        }
+        const correctAnswer = await LobbyController.getCorrectAnswer(
+          quizInstances[lobby_id].steps[
+            quizInstances[lobby_id].current_quiz_step
+          ].question_id
+        );
+        const updateArray = [];
+        quizInstances[lobby_id]?.answered_questions?.[
+          quizInstances[lobby_id].steps[
+            quizInstances[lobby_id].current_quiz_step
+          ].question_id
+        ]?.voters.forEach(async (item) => {
+          const userIndex = quizInstances[lobby_id].members.findIndex(
+            (elem) => elem.user_id === item.user_id
+          );
+          if (item.answer_id === correctAnswer) {
+            quizInstances[lobby_id].members[userIndex].score += 20;
+          } else {
+            quizInstances[lobby_id].members[userIndex].shots += 1;
+          }
+          updateArray.push([
+            quizInstances[lobby_id].members[userIndex].score,
+            quizInstances[lobby_id].members[userIndex].shots,
+            lobby_id,
+            quizInstances[lobby_id].members[userIndex].user_id,
+          ]);
+        });
+        if (updateArray.length > 0) {
+          await LobbyController.updateUserScores(updateArray);
+        }
+        socket.emit("correct answer", {
+          correct_answer: correctAnswer,
+        });
+        //TODO update points users, give shots to wrong users
+        socket.broadcast.to(lobby_id).emit("correct answer", {
+          correct_answer: correctAnswer,
+        });
+        socket.emit("player update", {
+          members: quizInstances[lobby_id].members,
+        });
+        socket.broadcast.to(lobby_id).emit("player update", {
+          members: quizInstances[lobby_id].members,
+        });
+        startNextQuestion(socket, lobby_id, user);
+        return clearInterval(countdownTimer);
+      }
+      quizInstances[lobby_id].time_to_answer -= 1;
+      socket.broadcast.to(lobby_id).emit("status update", {
+        time_to_answer: quizInstances[lobby_id].time_to_answer,
+      });
+      socket.emit("status update", {
+        time_to_answer: quizInstances[lobby_id].time_to_answer,
+      });
+    }, 1000);
+  } else if (quizInstances[lobby_id].current_question.type === "recipe") {
+    quizInstances[lobby_id].members.forEach((item, key) => {
+      quizInstances[lobby_id].members[key].ready = false;
+    });
+
+    quizInstances[lobby_id].recipe.push(
+      quizInstances[lobby_id].current_question
+    );
+    setTimeout(() => {
+      socket.emit("player update", {
+        members: quizInstances[lobby_id].members,
+      });
+      socket.broadcast.to(lobby_id).emit("player update", {
+        members: quizInstances[lobby_id].members,
+      });
+      socket.emit("status update", {
+        step: quizInstances[lobby_id]?.current_quiz_step,
+        current_question: quizInstances[lobby_id].current_question,
+        recipe: quizInstances[lobby_id].recipe,
+      });
+      socket.broadcast.to(lobby_id).emit("status update", {
+        step: quizInstances[lobby_id]?.current_quiz_step,
+        current_question: quizInstances[lobby_id].current_question,
+        recipe: quizInstances[lobby_id].recipe,
+      });
+    }, 5000);
+  } else if (quizInstances[lobby_id].current_question.type === "end_screen") {
+    quizInstances[lobby_id].members.forEach((item, key) => {
+      quizInstances[lobby_id].members[key].ready = false;
+    });
+
+    await LobbyController.addCocktailAsUnlocked(
+      quizInstances[lobby_id].cocktail_id,
+      lobby_id,
+      user.user_id
+    );
+
+    socket.emit("player update", {
+      members: quizInstances[lobby_id].members,
+    });
+    socket.broadcast.to(lobby_id).emit("player update", {
+      members: quizInstances[lobby_id].members,
+    });
+    socket.emit("status update", {
+      step: quizInstances[lobby_id]?.current_quiz_step,
+      current_question: quizInstances[lobby_id].current_question,
+      recipe: quizInstances[lobby_id].recipe,
+    });
+    socket.broadcast.to(lobby_id).emit("status update", {
+      step: quizInstances[lobby_id]?.current_quiz_step,
+      current_question: quizInstances[lobby_id].current_question,
+      recipe: quizInstances[lobby_id].recipe,
+    });
+  }
+};
+
 const io = socket(server);
-io.on("connection", (socket) => {
-  console.log("made socket connection", socket.id);
+io.on("connection", async (socket) => {
+  let lobby_id;
+  let user;
+  if (socket?.handshake?.headers?.cookie) {
+    user = await User.getUserByRefreshToken(
+      await readCookie("token", await socket?.handshake?.headers?.cookie)
+    );
+    if (!user[1]) return socket.disconnect();
+  } else return socket.disconnect();
+  user = user[1];
 
-  socket.on("leave room", (data) => {
-    console.log("leaving room");
-    console.log(data);
-    socket.leave(data.room);
+  socket.on("leave lobby", (data) => {
+    Lobby.leaveParty(data.userId, data.lobby_id);
+
+    socket.leave(data.lobby_id);
+    socket.broadcast.to(data.lobby_id).emit("player update", {
+      members: quizInstances[data.lobby_id].members,
+    });
   });
 
-  socket.on("new message", (data) => {
-    console.log(data);
-    socket.broadcast.to(data.room).emit("receive message", data);
+  // START VOICE CALL SERVER SETTINGS
+
+  socket.on("candidate", (data) => {
+    callUsers[data.target_user_id].emit("candidate", {
+      candidate: data.candidate,
+      request_user_id: user.user_id,
+    });
   });
 
-  socket.on("disconnect", (reason) => {
-    console.log("user disconnected");
+  socket.on("answerCall", (data) => {
+    socket.lobby_id = lobby_id;
+    callUsers[data.target_user_id].emit("answerCall", {
+      answer: data.answer,
+      request_user_id: user.user_id,
+    });
+  });
+  socket.on("leave", () => {
+    socket.lobby_id = null;
+    quizInstances[lobby_id].members[user.user_id].inCall = false;
+    delete callUsers[user.user_id];
   });
 
-  socket.on("room", (data) => {
-    console.log("room join");
-    console.log(data);
-    socket.join(data.room);
-    socket.broadcast
-      .to(data.room)
-      .emit("receive message", { message: "user joined" });
+  socket.on("offer", (data) => {
+    socket.lobby_id = lobby_id;
+    callUsers[data.target_user_id].emit("offer", {
+      offer: data.offer,
+      request_user_id: user.user_id,
+    });
   });
 
-  socket.on("chat", (data) => {
-    io.sockets.emit("chat", data);
+  // END VOICE CALL SERVER SETTINGS
+
+  socket.on("upload picture", async (data) => {
+    let fileName = null;
+    if (data.picture) {
+      fileName = `${lobby_id}-${quizInstances[lobby_id]?.cocktail_id}-${user.user_id}.jpg`;
+      let base64Image = data.picture.split(";base64,").pop();
+      require("fs").writeFile(
+        `./public/assets/img/cocktails/${fileName}`,
+        base64Image,
+        { encoding: "base64" },
+        function (err) {
+          console.log(err);
+        }
+      );
+      await UserController.uploadCocktail(
+        fileName,
+        quizInstances[lobby_id]?.cocktail_id,
+        user.user_id,
+        lobby_id
+      );
+    }
+    //[quizInstances[lobby_id].cocktail_id]
+    if (!quizInstances[lobby_id].pictures)
+      quizInstances[lobby_id].pictures = {};
+    if (!quizInstances[lobby_id].pictures[quizInstances[lobby_id].cocktail_id])
+      quizInstances[lobby_id].pictures[
+        quizInstances[lobby_id].cocktail_id
+      ] = {};
+    if (
+      !quizInstances[lobby_id].pictures[quizInstances[lobby_id].cocktail_id][
+        user.user_id
+      ]
+    )
+      quizInstances[lobby_id].pictures[quizInstances[lobby_id].cocktail_id][
+        user.user_id
+      ] = {};
+    quizInstances[lobby_id].pictures[quizInstances[lobby_id].cocktail_id][
+      user.user_id
+    ] = {
+      username: user.username,
+      avatar: user.avatar,
+      src: fileName ? `/assets/img/cocktails/${fileName}` : undefined,
+    };
+    socket.broadcast.to(lobby_id).emit("pictures update", {
+      pictures:
+        quizInstances[lobby_id].pictures[quizInstances[lobby_id].cocktail_id],
+    });
+    socket.emit("pictures update", {
+      pictures:
+        quizInstances[lobby_id].pictures[quizInstances[lobby_id].cocktail_id],
+    });
   });
 
-  socket.on("typing", (data) => {
-    socket.broadcast.emit("typing", data);
+  socket.on("new message", async (data) => {
+    const party = await LobbyController.localFindPartyById(
+      user.user_id,
+      lobby_id
+    );
+    if (!party) {
+      return socket.emit("errormsg", { error: "NO_ACCESS" });
+    }
+    await chatController.newMessage(data, lobby_id, user.user_id);
+    socket.broadcast.to(lobby_id).emit("receive message", {
+      username: user.username,
+      time_posted: new Date(),
+      lobby_id: lobby_id,
+      avatar: user.avatar,
+      message: data.message,
+    });
+    socket.emit("receive message", {
+      username: user.username,
+      time_posted: new Date(),
+      lobby_id: lobby_id,
+      avatar: user.avatar,
+      message: data.message,
+    });
+  });
+
+  socket.on("disconnect", () => {
+    delete onlineUsers[socket.id];
+    if (!quizInstances[lobby_id]) {
+      return;
+    }
+    socket.lobby_id = null;
+    delete callUsers[user.user_id];
+    const meIndex = quizInstances[lobby_id].members.findIndex(
+      (elem) => elem.user_id === user.user_id
+    );
+    quizInstances[lobby_id].members[meIndex].ready = false;
+    quizInstances[lobby_id].members[meIndex].online = false;
+    quizInstances[lobby_id].members[meIndex].inCall = false;
+    socket.broadcast.to(lobby_id).emit("player update", {
+      members: quizInstances[lobby_id].members,
+    });
+  });
+
+  socket.on("ready", (data) => {
+    if (!quizInstances[lobby_id]) {
+      return;
+    }
+    const meIndex = quizInstances[lobby_id].members.findIndex(
+      (elem) => elem.user_id === user.user_id
+    );
+    quizInstances[lobby_id].members[meIndex].ready = data.ready;
+    socket.emit("player update", {
+      members: quizInstances[lobby_id].members,
+    });
+    socket.broadcast.to(lobby_id).emit("player update", {
+      members: quizInstances[lobby_id].members,
+    });
+
+    if (
+      quizInstances[lobby_id].steps[quizInstances[lobby_id]?.current_quiz_step]
+        .type === "recipe"
+    ) {
+      const notReadyMembers = quizInstances[lobby_id].members.filter(
+        (member) => !member.ready
+      );
+      if (notReadyMembers.length > 0)
+        return socket.emit("ready error", {
+          error: "Not all members are ready",
+          members: notReadyMembers,
+        });
+      else startNextQuestion(socket, lobby_id, user);
+    }
+    if (
+      quizInstances[lobby_id].steps[quizInstances[lobby_id]?.current_quiz_step]
+        .type === "end_screen"
+    ) {
+      const notReadyMembers = quizInstances[lobby_id].members.filter(
+        (member) => !member.ready
+      );
+      if (notReadyMembers.length > 0)
+        return socket.emit("ready error", {
+          error: "Not all members are ready",
+          members: notReadyMembers,
+        });
+      else resetLobby(socket, lobby_id, user);
+    }
+  });
+
+  socket.on("answer", (data) => {
+    if (!quizInstances[lobby_id]) {
+      return;
+    }
+    if (quizInstances[lobby_id]?.time_to_answer <= 0) {
+      return;
+    }
+    const answerCount = quizInstances[lobby_id].answered_questions[
+      quizInstances[lobby_id].steps[quizInstances[lobby_id]?.current_quiz_step]
+        .question_id
+    ]?.voters?.filter((item) => item.user_id === user.user_id);
+    if (answerCount?.length >= 1) return;
+    if (
+      !quizInstances[lobby_id]?.answered_questions?.[
+        quizInstances[lobby_id].steps[
+          quizInstances[lobby_id]?.current_quiz_step
+        ].question_id
+      ]
+    ) {
+      quizInstances[lobby_id].answered_questions[
+        quizInstances[lobby_id].steps[
+          quizInstances[lobby_id]?.current_quiz_step
+        ].question_id
+      ] = { voters: [] };
+    }
+    if (
+      !quizInstances[lobby_id]?.answered_questions?.[
+        quizInstances[lobby_id].steps[
+          quizInstances[lobby_id]?.current_quiz_step
+        ].question_id
+      ]?.[data.answer_id]
+    ) {
+      quizInstances[lobby_id].answered_questions[
+        quizInstances[lobby_id].steps[
+          quizInstances[lobby_id]?.current_quiz_step
+        ].question_id
+      ][data.answer_id] = [];
+    }
+    quizInstances[lobby_id].answered_questions[
+      quizInstances[lobby_id].steps[quizInstances[lobby_id]?.current_quiz_step]
+        .question_id
+    ][data.answer_id].push({
+      username: user.username,
+      user_id: user.user_id,
+    });
+    quizInstances[lobby_id].answered_questions[
+      quizInstances[lobby_id].steps[quizInstances[lobby_id]?.current_quiz_step]
+        .question_id
+    ].voters.push({
+      username: user.username,
+      user_id: user.user_id,
+      answer_id: data.answer_id,
+    });
+    quizInstances[lobby_id].time_to_answer =
+      quizInstances[lobby_id]?.answered_questions?.[
+        quizInstances[lobby_id].steps[
+          quizInstances[lobby_id]?.current_quiz_step
+        ].question_id
+      ]?.voters?.length >= quizInstances[lobby_id]?.members?.length &&
+      quizInstances[lobby_id]?.members?.length
+        ? 0
+        : quizInstances[lobby_id].time_to_answer;
+    socket.emit("status update", {
+      answered_questions: quizInstances[lobby_id].answered_questions,
+      time_to_answer: quizInstances[lobby_id].time_to_answer,
+    });
+    socket.broadcast.to(lobby_id).emit("status update", {
+      answered_questions: quizInstances[lobby_id].answered_questions,
+      time_to_answer: quizInstances[lobby_id].time_to_answer,
+    });
+  });
+
+  socket.on("start game", async (data) => {
+    if (!quizInstances[data.lobby_id]) {
+      return;
+    }
+
+    const notReadyMembers = quizInstances[data.lobby_id].members.filter(
+      (member) => !member.ready
+    );
+    if (
+      notReadyMembers.length > 0 &&
+      quizInstances[data.lobby_id].members.length > 1
+    )
+      return socket.emit("ready error", {
+        error: "Not all members are ready",
+        members: notReadyMembers,
+      });
+
+    quizInstances[data.lobby_id].current_quiz_step = 0;
+    quizInstances[lobby_id].current_question = cleanStepForClient(
+      quizInstances[data.lobby_id].steps[
+        quizInstances[data.lobby_id]?.current_quiz_step
+      ]
+    );
+    quizInstances[data.lobby_id].time_to_answer = 20;
+    socket.emit("status update", {
+      total_steps: quizInstances[data.lobby_id]?.steps?.length,
+      step: quizInstances[data.lobby_id]?.current_quiz_step,
+      current_question: quizInstances[lobby_id].current_question,
+      time_to_answer: quizInstances[data.lobby_id].time_to_answer,
+    });
+    socket.broadcast.to(data.lobby_id).emit("status update", {
+      total_steps: quizInstances[data.lobby_id]?.steps?.length,
+      step: quizInstances[data.lobby_id]?.current_quiz_step,
+      current_question: quizInstances[lobby_id].current_question,
+      time_to_answer: quizInstances[data.lobby_id].time_to_answer,
+    });
+    const countdownTimer = setInterval(async () => {
+      if (
+        quizInstances[data.lobby_id].time_to_answer <= 0 ||
+        !quizInstances[data.lobby_id].time_to_answer
+      ) {
+        const notReadyMembers = quizInstances[lobby_id].members.filter(
+          (member) => !member.online
+        );
+        if (notReadyMembers.length > 0) {
+          delete quizInstances[lobby_id];
+        }
+        const correctAnswer = await LobbyController.getCorrectAnswer(
+          quizInstances[data.lobby_id].steps[
+            quizInstances[data.lobby_id].current_quiz_step
+          ].question_id
+        );
+        const updateArray = [];
+        quizInstances[lobby_id]?.answered_questions?.[
+          quizInstances[data.lobby_id].steps[
+            quizInstances[data.lobby_id].current_quiz_step
+          ].question_id
+        ]?.voters.forEach(async (item) => {
+          const userIndex = quizInstances[lobby_id].members.findIndex(
+            (elem) => elem.user_id === item.user_id
+          );
+          if (item.answer_id === correctAnswer) {
+            quizInstances[lobby_id].members[userIndex].score += 20;
+          } else {
+            quizInstances[lobby_id].members[userIndex].shots += 1;
+          }
+          updateArray.push([
+            quizInstances[lobby_id].members[userIndex].score,
+            quizInstances[lobby_id].members[userIndex].shots,
+            lobby_id,
+            quizInstances[lobby_id].members[userIndex].user_id,
+          ]);
+        });
+        if (updateArray.length > 0) {
+          await LobbyController.updateUserScores(updateArray);
+        }
+        socket.emit("correct answer", {
+          correct_answer: correctAnswer,
+        });
+        //TODO update points users, give shots to wrong users
+        socket.broadcast.to(data.lobby_id).emit("correct answer", {
+          correct_answer: correctAnswer,
+        });
+        socket.emit("player update", {
+          members: quizInstances[lobby_id].members,
+        });
+        socket.broadcast.to(lobby_id).emit("player update", {
+          members: quizInstances[lobby_id].members,
+        });
+        startNextQuestion(socket, lobby_id, user);
+        return clearInterval(countdownTimer);
+      }
+      quizInstances[data.lobby_id].time_to_answer -= 1;
+      socket.broadcast.to(data.lobby_id).emit("status update", {
+        time_to_answer: quizInstances[data.lobby_id].time_to_answer,
+      });
+      socket.emit("status update", {
+        time_to_answer: quizInstances[data.lobby_id].time_to_answer,
+      });
+    }, 1000);
+  });
+
+  socket.on("join room", async (data) => {
+    const party = await LobbyController.localFindPartyById(
+      user.user_id,
+      data.lobby_id
+    );
+    onlineUsers[socket.id] = {
+      username: user.username,
+    };
+
+    socket.username = user.username;
+
+    callUsers[user.user_id] = socket;
+    socket.user_id = user.user_id;
+    if (!party) {
+      return socket.emit("errormsg", { error: "NO_ACCESS" });
+    }
+    lobby_id = data.lobby_id;
+    socket.join(data.lobby_id);
+    if (!quizInstances[data.lobby_id]) {
+      party.members.forEach((item, key) => {
+        if (item.user_id === user.user_id) {
+          party.members[key].online = true;
+          party.members[key].ready = false;
+          party.members[key].inCall = false;
+        }
+      });
+      quizInstances[data.lobby_id] = {
+        members: party.members,
+        name: party.name,
+        leader: party.leader,
+        startDate: party.start_date,
+        status: 0,
+        answers: [],
+        time_to_answer: 0,
+        cocktail_ingredients: await LobbyController.getCocktailIngredients(
+          party?.current_cocktail
+        ),
+        unlocked_cocktails: await LobbyController.getLobbyCompletedCocktails(
+          data.lobby_id
+        ),
+        recipe_step: undefined,
+        recipe: [],
+        pictures: {},
+        steps: await generateQuizSteps(party?.current_cocktail),
+        cocktail_id: party?.current_cocktail,
+        current_question: { type: "lobby" },
+        current_quiz_step: 0,
+        cocktail_questions: {},
+        answered_questions: {},
+      };
+    } else {
+      quizInstances[data.lobby_id].members.forEach((item, key) => {
+        if (item.user_id === user.user_id) {
+          quizInstances[data.lobby_id].members[key].online = true;
+          quizInstances[data.lobby_id].members[key].ready = false;
+          quizInstances[data.lobby_id].members[key].inCall = false;
+        }
+      });
+    }
+    const chats = await chatController.getMessages(data.lobby_id);
+    socket.emit("initial messages", {
+      chats,
+      members: quizInstances[data.lobby_id].members,
+      quiz: {
+        leader: quizInstances[data.lobby_id].leader,
+        name: quizInstances[data.lobby_id].name,
+        steps: quizInstances[data.lobby_id].steps,
+        pictures:
+          quizInstances[data.lobby_id].pictures[
+            quizInstances[data.lobby_id].cocktail_id
+          ],
+        cocktail_ingredients: quizInstances[data.lobby_id].cocktail_ingredients,
+        step: quizInstances[data.lobby_id].current_quiz_step,
+        recipe_step: quizInstances[data.lobby_id]?.recipe_step,
+        answers: quizInstances[data.lobby_id].answers,
+        cocktail_id: quizInstances[data.lobby_id].cocktail_id,
+        recipe: quizInstances[data.lobby_id].recipe,
+        time_to_answer: quizInstances[data.lobby_id].time_to_answer,
+        answered_questions: quizInstances[data.lobby_id].time_to_answer,
+        unlocked_cocktails: quizInstances[data.lobby_id].unlocked_cocktails,
+        current_question: quizInstances[data.lobby_id].current_question,
+        answered_questions: quizInstances[data.lobby_id].answered_questions,
+        startDate: quizInstances[data.lobby_id].startDate,
+      },
+    });
+    socket.broadcast.to(data.lobby_id).emit("player update", {
+      members: quizInstances[data.lobby_id].members,
+    });
+
+    console.log(`${user.username} joined the lobby`);
   });
 });
 

@@ -9,7 +9,7 @@ const User = require("../models/userModel");
 const methodWhitelist = ["GET"];
 
 // Allow even if the method is blocked
-const routeWhitelist = ["/auth", "/register"];
+const routeWhitelist = ["/auth", "/register", "validate", "/countries"];
 
 // Block even if the method is an exception
 const routeBlacklist = ["/me"];
@@ -23,6 +23,10 @@ exports.checkTokens = function (req, res, next) {
       !routeWhitelist.includes(req.url.toLowerCase()) ||
       routeBlacklist.includes(req.url.toLowerCase())
     ) {
+      if (req.url.split("/")[1] === "validate") {
+        return next();
+      }
+
       return res.status(code.notAuthenticated).send(msg.notAuthenticated);
     }
     return next();

@@ -1,0 +1,75 @@
+.party__content  {
+  width: min-content;
+}
+
+.quiz__sidebar {
+  grid-area: sidebar;
+}
+
+.party__sidebar {
+  margin: 4rem 0rem 0 8rem;
+}
+
+.chat__chatinput {
+  width: max-content;
+  border: none;
+  padding: 1rem;
+  background-color: #f1f1f1;
+}
+
+.chat__wrapper {
+  width: 35rem;
+  display: flex;
+  flex-flow: row;
+  border: 0.2rem solid #102146;
+  border-radius: 20rem;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.sidebar__wrapper {
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(6, 20px);
+  grid-template-areas: ;
+}
+
+.friends__user {
+  grid-area: 1;
+  display: grid;
+  grid-template-columns: min-content auto;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas:
+    'image name'
+    'image country';
+  color: #102146;
+}
+
+.sidebar__userself {
+  margin-top: 4rem;
+}
+
+.user__name {
+  grid-area: name;
+  align-self: flex-end;
+}
+
+.user__country {
+  grid-area: country;
+  align-self: flex-start;
+}
+
+.user__picture {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 10rem;
+  grid-area: image;
+  margin: 2rem;
+}
+
+
+.user__background {
+  position: absolute;
+  z-index: -1;
+  margin-left: -15rem;
+}
+

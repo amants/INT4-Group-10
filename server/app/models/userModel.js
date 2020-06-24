@@ -16,8 +16,8 @@ const privateKEYAccess = fs.readFileSync(
   `${__dirname}/../constants/private.key`,
   "utf8"
 );
-const i = "HugeClone"; // Issuer
-const a = "https://neolol.com"; // Audience
+const i = "Integration"; // Issuer
+const a = "https://int4.neolol.com"; // Audience
 
 // User object constructor
 class User {
@@ -36,12 +36,48 @@ class User {
     });
   }
 
+  static uploadCocktailLobby(link, lobbyId, userId, cocktailId) {
+    return DbHelper.uploadCocktailLobby(link, lobbyId, userId, cocktailId);
+  }
+
+  static validateInput(column, q) {
+    return DbHelper.validateInput(column, q);
+  }
+
+  static getNotUnlockedCocktailCountByUserId(userId) {
+    return DbHelper.getNotUnlockedCocktailCountByUserId(userId);
+  }
+
+  static getUnlockedCocktailsByUserId(userId, order) {
+    return DbHelper.getUnlockedCocktailsByUserId(userId, order);
+  }
+
+  static isCocktailUnlocked(cocktailId, userId) {
+    return DbHelper.isCocktailUnlocked(cocktailId, userId);
+  }
+
+  static getUnlockedCocktailById(cocktailId) {
+    return DbHelper.getUnlockedCocktailById(cocktailId);
+  }
+
+  static uploadCocktailUser(link, userId, cocktailId) {
+    return DbHelper.uploadCocktailUser(link, userId, cocktailId);
+  }
+
   static getUserByUsernameOrEmail(identification, result) {
     return DbHelper.getByIdentification(DbTableName, identification, result);
   }
 
-  static getUserById(userId, result) {
-    return DbHelper.getById(DbTableName, userId, result);
+  static getAllUsersByUsername(identification, result) {
+    return DbHelper.getAllUsersByUsername(DbTableName, identification, result);
+  }
+
+  static getUserById(userId) {
+    return DbHelper.getById(DbTableName, userId);
+  }
+
+  static getAllCountries() {
+    return DbHelper.getAllCountries();
   }
 
   static getUserSimple(username) {
@@ -88,10 +124,11 @@ class User {
           const salt = await bcrypt.genSalt(10);
           const encryptedPass = await bcrypt.hash(usedPayload.password, salt);
           sql.query(
-            "INSERT INTO user (username, email, password, avatar, refresh_token, salt) " +
-              "VALUES ( ?, ?, ?, ?, ?, ?);",
+            "INSERT INTO user (username, country_id, email, password, avatar, refresh_token, salt) " +
+              "VALUES ( ?, ?, ?, ?, ?, ?, ?);",
             [
               usedPayload.username,
+              usedPayload.country_id,
               usedPayload.email,
               encryptedPass,
               usedPayload.avatar,

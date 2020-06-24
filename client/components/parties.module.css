@@ -1,0 +1,146 @@
+.h1 {
+  font-family: sirenne-text-mvb, serif;
+  font-weight: bold;
+  font-style: normal;
+  font-size: 2.8rem;
+  line-height: 3rem;
+}
+
+.h2 {
+  font-family: sirenne-text-mvb, serif;
+  font-weight: bold;
+  font-style: normal;
+  font-size: 2rem;
+  line-height: 2.4rem;
+}
+
+.h3 {
+  font-family: sirenne-text-mvb, serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 2.4rem;
+}
+
+.h4 {
+  font-family: sirenne-text-mvb, serif;
+  font-weight: 700;
+  font-style: bold;
+  font-size: 1.4rem;
+  line-height: 2.4rem;
+}
+
+.t1 {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.8rem;
+  line-height: 2.4rem;
+}
+
+.t2 {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.4rem;
+  line-height: 2.1rem;
+}
+
+.t3 {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 1.2rem;
+  line-height: 1.8rem;
+}
+
+.parties__container {
+  max-width: 96rem;
+  margin: 0 auto;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.parties__header {
+  display: flex;
+  justify-content: space-between;
+  width: 69.2rem;
+}
+
+.parties__item {
+  text-decoration: none;
+  color: #102146;
+  text-transform: uppercase;
+  font-weight: 700;
+  width: 69.2rem;
+}
+
+.parties__item:hover {
+  text-decoration: none;
+}
+
+.parties__background {
+  position: relative;
+  z-index: -1;
+}
+
+.parties__item {
+  display: flex;
+}
+
+.parties__wrapper {
+  display: flex;
+  flex-flow: column;
+  margin-left: -69.2rem;
+}
+
+.item1 {
+  margin-top: 2rem;
+  margin-left: 7.5rem;
+  width: 35rem;
+  composes: t3;
+}
+
+.item2 {
+  margin-top: 1rem;
+  margin-left: 7rem;
+  width: 35rem;
+  composes: h1;
+}
+
+.item3 {
+  margin-top: 3rem;
+  margin-left: 7rem;
+  width: 35rem;
+  display: flex;
+  justify-content: space-between;
+  composes: t1;
+}
+
+.parties__scroll {
+  width: 69.2rem;
+  overflow: scroll;
+  scroll-behavior: smooth;
+  height: 50rem;
+}
+
+.button {
+  border: #102146 0.2rem solid;
+  color: #102146;
+  background: none;
+  border-radius: 10rem;
+  padding: 0 2rem;
+  transition: all 0.1s;
+  cursor: pointer;
+  composes: t1;
+}
+
+.button__parties {
+  max-width: max-content;
+  justify-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 8rem;
+  composes: button;
+}

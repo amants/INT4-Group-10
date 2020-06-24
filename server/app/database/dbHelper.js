@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require("uuid");
+const { response } = require("express");
 const sql = require("../models/db.js")();
 
 exports.executeQuery = function (query, parameters, result) {
@@ -10,9 +12,104 @@ exports.executeQuery = function (query, parameters, result) {
   });
 };
 
+exports.getRandomCocktail = function () {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT cocktail_id FROM ?? WHERE active = true ORDER BY RAND() LIMIT 1",
+      ["cocktails"],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.updateLobbyCocktail = function (cocktailId, lobbyId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "UPDATE lobbies SET current_cocktail = ? WHERE lobby_id = ?",
+      [cocktailId, lobbyId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.getUnlockedCocktailById = function (cocktailId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT cocktails.cocktail_id, cocktails.name, countries.country_key, cocktails.difficulty, cocktails.price, cocktails.duration, countries.flag_url, cocktails.image, cock.time_unlocked, user_cocktail_photos.photo_url, countries.name AS country_name FROM user_unlocked_cocktails AS cock INNER JOIN cocktails ON cock.cocktail_id = cocktails.cocktail_id INNER JOIN countries ON countries.country_id = cocktails.country_id LEFT OUTER JOIN user_cocktail_photos ON user_cocktail_photos.cocktail_id = cock.cocktail_id WHERE cocktails.cocktail_id = ?",
+      [cocktailId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.getUnlockedCocktailsByUserId = function (userId, order) {
+  return new Promise((resolve) => {
+    const query = `SELECT cocktails.cocktail_id, cocktails.name, countries.country_key, countries.stamp_url, cocktails.difficulty, cocktails.price, cocktails.duration, countries.flag_url, cocktails.image, cock.time_unlocked, user_cocktail_photos.photo_url, countries.name AS country_name FROM user_unlocked_cocktails AS cock INNER JOIN cocktails ON cock.cocktail_id = cocktails.cocktail_id INNER JOIN countries ON countries.country_id = cocktails.country_id LEFT JOIN user_cocktail_photos ON user_cocktail_photos.cocktail_id = cock.cocktail_id WHERE cock.user_id = ? ORDER BY ${
+      order !== "none" ? `cocktails.${order}` : `cock.time_unlocked`
+    } ASC`;
+    sql.query(query, [userId], function (err, res) {
+      if (err) {
+        resolve(null);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+};
+
+exports.isCocktailUnlocked = function (cocktailId, userId) {
+  return new Promise((resolve) => {
+    sql.query(
+      `SELECT * FROM user_unlocked_cocktails WHERE cocktail_id = ? AND user_id = ?`,
+      [cocktailId, userId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getNotUnlockedCocktailCountByUserId = function (userId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT Count(M.cocktail_id) AS not_unlocked_count FROM cocktails AS M WHERE M.cocktail_id NOT IN (SELECT F.cocktail_id FROM user_unlocked_cocktails AS F WHERE user_id = ?)",
+      [userId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
 exports.getById = function (tableName, id) {
   return new Promise((resolve) => {
-    sql.query("SELECT * FROM ?? WHERE id = ?", [tableName, id], function (
+    sql.query("SELECT * FROM ?? WHERE user_id = ?", [tableName, id], function (
       err,
       res
     ) {
@@ -25,16 +122,432 @@ exports.getById = function (tableName, id) {
   });
 };
 
+exports.updateUserScores = function (list) {
+  return new Promise((resolve) => {
+    const errors = [];
+    const results = [];
+    list.forEach(async (item, i) => {
+      await sql.query(
+        "UPDATE lobby_members SET score = ?, shots = ? WHERE lobby_id = ? AND user_id = ?",
+        item,
+        function (err, res) {
+          if (err) {
+            console.error(err);
+            errors.push(err);
+          } else {
+            // console.error(err);
+            results.push(res);
+          }
+        }
+      );
+      if (list.length === i + 1) {
+        resolve([...errors, ...results]);
+      }
+    });
+  });
+};
+
+exports.getRecipeStepsByCocktailId = function (cocktailId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM cocktail_steps WHERE cocktail_id = ?",
+      [cocktailId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getCocktailIngredients = function (cocktailId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM cocktail_ingredients WHERE cocktail_id = ?",
+      [cocktailId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getCorrectAnswer = function (questionId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT answer_id FROM answers WHERE question_id = ? AND correct = 1",
+      [questionId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.getQuestionsByCocktailId = function (id) {
+  return new Promise((resolve) => {
+    sql.query("SELECT * FROM questions WHERE cocktail_id = ?", [id], function (
+      err,
+      res
+    ) {
+      if (err) {
+        resolve(null);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+};
+
+exports.getNQuestions = function (cocktailId, questionLength) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM questions WHERE cocktail_id = ? AND final_question = false ORDER BY RAND() LIMIT ?",
+      [cocktailId, questionLength],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getLastQuestion = function (cocktailId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM questions WHERE cocktail_id = ? AND final_question = true ORDER BY RAND() LIMIT 1",
+      [cocktailId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.getLobbyCompletedCocktails = function (id) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT * FROM lobby_unlocked_cocktails WHERE lobby_id = ?",
+      [id],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getAnswersOfQuestion = function (id) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT answer_id, answer, question_id, correct FROM answers WHERE question_id = ? ORDER BY RAND()",
+      [id],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getPartyById = function (tableName, id) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT lobbies.lobby_id, lobbies.name, lobbies.lobby_key, lobbies.start_date, user.username AS leadusername, user.user_id AS leadid, user.avatar AS leadavatar FROM ?? INNER JOIN user ON lobbies.party_leader=user.user_id WHERE lobby_id = ?",
+      [tableName, id],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.getAllPartyDataById = function (lobbyId) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT lobbies.lobby_id, lobbies.current_cocktail, cocktails.name, cocktails.country_id, cocktails.image, lobbies.name, lobbies.lobby_key, lobbies.start_date, user.username AS leadusername, user.user_id AS leadid, user.avatar AS leadavatar FROM ?? INNER JOIN user ON lobbies.party_leader=user.user_id INNER JOIN cocktails ON lobbies.current_cocktail=cocktails.cocktail_id WHERE lobby_id = ?",
+      ["lobbies", lobbyId],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
 exports.getByUsername = function (tableName, username) {
   return new Promise((resolve) => {
     return sql.query(
-      "SELECT * FROM ?? WHERE username = ?",
+      "SELECT * FROM ?? LEFT OUTER JOIN countries ON countries.country_id=user.country_id WHERE username = ?",
       [tableName, username],
       function (err, res) {
         if (err) {
           resolve(null);
         } else {
           resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.getChatMessages = function (tableName, id) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT chat.message, chat.time_posted, user.username, chat.lobby_id, user.avatar FROM ?? INNER JOIN user ON chat.user_id=user.user_id WHERE lobby_id = ?",
+      [tableName, id],
+      function (err, res) {
+        if (err) {
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getPartiesFromUser = function (tableName, id) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT lobbies.name, lobbies.start_date, lobbies.lobby_id, lobbies.lobby_key, lobby_members.user_id, lobby_members.lobby_id, user.username AS leader FROM ?? INNER JOIN lobby_members ON lobbies.lobby_id=lobby_members.lobby_id INNER JOIN user ON lobbies.party_leader=user.user_id WHERE lobby_members.user_id = ?",
+      [tableName, id],
+      function (err, res) {
+        if (err) {
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.isUserLobbyMember = function (userId, lobbyId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT user_id FROM ?? WHERE lobby_members.lobby_id = ? AND lobby_members.user_id = ?",
+      ["lobby_members", lobbyId, userId],
+      function (err, res) {
+        if (err) {
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getPartyMembers = function (lobbyId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT user.user_id, user.username, user.avatar, lobby_members.score, lobby_members.shots, countries.flag_url, countries.name, countries.country_key FROM lobby_members INNER JOIN user ON lobby_members.user_id=user.user_id LEFT OUTER JOIN countries ON countries.country_id=user.country_id WHERE lobby_members.lobby_id = ?",
+      [lobbyId],
+      function (err, res) {
+        if (err) {
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.validateInput = function (column, q) {
+  return new Promise((resolve) => {
+    return sql.query(`SELECT * FROM user WHERE ${column} = ?`, [q], function (
+      err,
+      res
+    ) {
+      if (err) {
+        resolve([]);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+};
+
+exports.getAllCountries = function () {
+  return new Promise((resolve) => {
+    return sql.query(
+      `SELECT * FROM countries ORDER BY countries.name`,
+      function (err, res) {
+        if (err) {
+          resolve([]);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.getNewCocktailForLobby = function (lobbyId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "SELECT M.cocktail_id FROM cocktails AS M WHERE M.cocktail_id NOT IN (SELECT F.cocktail_id FROM lobby_unlocked_cocktails AS F WHERE F.lobby_id = ?) AND M.active = 1 ORDER BY RAND() LIMIT 1",
+      [lobbyId],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve(err);
+        } else {
+          resolve(res?.[0].cocktail_id);
+        }
+      }
+    );
+  });
+};
+exports.sendMessage = function (message) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO chat (lobby_id, user_id, message) VALUES (?)",
+      [[message.lobbyId, message.userId, message.message]],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.addCocktailAsUnlockedLobby = function (cocktailId, lobby_id) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO lobby_unlocked_cocktails (lobby_id, cocktail_id) VALUES (?)",
+      [[lobby_id, cocktailId]],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.addCocktailAsUnlockedUser = function (cocktailId, user_id) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO user_unlocked_cocktails (cocktail_id, user_id) VALUES (?)",
+      [[cocktailId, user_id]],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.uploadCocktailLobby = function (link, lobbyId, userId, cocktailId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO lobby_cocktail_photos (photo_url, lobby_id, cocktail_id, user_id) VALUES (?)",
+      [[link, lobbyId, cocktailId, userId]],
+      function (err, res) {
+        if (err) {
+          console.error(err);
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.uploadCocktailUser = function (link, userId, cocktailId) {
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO user_cocktail_photos (photo_url, cocktail_id, user_id) VALUES (?)",
+      [[link, cocktailId, userId]],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.createLobby = function (party, leader, cocktail) {
+  return new Promise((resolve) => {
+    const lobby_key = uuidv4();
+    return sql.query(
+      "INSERT INTO lobbies (party_leader, lobby_key, name, start_date, current_cocktail) VALUES (?)",
+      [[leader, lobby_key, party.name, party.startDate, cocktail]],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
+exports.addUsers = async function (users, lobbyId, leader) {
+  const insertArray = [];
+  await users.forEach((user) => {
+    insertArray.push([lobbyId, user, user === leader, 0, 0]);
+  });
+  insertArray.push([lobbyId, leader, 1, 0, 0]);
+  return new Promise((resolve) => {
+    return sql.query(
+      "INSERT INTO lobby_members (lobby_id, user_id, leader, shots, score) VALUES ?",
+      [insertArray],
+      function (err, res) {
+        if (err) {
+          resolve(err);
+        } else {
+          resolve(res);
         }
       }
     );
@@ -51,6 +564,22 @@ exports.getByIdentification = function (tableName, identification) {
           resolve(null);
         } else {
           resolve(res?.[0]);
+        }
+      }
+    );
+  });
+};
+
+exports.getAllUsersByUsername = function (tableName, identification) {
+  return new Promise((resolve) => {
+    sql.query(
+      "SELECT user_id, username, avatar, user.country_id, countries.flag_url, countries.name, countries.country_key FROM ?? LEFT OUTER JOIN countries ON countries.country_id=user.country_id WHERE user.username LIKE ? ORDER BY username LIMIT 3",
+      [tableName, `%${identification}%`, `%${identification}%`],
+      function (err, res) {
+        if (err) {
+          resolve(null);
+        } else {
+          resolve(res);
         }
       }
     );

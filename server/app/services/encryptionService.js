@@ -10,7 +10,7 @@ const privateKEYAccess = fs.readFileSync(
   `${__dirname}/../config/keys/private.key`,
   "utf8"
 );
-const i = "int4.neolol.com"; // Issuer
+const i = "Integration"; // Issuer
 const a = "https://int4.neolol.com"; // Audience
 
 const expiresIn = "1h";
