@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect } from 'react';
+import React from 'react';
 import style from '../SidebarSmall/SidebarSmall.module.css';
+import styled from 'styled-components';
 
 const SidebarSmall = ({ userStore, players }) => {
   return (
@@ -12,7 +13,8 @@ const SidebarSmall = ({ userStore, players }) => {
               return (
                 // Show user that is current user
                 <>
-                  <div
+                  <FriendElement
+                    ready={item.ready}
                     className={[
                       style.friends__user,
                       style.friends__userself,
@@ -20,7 +22,11 @@ const SidebarSmall = ({ userStore, players }) => {
                   >
                     <img
                       className={style.user__picture}
-                      src="/assets/images/lara.jpg"
+                      src={
+                        item.avatar
+                          ? `${API_URL}${item.avatar}`
+                          : '../assets/images/lara.jpg'
+                      }
                       width="160"
                       height="160"
                       alt=""
@@ -38,16 +44,23 @@ const SidebarSmall = ({ userStore, players }) => {
                       height="346"
                       alt=""
                     />
-                  </div>
+                  </FriendElement>
                 </>
               );
             } else {
               return (
                 <>
-                  <div className={style.friends__user}>
+                  <FriendElement
+                    ready={item.ready}
+                    className={style.friends__user}
+                  >
                     <img
                       className={style.user__picture}
-                      src="/assets/images/lara.jpg"
+                      src={
+                        item.avatar
+                          ? `${API_URL}${item.avatar}`
+                          : '../assets/images/lara.jpg'
+                      }
                       width="160"
                       height="160"
                       alt=""
@@ -67,7 +80,7 @@ const SidebarSmall = ({ userStore, players }) => {
                     />
                     {/* {item.online ? 'online' : 'offline'} - score:{' '}
                           {item.score} - shots: {item.shots} */}
-                  </div>
+                  </FriendElement>
                 </>
               );
             }
@@ -77,5 +90,10 @@ const SidebarSmall = ({ userStore, players }) => {
     </>
   );
 };
+
+const FriendElement = styled.div`
+  transition: all 0.2s ease;
+  ${({ ready }) => (!ready ? 'filter: grayscale(100%);' : '')};
+`;
 
 export default SidebarSmall;

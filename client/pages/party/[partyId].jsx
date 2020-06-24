@@ -234,7 +234,7 @@ const Home = ({ userStore, partyId }) => {
       setMessages(payload.chats.reverse());
       setPlayers(payload.members);
       setQuiz(payload.quiz);
-      setPictures(payload.quiz.pictures);
+      setPictures(payload.quiz.pictures || {});
       setEndScreenStep(null);
       if (supportedBrowsers.includes(browser.name)) {
         const filtered = payload.members.filter(
@@ -319,8 +319,8 @@ const Home = ({ userStore, partyId }) => {
     }
 
     socket.on('pictures update', (payload) => {
-      console.log(payload);
-      setPictures(payload.pictures);
+      setPictures(payload.pictures || {});
+      console.log(payload.pictures);
     });
 
     socket.on('ready error', (payload) => {
@@ -933,37 +933,9 @@ const Home = ({ userStore, partyId }) => {
                       handleReady={handleReady}
                       ready={ready}
                     />
-                    />
                     <div className={style.endscreen__content_last}>
                       <div className={style.content__needs}>
                         <div className={style.needs__wrapper}>
-                          <div className={style.needs__info}>
-                            <span
-                              className={[style.info__text, style.h2].join(' ')}
-                            >
-                              Your score this game
-                            </span>
-                            <span
-                              className={[style.info__time, style.h2].join(' ')}
-                            >
-                              score hier nog
-                            </span>
-                            <span
-                              className={[style.info__feedback, style.t2].join(
-                                ' ',
-                              )}
-                            >
-                              You can go back to the party lobby.
-                            </span>
-                            <div className={style.info__start}>
-                              <button
-                                className={style.button}
-                                onClick={handleReady}
-                              >
-                                Lobby
-                              </button>
-                            </div>
-                          </div>
                           {players?.length > 1 ? (
                             <>
                               <div className={style.needs__chat}>
@@ -1024,9 +996,12 @@ const Home = ({ userStore, partyId }) => {
                           alt=""
                         />
                       </div>
-                      <Postit type={'end'} title={'Need to buy'} quiz={quiz} />
+                      <Postit
+                        type={'end'}
+                        title={'Cocktail recipe'}
+                        quiz={quiz}
+                      />
                       <div className={style.endscreen__pictures}>
-                        {console.log(Object.values(pictures), 'pictures')}
                         {Object.values(pictures)
                           .filter((item) => item.src)
                           .map((item, i) => (
