@@ -22,12 +22,12 @@ const Layout = ({ children, interfaceStore, userStore }) => {
   return (
     <Container>
       {login ? (
-        <PopUpComponent name="login">
+        <PopUpComponent name="login" allowClose={false}>
           <LoginForm />
         </PopUpComponent>
       ) : null}
       {cocktails ? (
-        <PopUpComponent name="cocktails">
+        <PopUpComponent name="cocktails" allowClose={true}>
           <CocktailsContainer />
         </PopUpComponent>
       ) : null}

@@ -4,7 +4,7 @@ import React, { useRef, cloneElement, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { inject, observer } from 'mobx-react';
 
-const PopUp = ({ name, children, interfaceStore, ...props }) => {
+const PopUp = ({ name, children, interfaceStore, allowClose, ...props }) => {
   const { togglePopUp } = interfaceStore;
   const popupRef = useRef();
 
@@ -14,6 +14,7 @@ const PopUp = ({ name, children, interfaceStore, ...props }) => {
 
   const closeHandler = (e) => {
     if (e?.stopPropagation) e?.stopPropagation();
+    if (!allowClose) return;
     popupRef.current.style.opacity = 0;
     setTimeout(() => {
       togglePopUp(name, false);
