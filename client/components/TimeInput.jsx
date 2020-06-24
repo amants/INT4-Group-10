@@ -41,7 +41,6 @@ const TimeInput = forwardRef(
 
     const handleChange = (e) => {
       e.persist();
-      console.log({ name: e.target.name, value: e.target.value });
       onChange({ name: e.target.name, value: e.target.value });
     };
 

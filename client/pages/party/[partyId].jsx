@@ -94,7 +94,6 @@ const Home = ({ userStore, partyId }) => {
   }, [quiz?.current_question?.type]);
 
   useEffect(() => {
-    console.log({ ready });
     socket.emit('ready', { ready });
 
     return () => {
@@ -187,7 +186,6 @@ const Home = ({ userStore, partyId }) => {
   };
 
   async function handleOffer(offer, userId) {
-    console.log(pcList, userId, pcList[userId]);
     await pcList[userId].setRemoteDescription(new RTCSessionDescription(offer));
 
     //create an answer to an offer
@@ -195,7 +193,6 @@ const Home = ({ userStore, partyId }) => {
       async function (answer) {
         await pcList[userId].setLocalDescription(answer);
 
-        console.log('sending answers', answer);
         socket.emit('answerCall', {
           answer: answer,
           target_user_id: userId,
@@ -210,7 +207,6 @@ const Home = ({ userStore, partyId }) => {
   const StartCall = () => {
     // create an offer
     Object.keys(pcList).forEach((key) => {
-      console.log(pcList, key, pcList[key], typeof pcList[key]);
       pcList[key].createOffer(
         function (offer) {
           socket.emit('offer', {
@@ -227,8 +223,6 @@ const Home = ({ userStore, partyId }) => {
       );
     });
   };
-
-  console.log(videoRefs);
 
   useEffect(() => {
     setInRoom(true);
@@ -265,7 +259,6 @@ const Home = ({ userStore, partyId }) => {
         prevMessage.reverse();
         prevMessage.push(payload);
         const pushValue = prevMessage.reverse();
-        console.log(pushValue);
         return pushValue;
       });
       document.title = `new messages have been emitted`;
@@ -305,24 +298,20 @@ const Home = ({ userStore, partyId }) => {
 
     if (supportedBrowsers.includes(browser.name)) {
       socket.on('offer', (data) => {
-        console.log('offer incoming', data);
         handleOffer(data.offer, data.request_user_id);
       });
 
       socket.on('answerCall', (data) => {
-        console.log('answer incoming', data);
         handleAnswerCall(data.answer, data.request_user_id);
       });
 
       socket.on('candidate', (data) => {
-        console.log('candidate incoming', data);
         handleCandidate(data.candidate, data.request_user_id);
       });
     }
 
     socket.on('pictures update', (payload) => {
       setPictures(payload.pictures || {});
-      console.log(payload.pictures);
     });
 
     socket.on('ready error', (payload) => {
@@ -382,7 +371,6 @@ const Home = ({ userStore, partyId }) => {
   };
 
   function handleAnswerCall(answer, userId) {
-    console.log('answering');
     pcList[userId].setRemoteDescription(new RTCSessionDescription(answer));
   }
 
@@ -491,7 +479,6 @@ const Home = ({ userStore, partyId }) => {
                         <span
                           className={[style.info__time, style.h2].join(' ')}
                         >
-                          {console.log(quiz.startDate)}
                           <CountdownComponent
                             startDate={new Date(quiz.startDate)}
                           />

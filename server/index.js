@@ -73,11 +73,6 @@ const generateQuizSteps = async (cocktailId) => {
     recipeStep.type = "recipe";
     tempSteps.push(recipeStep);
   }
-
-  console.log(tempSteps);
-  // tempSteps.push({
-  //   type: "countryQuestion",
-  // });
   tempSteps.push({
     type: "end_screen",
   });
@@ -87,7 +82,6 @@ const generateQuizSteps = async (cocktailId) => {
 const resetLobby = async (socket, lobbyId, user) => {
   await LobbyController.getNewCocktailForLobby(lobbyId);
   const party = await LobbyController.localFindPartyById(user.user_id, lobbyId);
-  console.log(party);
   quizInstances[lobbyId].members.forEach((item, key) => {
     quizInstances[lobbyId].members[key].ready = false;
   });
@@ -313,8 +307,6 @@ const startNextQuestion = async (socket, lobby_id, user) => {
     quizInstances[lobby_id].members.forEach((item, key) => {
       quizInstances[lobby_id].members[key].ready = false;
     });
-
-    console.log("this one here");
 
     await LobbyController.addCocktailAsUnlocked(
       quizInstances[lobby_id].cocktail_id,

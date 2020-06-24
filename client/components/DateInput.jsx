@@ -27,7 +27,6 @@ const DateInput = ({
   const [year, setYear] = useState('');
 
   useEffect(() => {
-    console.log({ name, value: `${day}/${month}/${year}` });
     onChange({ name, value: `${day}/${month}/${year}` });
   }, [day, month, year]);
 
