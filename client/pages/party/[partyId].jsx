@@ -463,10 +463,10 @@ const Home = ({ userStore, partyId }) => {
                     Participants 5/6
                   </span>
                   <h1 className={[style.party__title, style.h1].join(' ')}>
-                    Plan a new party
+                    {quiz.name}
                   </h1>
                   <span className={[style.uiz__info, style.h2].join(' ')}>
-                    This party is complete, <br /> registrations are closed.
+                    {quiz.leader.username} is the party leader
                   </span>
                 </div>
                 <SidebarBig
@@ -576,15 +576,6 @@ const Home = ({ userStore, partyId }) => {
                 </div>
               </div>
             </div>
-            {/* LOGICA HIERONDER */}
-            <h1>Players</h1>
-            {players.map((item, i) => (
-              <p key={i}>
-                {item.username} - {item.online ? 'online' : 'offline'} -{' '}
-                {item.ready ? 'Ready' : 'waiting ...'}
-              </p>
-            ))}
-            <br />
             {/* BACKGROUND */}
             <Background />
           </>
@@ -729,6 +720,9 @@ const Home = ({ userStore, partyId }) => {
                 <h1 className={[style.party__title, style.h1].join(' ')}>
                   {quiz.name}
                 </h1>
+                <span className={[style.uiz__info, style.h2].join(' ')}>
+                  {quiz.leader.username} is the party leader
+                </span>
               </div>
 
               {/* FRIENDSLIST */}
@@ -818,6 +812,9 @@ const Home = ({ userStore, partyId }) => {
                   <h1 className={[style.party__title, style.h1].join(' ')}>
                     {quiz.name}
                   </h1>
+                  <span className={[style.uiz__info, style.h2].join(' ')}>
+                    {quiz.leader.username} is the party leader
+                  </span>
                 </div>
 
                 {/* FRIENDSLIST */}
@@ -865,6 +862,9 @@ const Home = ({ userStore, partyId }) => {
                   <h1 className={[style.party__title, style.h1].join(' ')}>
                     {quiz.name}
                   </h1>
+                  <span className={[style.uiz__info, style.h2].join(' ')}>
+                    {quiz.leader.username} is the party leader
+                  </span>
                 </div>
 
                 {/* FRIENDSLIST */}
@@ -919,10 +919,10 @@ const Home = ({ userStore, partyId }) => {
                         Participants 5/6
                       </span>
                       <h1 className={[style.party__title, style.h1].join(' ')}>
-                        Plan a new party
+                        {quiz.name}
                       </h1>
                       <span className={[style.uiz__info, style.h2].join(' ')}>
-                        This party is complete, <br /> registrations are closed.
+                        {quiz.leader.username} is the party leader
                       </span>
                     </div>
                     <SidebarBig
