@@ -992,6 +992,7 @@ const Home = ({ userStore, partyId }) => {
                           src="../assets/images/clipboard.png"
                           alt=""
                         />
+                        <a href="/index">back to home</a>
                       </div>
                       <Postit
                         type={'end'}
