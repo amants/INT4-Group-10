@@ -5,7 +5,7 @@ const Postit = ({ type, title, quiz, className }) => {
   if (type === 'need') {
     return (
       <>
-        <div className={style.postit_wrapper} id="recipe">
+        <div className={[style.postit_wrapper, style.postit_wrapper_lobby].join(' ')} id="recipe">
           <h3 className={style.postit__title}>{title}</h3>
           <div className={style.postit__steps}>
             {quiz.cocktail_ingredients.map((item, i) => {
