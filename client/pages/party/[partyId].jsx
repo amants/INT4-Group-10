@@ -5,10 +5,12 @@ import io from 'socket.io-client';
 import getConfig from 'next/config';
 import Webcam from 'react-webcam';
 import styled from 'styled-components';
+import moment from 'moment';
 import style from './Style.module.css';
 import SidebarBig from '../../containers/Sidebar/SidebarBig/SidebarBig';
 import SidebarSmall from '../../containers/Sidebar/SidebarSmall/SidebarSmall';
 import Header from '../../components/Header';
+import CountdownComponent from '../../components/CountdownComponent';
 import Background from '../../components/Background';
 import Postit from '../../components/Postit';
 import { detect } from 'detect-browser';
@@ -489,7 +491,10 @@ const Home = ({ userStore, partyId }) => {
                         <span
                           className={[style.info__time, style.h2].join(' ')}
                         >
-                          now
+                          {console.log(quiz.startDate)}
+                          <CountdownComponent
+                            startDate={new Date(quiz.startDate)}
+                          />
                         </span>
                         {quiz?.leader?.id === userStore.user.id ? (
                           <>

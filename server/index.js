@@ -738,7 +738,7 @@ io.on("connection", async (socket) => {
         members: party.members,
         name: party.name,
         leader: party.leader,
-        startDate: party.startDate,
+        startDate: party.start_date,
         status: 0,
         answers: [],
         time_to_answer: 0,

@@ -16,7 +16,6 @@ const SeachInput = forwardRef(
   (
     {
       className,
-      children,
       name,
       type,
       disabled,
@@ -106,7 +105,6 @@ SeachInput.defaultProps = {
 
 SeachInput.propTypes = {
   className: string,
-  children: node.isRequired,
   name: string.isRequired,
   type: string,
   disabled: bool,

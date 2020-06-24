@@ -15,6 +15,7 @@ const AddFriends = ({
       <form className={style.sidebar__input}>
         <SearchInput
           className={[style.input, style.inputsidebar, style.h2].join(' ')}
+          name="friends"
           type="text"
           size="20"
           value={addFriendInput}

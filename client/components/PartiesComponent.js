@@ -4,6 +4,7 @@ import Header from './Header';
 import Background from './Background';
 import moment from 'moment';
 import styled from 'styled-components';
+import CountdownComponent from './CountdownComponent';
 import { getPartiesFromUser } from '../services/apiRouterService';
 
 const Parties = ({ closePopUp }) => {
@@ -58,8 +59,7 @@ const Parties = ({ closePopUp }) => {
                       </span>
                       <span>
                         <CountdownComponent
-                          now={moment()}
-                          startDate={moment(item.start_date)}
+                          startDate={new Date(item.start_date)}
                         />
                       </span>
                     </div>
@@ -101,28 +101,5 @@ const ContainerLink = styled.a`
     }
   }
 `;
-
-const CountdownComponent = ({ startDate, now }) => {
-  const [timeTillDate, setTimeTillDate] = useState(moment(startDate - now));
-
-  useEffect(() => {
-    const timeInterval = setInterval(() => {
-      setTimeTillDate(moment(startDate - moment()));
-    }, 1000);
-
-    return () => {
-      clearInterval(timeInterval);
-    };
-  });
-
-  const days = timeTillDate.format('D');
-  const hours = timeTillDate.format('HH');
-  const minutes = timeTillDate.format('mm');
-  const seconds = timeTillDate.format('ss');
-
-  return `${parseInt(days)}d ${parseInt(hours)}h ${parseInt(
-    minutes,
-  )}m ${parseInt(seconds)}s`;
-};
 
 export default Parties;
