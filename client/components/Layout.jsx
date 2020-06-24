@@ -5,22 +5,26 @@ import { string, node } from 'prop-types';
 import { inject, observer } from 'mobx-react';
 import PopUpComponent from './PopUpComponent';
 import LoginForm from './LoginForm';
+import RegisterForm from './RegisterForm';
 import CocktailsContainer from './CocktailsContainer';
 import PopUpPageComponent from './PopUpPageComponent';
 import PartiesComponent from './PartiesComponent';
 
 const Layout = ({ children, interfaceStore, userStore }) => {
   const { showPopup, togglePopUp } = interfaceStore;
-  const { login, cocktails, parties } = showPopup;
+  const { login, cocktails, parties, register } = showPopup;
 
   useEffect(() => {
-    if (!userStore.user) {
-      togglePopUp('login', true);
-    }
+    if (!userStore.user) togglePopUp('login', true);
   }, []);
 
   return (
     <Container>
+      {register ? (
+        <PopUpComponent name="register" allowClose={false}>
+          <RegisterForm />
+        </PopUpComponent>
+      ) : null}
       {login ? (
         <PopUpComponent name="login" allowClose={false}>
           <LoginForm />

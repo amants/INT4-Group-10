@@ -8,14 +8,15 @@ exports.create = async function (req, res) {
   if (req.verified)
     return res.status(code.alreadySignedIn).send(msg.alreadySignedIn);
 
-  const sessionCookie = req.cookies.access_token;
-  if (sessionCookie) {
-    // If the user is not verified but has a token, reset it
-    res.cookie("access_token", "", cookieConfigReset);
-  }
-
   const user = req.body;
-  if (check.isMissingData([user.username, user.email, user.password]))
+  if (
+    check.isMissingData([
+      user.username,
+      user.email,
+      user.password,
+      user.country_id,
+    ])
+  )
     return res.status(code.missingData).send(msg.missingData);
 
   if (user.password.length < 8)
@@ -97,6 +98,13 @@ exports.getUserCocktails = async function (req, res) {
   return res.status(code.success).json(payload);
 };
 
+exports.getCountries = async function (req, res) {
+  const countries = await User.getAllCountries();
+
+  if (countries) return res.status(code.success).json({ countries });
+  else return res.status(code.success).json({ countries: [] });
+};
+
 exports.getCocktailById = async function (req, res) {
   const { params, verified } = req;
   const { id } = params;
@@ -112,4 +120,15 @@ exports.getCocktailById = async function (req, res) {
 
   const lockedCocktailCount = await User.getUnlockedCocktailById(id);
   return res.status(code.success).json(lockedCocktailCount);
+};
+
+exports.validateInput = async function (req, res) {
+  console.log("testing");
+  const { params } = req;
+  const { column, q } = params;
+  const user = await User.validateInput(column, q);
+  if (user.length > 0)
+    return res.status(code.badRequest).json({ unique: false });
+  // else
+  return res.status(code.success).json({ unique: true });
 };

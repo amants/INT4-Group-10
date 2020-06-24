@@ -40,6 +40,10 @@ class User {
     return DbHelper.uploadCocktailLobby(link, lobbyId, userId, cocktailId);
   }
 
+  static validateInput(column, q) {
+    return DbHelper.validateInput(column, q);
+  }
+
   static getNotUnlockedCocktailCountByUserId(userId) {
     return DbHelper.getNotUnlockedCocktailCountByUserId(userId);
   }
@@ -70,6 +74,10 @@ class User {
 
   static getUserById(userId) {
     return DbHelper.getById(DbTableName, userId);
+  }
+
+  static getAllCountries() {
+    return DbHelper.getAllCountries();
   }
 
   static getUserSimple(username) {
@@ -116,10 +124,11 @@ class User {
           const salt = await bcrypt.genSalt(10);
           const encryptedPass = await bcrypt.hash(usedPayload.password, salt);
           sql.query(
-            "INSERT INTO user (username, email, password, avatar, refresh_token, salt) " +
-              "VALUES ( ?, ?, ?, ?, ?, ?);",
+            "INSERT INTO user (username, country_id, email, password, avatar, refresh_token, salt) " +
+              "VALUES ( ?, ?, ?, ?, ?, ?, ?);",
             [
               usedPayload.username,
+              usedPayload.country_id,
               usedPayload.email,
               encryptedPass,
               usedPayload.avatar,

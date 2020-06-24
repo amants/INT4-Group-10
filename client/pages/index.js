@@ -9,7 +9,7 @@ import PolaroidHome from '../components/PolaroidHome';
 // const socket = io('http://localhost:5000');
 
 const Home = ({ userStore }) => {
-  console.log(userStore);
+  // console.log(userStore);
   // const [messages, setMessages] = useState([]);
   // const [players, setPlayers] = useState([]);
   // const [inRoom, setInRoom] = useState(false);
@@ -62,6 +62,17 @@ const Home = ({ userStore }) => {
   //     message: `message ${messages.length + 1}`,
   //   });
   // };
+  if (!userStore.auth) {
+    return (
+      <div className="container">
+        <Head>
+          <title>Create Next App</title>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <main></main>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

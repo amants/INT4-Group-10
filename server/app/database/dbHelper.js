@@ -387,6 +387,41 @@ exports.getPartyMembers = function (lobbyId) {
   });
 };
 
+exports.validateInput = function (column, q) {
+  return new Promise((resolve) => {
+    console.log(column, q);
+    return sql.query(`SELECT * FROM user WHERE ${column} = ?`, [q], function (
+      err,
+      res
+    ) {
+      if (err) {
+        console.log(err);
+        resolve([]);
+      } else {
+        console.log(res);
+        resolve(res);
+      }
+    });
+  });
+};
+
+exports.getAllCountries = function () {
+  return new Promise((resolve) => {
+    return sql.query(
+      `SELECT * FROM countries ORDER BY countries.name`,
+      function (err, res) {
+        if (err) {
+          console.log(err);
+          resolve([]);
+        } else {
+          console.log(res);
+          resolve(res);
+        }
+      }
+    );
+  });
+};
+
 exports.getNewCocktailForLobby = function (lobbyId) {
   return new Promise((resolve) => {
     return sql.query(

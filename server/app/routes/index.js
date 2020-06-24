@@ -11,6 +11,10 @@ module.exports = function (app) {
 
   app.route("/party/:id/members").get(Lobby.getPartyMembers);
 
+  app.route("/validate/:column/:q").get(User.validateInput);
+
+  app.route("/countries").get(User.getCountries);
+
   // app.route("/cocktails").get(Lobby.getRandomCocktail);
   // app.route("/cocktailnew").get(Lobby.getNewCocktailForLobbyRest);
 

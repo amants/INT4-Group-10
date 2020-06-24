@@ -19,6 +19,12 @@ export async function getMe() {
   return [resp, status];
 }
 
+export async function getCountries() {
+  const path = '/countries';
+  const [resp, status] = await request(path, 'GET');
+  return [resp, status];
+}
+
 export async function getCocktails(orderBy) {
   const path = `/cocktails/${orderBy || 'none'}`;
   const [resp, status] = await request(path, 'GET');
@@ -27,6 +33,12 @@ export async function getCocktails(orderBy) {
 
 export async function getUsersByQ(q) {
   const path = `/users/${q}`;
+  const [resp, status] = await request(path, 'GET');
+  return [resp, status];
+}
+
+export async function validateInput(column, q) {
+  const path = `/validate/${column}/${q}`;
   const [resp, status] = await request(path, 'GET');
   return [resp, status];
 }
@@ -43,12 +55,12 @@ export async function getCocktailById(cocktailId) {
   return [resp, status];
 }
 
-export async function register({ email, password, nickname, username }) {
+export async function register({ email, password, country_id, username }) {
   const path = '/register';
   const [resp, status] = await request(path, 'POST', {
     email,
     password,
-    nickname,
+    country_id,
     username,
   });
   return [resp, status];

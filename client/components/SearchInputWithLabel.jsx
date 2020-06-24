@@ -3,6 +3,7 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 import { bool, number, func, string, object, oneOfType } from 'prop-types';
 import styled from 'styled-components';
+import Error, { getBorderColor } from './Error';
 
 const SeachInput = forwardRef(
   (
@@ -14,6 +15,8 @@ const SeachInput = forwardRef(
       placeholder,
       onChange,
       value,
+      error,
+      children,
       ...otherProps
     },
     ref,
@@ -31,20 +34,28 @@ const SeachInput = forwardRef(
       onChange({ name: e.target.name, value: e.target.value });
     };
 
+    console.log(error, 'input');
+
     return (
       <StyledLabel disabled={disabled}>
-        <StyledInput
-          ref={ref}
-          id={name}
-          name={name}
-          type={type}
-          disabled={disabled}
-          placeholder={placeholder}
-          value={inputValue}
-          onChange={handleChange}
-          {...otherProps}
-        />
-        <SearchImg src="/assets/images/search-icon.png" alt="search icon" />
+        <p>
+          {children}
+          <Error error={error} />
+        </p>
+        <InputDiv error={error}>
+          <StyledInput
+            ref={ref}
+            id={name}
+            name={name}
+            type={type}
+            disabled={disabled}
+            placeholder={placeholder}
+            value={inputValue}
+            onChange={handleChange}
+            {...otherProps}
+          />
+          <SearchImg src="/assets/images/search-icon.png" alt="search icon" />
+        </InputDiv>
       </StyledLabel>
     );
   },
@@ -59,10 +70,24 @@ const SearchImg = styled.img`
 
 const StyledLabel = styled.label`
   display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  font-family: sirenne-text-mvb, serif;
+  font-weight: bold;
+  color: #102146;
+  font-style: normal;
+  font-size: 2rem;
+  line-height: 1rem;
+`;
+const InputDiv = styled.div`
+  transition: all 0.2s;
+  margin-bottom: 1rem;
+  display: flex;
   margin-top: 1rem;
   position: relative;
   width: 100%;
-  border-bottom: 2px solid #102146;
+  border-bottom: 2px solid ${({ error }) => getBorderColor(error)};
   align-items: center;
 `;
 

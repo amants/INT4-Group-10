@@ -64,7 +64,8 @@ const SidebarBigNewParty = ({
                 <FlagImg src={`/assets/images/flags/${item.flag_url}`} />{' '}
                 {item.name}
               </span>
-              <button
+              <Button
+                className={style.button}
                 onClick={() => {
                   setAddedFriends((prevValue) => {
                     const temp = prevValue.filter(
@@ -74,8 +75,8 @@ const SidebarBigNewParty = ({
                   });
                 }}
               >
-                - Remove
-              </button>
+                Remove
+              </Button>
               <img
                 className={style.user__background}
                 src="/assets/images/PassportMed.png"
@@ -90,6 +91,17 @@ const SidebarBigNewParty = ({
     </div>
   );
 };
+
+const Button = styled.button`
+  background: white !important;
+  color: #102146;
+  padding: 0.5rem 1rem !important;
+  text-align: center;
+  display: block;
+  position: relative;
+  left: 10rem;
+  top: -1rem;
+`;
 
 const fadeIn = keyframes`
  0% { opacity: 0;  }

@@ -3,6 +3,7 @@ import { observable, action } from 'mobx';
 
 class Store extends BaseStore {
   @observable showPopup = {
+    register: false,
     login: false,
     cocktails: false,
     parties: false,

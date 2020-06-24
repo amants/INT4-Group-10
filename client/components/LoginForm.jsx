@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { inject, observer } from 'mobx-react';
@@ -9,15 +9,9 @@ import TextInput from './TextInput';
 import ActionButton from './ActionButton';
 import { auth, getMe } from '../services/apiRouterService';
 
-const LoginForm = ({
-  userStore,
-  interfaceStore,
-  title,
-  subTitle,
-  closePopUp,
-}) => {
+const LoginForm = ({ userStore, interfaceStore, title }) => {
   const { setUser, setAuth } = userStore;
-  // const { togglePopUp } = interfaceStore;
+  const { togglePopUp } = interfaceStore;
   const SignupSchema = Yup.object().shape({
     username,
     password,
@@ -44,6 +38,13 @@ const LoginForm = ({
 
   function formSubmitHandler(e) {
     e.preventDefault();
+    handleSubmit(onSubmit);
+  }
+
+  function openRegister(e) {
+    e.preventDefault();
+    togglePopUp('register', true);
+    togglePopUp('login', false);
     handleSubmit(onSubmit);
   }
 
@@ -93,7 +94,7 @@ const LoginForm = ({
         </RegisterImageContainer>
         <ButtonContainer>
           <Hint>Travel anywhere you want by creating your own passport.</Hint>
-          <StyledRegisterActionButton type="submit">
+          <StyledRegisterActionButton onClick={openRegister}>
             Create a passport
           </StyledRegisterActionButton>
         </ButtonContainer>
@@ -122,10 +123,23 @@ const StyledActionButton = styled(ActionButton)`
   padding: 1rem 2rem;
 `;
 
-const StyledRegisterActionButton = styled(ActionButton)`
+const StyledRegisterActionButton = styled.button`
+  background: none;
+  border-radius: 10rem;
+  padding: 0 2rem;
+  cursor: pointer;
   padding: 1rem 2rem;
   background-color: #102146;
   color: white;
+  transition: all 0.2s;
+
+  :active {
+    transform: scale(0.95);
+  }
+
+  :focus {
+    outline: none;
+  }
 `;
 
 const ButtonContainer = styled.div`
