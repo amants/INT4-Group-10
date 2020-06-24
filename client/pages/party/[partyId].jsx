@@ -589,6 +589,9 @@ const Home = ({ userStore, partyId }) => {
                 <h1 className={[style.party__title, style.h1].join(' ')}>
                   {quiz.name} - {quiz?.time_to_answer}
                 </h1>
+                <span className={[style.uiz__info, style.h2].join(' ')}>
+                  {quiz.leader.username} is the party leader
+                </span>
               </div>
               {/* FRIENDSLIST */}
               <SidebarSmall userStore={userStore} players={players} />
@@ -908,7 +911,9 @@ const Home = ({ userStore, partyId }) => {
                           ' ',
                         )}
                       >
-                        Participants 5/6
+                        Participants{' '}
+                        {players.filter((item) => item.online).length} /{' '}
+                        {players.length}
                       </span>
                       <h1 className={[style.party__title, style.h1].join(' ')}>
                         {quiz.name}

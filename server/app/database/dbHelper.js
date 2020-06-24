@@ -62,7 +62,7 @@ exports.getUnlockedCocktailById = function (cocktailId) {
 
 exports.getUnlockedCocktailsByUserId = function (userId, order) {
   return new Promise((resolve) => {
-    const query = `SELECT cocktails.cocktail_id, cocktails.name, countries.country_key, cocktails.difficulty, cocktails.price, cocktails.duration, countries.flag_url, cocktails.image, cock.time_unlocked, user_cocktail_photos.photo_url, countries.name AS country_name FROM user_unlocked_cocktails AS cock INNER JOIN cocktails ON cock.cocktail_id = cocktails.cocktail_id INNER JOIN countries ON countries.country_id = cocktails.country_id LEFT OUTER JOIN user_cocktail_photos ON user_cocktail_photos.cocktail_id = cock.cocktail_id WHERE cock.user_id = ? ORDER BY ${
+    const query = `SELECT cocktails.cocktail_id, cocktails.name, countries.country_key, countries.stamp_url, cocktails.difficulty, cocktails.price, cocktails.duration, countries.flag_url, cocktails.image, cock.time_unlocked, user_cocktail_photos.photo_url, countries.name AS country_name FROM user_unlocked_cocktails AS cock INNER JOIN cocktails ON cock.cocktail_id = cocktails.cocktail_id INNER JOIN countries ON countries.country_id = cocktails.country_id LEFT JOIN user_cocktail_photos ON user_cocktail_photos.cocktail_id = cock.cocktail_id WHERE cock.user_id = ? ORDER BY ${
       order !== "none" ? `cocktails.${order}` : `cock.time_unlocked`
     } ASC`;
     sql.query(query, [userId], function (err, res) {
@@ -389,16 +389,13 @@ exports.getPartyMembers = function (lobbyId) {
 
 exports.validateInput = function (column, q) {
   return new Promise((resolve) => {
-    console.log(column, q);
     return sql.query(`SELECT * FROM user WHERE ${column} = ?`, [q], function (
       err,
       res
     ) {
       if (err) {
-        console.log(err);
         resolve([]);
       } else {
-        console.log(res);
         resolve(res);
       }
     });
@@ -411,10 +408,8 @@ exports.getAllCountries = function () {
       `SELECT * FROM countries ORDER BY countries.name`,
       function (err, res) {
         if (err) {
-          console.log(err);
           resolve([]);
         } else {
-          console.log(res);
           resolve(res);
         }
       }

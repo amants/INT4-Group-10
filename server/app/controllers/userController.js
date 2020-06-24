@@ -66,8 +66,15 @@ exports.getMe = async function (req, res) {
     avatar: user.avatar,
     joined: user.joined,
     flag_url: user.flag_url,
+    stamp_url: user.stamp_url,
     country_name: user.name,
   };
+
+  payload.unlocked_cocktails = await User.getUnlockedCocktailsByUserId(
+    user.user_id,
+    "none"
+  );
+
   return res.status(code.success).json(payload);
 };
 
@@ -123,7 +130,6 @@ exports.getCocktailById = async function (req, res) {
 };
 
 exports.validateInput = async function (req, res) {
-  console.log("testing");
   const { params } = req;
   const { column, q } = params;
   const user = await User.validateInput(column, q);

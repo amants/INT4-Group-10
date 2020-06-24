@@ -5,7 +5,6 @@ import RegisterCountryComponent from './RegisterCountryComponent';
 import RegisterPasswordComponent from './RegisterPasswordComponent';
 
 const CurrentRegisterStep = (props) => {
-  console.log(props.registerStep);
   switch (props.registerStep) {
     case 0:
       return <RegisterUsernameComponent {...props} />;

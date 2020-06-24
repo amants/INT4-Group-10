@@ -9,10 +9,11 @@ import RegisterForm from './RegisterForm';
 import CocktailsContainer from './CocktailsContainer';
 import PopUpPageComponent from './PopUpPageComponent';
 import PartiesComponent from './PartiesComponent';
+import ProfileComponent from './ProfileComponent';
 
 const Layout = ({ children, interfaceStore, userStore }) => {
   const { showPopup, togglePopUp } = interfaceStore;
-  const { login, cocktails, parties, register } = showPopup;
+  const { login, cocktails, parties, register, profile } = showPopup;
 
   useEffect(() => {
     if (!userStore.user) togglePopUp('login', true);
@@ -39,6 +40,11 @@ const Layout = ({ children, interfaceStore, userStore }) => {
         <PopUpPageComponent name="parties">
           <PartiesComponent />
         </PopUpPageComponent>
+      ) : null}
+      {profile ? (
+        <PopUpComponent name="profile" allowClose={true}>
+          <ProfileComponent />
+        </PopUpComponent>
       ) : null}
       <Main>{children}</Main>
     </Container>

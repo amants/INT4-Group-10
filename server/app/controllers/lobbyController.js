@@ -11,8 +11,6 @@ exports.create = async function (req, res) {
 
   if (check.isMissingData([body.name, body.startDate, body.friends]))
     return res.status(code.missingData).send(msg.missingData);
-  if (body.friends?.length < 1)
-    return res.status(code.notEnoughFriends).send(msg.notEnoughFriends);
   const now = new Date();
   const startDate = new Date(body.startDate);
   if (now > startDate) return res.status(code.notFuture).send(msg.notFuture);

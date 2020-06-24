@@ -1,67 +1,12 @@
 import Head from 'next/head';
 import React /*, { useEffect, useState } */ from 'react';
 import { inject, observer } from 'mobx-react';
-import io from 'socket.io-client';
 import style from './index.module.css';
 import Header from '../components/Header';
 import PolaroidHome from '../components/PolaroidHome';
 
-// const socket = io('http://localhost:5000');
-
-const Home = ({ userStore }) => {
-  // console.log(userStore);
-  // const [messages, setMessages] = useState([]);
-  // const [players, setPlayers] = useState([]);
-  // const [inRoom, setInRoom] = useState(false);
-
-  // useEffect(() => {
-  //   if (inRoom) {
-  //     socket.emit('join room', { lobby_id: 16 });
-  //   }
-
-  //   return () => {
-  //     if (inRoom) {
-  //       console.log('leaving room');
-  //       socket.emit('leave room', {
-  //         lobby_id: 16,
-  //       });
-  //     }
-  //   };
-  // }, [inRoom]);
-
-  // useEffect(() => {
-  //   setInRoom(true);
-  //   socket.on('initial messages', (payload) => {
-  //     setMessages(payload.chats);
-  //     document.title = `new messages have been emitted`;
-  //   });
-  //   socket.on('receive message', (payload) => {
-  //     console.log('new message', payload);
-  //     setMessages((prevValue) => [...prevValue, payload]);
-  //     document.title = `new messages have been emitted`;
-  //   });
-  //   socket.on('system message', (payload) => {
-  //     setMessages((prevValue) => [...prevValue, payload]);
-  //     document.title = `new messages have been emitted`;
-  //   });
-  //   socket.on('playerCountUpdate', (payload) => {
-  //     console.log('new message', payload);
-  //     setPlayers(payload.users);
-  //     document.title = `new messages have been emitted`;
-  //   });
-  // }, []);
-
-  // const handleInRoom = () => {
-  //   inRoom ? setInRoom(false) : setInRoom(true);
-  // };
-
-  // const handleNewMessage = (e) => {
-  //   e.preventDefault();
-  //   socket.emit('new message', {
-  //     lobby_id: 16,
-  //     message: `message ${messages.length + 1}`,
-  //   });
-  // };
+const Home = ({ userStore, interfaceStore }) => {
+  const { togglePopUp } = interfaceStore;
   if (!userStore.auth) {
     return (
       <div className="container">
@@ -85,13 +30,21 @@ const Home = ({ userStore }) => {
         <div className={style.container}>
           <Header />
           <div className={style.home__top}>
-            <button
+            <a
+              href="/party/new"
               className={[style.button, style.button__top_throw].join(' ')}
             >
-              <a href="/pages/index-party.html">throw a new knife</a>
-            </button>
+              Throw a new knife
+            </a>
             <span>
-              <a href="/parties" className={style.topparty}>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  togglePopUp('parties', true);
+                }}
+                className={style.topparty}
+              >
                 all parties
               </a>
             </span>
@@ -105,7 +58,8 @@ const Home = ({ userStore }) => {
                 </span>
                 ,
                 <br />
-                you have already visited 3 countries
+                You have already visited{' '}
+                {userStore.user.unlocked_cocktails.length} countries
               </p>
               <ul className={style.stats__details}>
                 <li className={style.stats__detail}>
@@ -118,11 +72,24 @@ const Home = ({ userStore }) => {
                 </li>
                 <li className={style.stats__detail}>
                   <span>
-                    <a className={style.stats__detaillink} href="">
+                    <a
+                      className={style.stats__detaillink}
+                      href=""
+                      onClick={(e) => {
+                        e.preventDefault();
+                        togglePopUp('cocktails', true);
+                      }}
+                    >
                       Cocktails
                     </a>
                   </span>
-                  <span className={style.stats__detailbold}>6</span>
+                  <span
+                    className={[style.stats__detailbold, style.button].join(
+                      ' ',
+                    )}
+                  >
+                    {userStore.user.unlocked_cocktails.length}
+                  </span>
                 </li>
               </ul>
             </div>
@@ -146,13 +113,16 @@ const Home = ({ userStore }) => {
                 alt="profilepicture"
               />
               <span className={style.account__name}>
-                Lara <br />
-                Maddens
+                {userStore.user.username}
               </span>
               <button
                 className={[style.button, style.button_account].join(' ')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  togglePopUp('profile', true);
+                }}
               >
-                account
+                Account
               </button>
             </div>
             <img
@@ -179,4 +149,4 @@ const Home = ({ userStore }) => {
   );
 };
 
-export default inject('userStore')(observer(Home));
+export default inject('userStore', 'interfaceStore')(observer(Home));

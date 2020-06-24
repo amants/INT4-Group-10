@@ -72,7 +72,6 @@ const RegisterUsernameComponent = ({
 
   function formSubmitHandler(e) {
     e.preventDefault();
-    console.log(values);
     if (values.confirm_password !== values.password) {
       return handleErrors({
         name: 'confirm_password',
@@ -174,7 +173,7 @@ const Page = styled.div`
   width: 50%;
   height: 100%;
   flex-grow: 0;
-  padding: 2rem;
+  padding: 4rem;
   padding-top: 0;
   position: relative;
   padding-bottom: 4rem;

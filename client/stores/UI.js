@@ -7,6 +7,7 @@ class Store extends BaseStore {
     login: false,
     cocktails: false,
     parties: false,
+    profile: false,
   };
 
   @action togglePopUp = (key, val) => (this.showPopup[key] = val);

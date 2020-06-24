@@ -22,7 +22,6 @@ const useForm = (passedOptions) => {
   const [errors, setErrors] = useState({});
 
   const handleChange = ({ name, value }) => {
-    console.log({ name, value });
     setValues((prevValues) => ({
       ...prevValues,
       [name]: value,

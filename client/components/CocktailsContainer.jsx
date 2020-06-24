@@ -339,7 +339,7 @@ const Page = styled.div`
   grid-template-rows: repeat(3, 1fr);
   grid-auto-flow: dense;
   flex-grow: 0;
-  padding: 2rem;
+  padding: 4rem;
   padding-top: 0;
   padding-bottom: 4rem;
 `;

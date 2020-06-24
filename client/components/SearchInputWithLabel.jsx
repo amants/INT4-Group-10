@@ -34,8 +34,6 @@ const SeachInput = forwardRef(
       onChange({ name: e.target.name, value: e.target.value });
     };
 
-    console.log(error, 'input');
-
     return (
       <StyledLabel disabled={disabled}>
         <p>
