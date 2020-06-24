@@ -276,17 +276,12 @@
 .party__info {
   opacity: 40%;
 }
-
-.party__content  {
-  width: min-content;
-  display: flex;
-  flex-flow: row;
-}
-
 .party__sidebar,
 .party__content {
   margin: 4rem 0rem 0 8rem;
+  display: flex;
 }
+
 .needs__wrapper {
   max-width: 35rem;
 }

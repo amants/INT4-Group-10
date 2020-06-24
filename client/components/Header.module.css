@@ -7,5 +7,9 @@
     justify-content: center;
     padding-top: 2rem;
     composes: h1 from '../styles/typo.module.css';
-    color: #102146;;
+    color: #102146;
+  }
+
+  .logo:hover {
+      text-decoration: none;
   }

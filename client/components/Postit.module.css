@@ -57,6 +57,9 @@
 .postit_wrapper {
   transform: rotate(-6deg);
 }
+.postit_wrapper_lobby {
+  margin-left: 8rem;
+}
 
 .postit_wrapper_end {
   transform: rotate(-6deg);
