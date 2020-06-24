@@ -28,26 +28,17 @@ const RegisterEmailComponent = ({
   });
 
   const validateEmail = async () => {
-    if (errors.email === 'Not a valid email') return;
-    if (values.email.length < 2) {
-      return handleErrors({ name: 'email', value: 'Too short' });
-    }
-    if (values.email.length > 50) {
-      return handleErrors({ name: 'email', value: 'Too long' });
-    }
-    handleErrors({
-      name: 'email',
-      value: 'Checking email availability ...',
+    return new Promise(async (resolve) => {
+      const [, status] = await validateInput('email', values.email);
+      if (status !== 200) {
+        resolve(false);
+        handleErrors({ name: 'email', value: 'Email already exists' });
+      } else {
+        resolve(true);
+        handleErrors({ name: 'email', value: undefined });
+      }
     });
-    const [, status] = await validateInput('email', values.email);
-    if (status !== 200) {
-      handleErrors({ name: 'email', value: 'Email already exists' });
-    } else {
-      handleErrors({ name: 'email', value: undefined });
-    }
   };
-
-  const [debounceValidate] = useDebouncedCallback(validateEmail, 500);
 
   useEffect(() => {
     if (registerValues.email) {
@@ -56,9 +47,7 @@ const RegisterEmailComponent = ({
   }, []);
 
   useEffect(() => {
-    if (values.email && values.email.length > 0) {
-      debounceValidate();
-    }
+    handleErrors({ name: 'email', value: undefined });
   }, [values.email]);
 
   const onSubmit = async (formValues) => {
@@ -79,15 +68,18 @@ const RegisterEmailComponent = ({
     }
   };
 
-  function formSubmitHandler(e) {
+  async function formSubmitHandler(e) {
     e.preventDefault();
-    handleSubmit(onSubmit);
+    const validEmail = await validateEmail();
+    if (validEmail) {
+      handleSubmit(onSubmit);
+    }
   }
 
   return (
     <>
       <Page>
-        <img src="/assets/images/Signature.png" />
+        <img src="/assets/images/doodleEmail.png" />
       </Page>
       <Page>
         <HeaderContainer>

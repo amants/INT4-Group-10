@@ -69,7 +69,7 @@ const RegisterCountryComponent = ({
   return (
     <>
       <Page>
-        <img src="/assets/images/Signature.png" />
+        <img src="/assets/images/doodleCountry.png" />
       </Page>
       <Page>
         <HeaderContainer>

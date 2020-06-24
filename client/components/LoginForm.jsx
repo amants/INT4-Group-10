@@ -183,6 +183,8 @@ const Title = styled.h2`
   width: auto;
   flex-grow: 0;
   flex-shrink: 0;
+  color: #102146;
+  font-family: sirenne-text-mvb, serif;
   ${'' /* flex: 0 0 100%; */}
   position: relative;
 

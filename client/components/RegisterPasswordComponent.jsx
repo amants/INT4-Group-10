@@ -86,7 +86,7 @@ const RegisterUsernameComponent = ({
   return (
     <>
       <Page>
-        <img src="/assets/images/Signature.png" />
+        <img src="/assets/images/doodlePassword.png" />
       </Page>
       <Page>
         <HeaderContainer>
