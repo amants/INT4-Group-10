@@ -130,6 +130,7 @@
   
   .stats__detaillink {
     color: #102146;
+    text-decoration: underline;
   }
   
   .stats__detailbold {

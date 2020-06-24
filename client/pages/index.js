@@ -134,7 +134,9 @@ const Home = ({ userStore, interfaceStore }) => {
         </div>
         <div className={style.background__wrapper}>
           <div className={style.background__grid}>
-            <PolaroidHome country={'cuba'} />
+            {userStore.user.unlocked_cocktails.map((item, i) => (
+              <PolaroidHome country={item.country_name.toLowerCase()} />
+            ))}
           </div>
           <img
             className={style.background}
