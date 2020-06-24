@@ -1,0 +1,50 @@
+.polaroid__image {
+    position: absolute;
+    z-index: 1;
+    margin-left: 2.1rem;
+    margin-top: 1.7rem;
+  }
+  
+  .polaroid_wrapper {
+    position: relative;
+    z-index: -50;
+  }
+  
+  .polaroid_wrapper:hover {
+    cursor: pointer;
+  }
+  
+  .polaroid__stamp {
+    position: absolute;
+    margin-left: 4rem;
+    margin-top: 1.5rem;
+    z-index: 2;
+  }
+  .polaroid_wrapper__cuba {
+    grid-row-start: 50;
+    grid-column-start: 20;
+  }
+  .polaroid_wrapper__england {
+    grid-row-start: 25;
+    grid-column-start: 50;
+  }
+  .polaroid_wrapper__puertorico {
+    grid-row-start: 50;
+    grid-column-start: 25;
+  }
+  .polaroid_wrapper__newyork {
+    grid-row-start: 35;
+    grid-column-start: 25;
+  }
+  .polaroid_wrapper__brazil {
+    grid-row-start: 62;
+    grid-column-start: 30;
+  }
+  .polaroid_wrapper__italy {
+    grid-row-start: 40;
+    grid-column-start: 50;
+  }
+  
+  .polaroid__background {
+    position: absolute;
+  }

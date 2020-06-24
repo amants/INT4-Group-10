@@ -1,0 +1,272 @@
+.h1 {
+    font-family: sirenne-text-mvb, serif;
+    font-weight: bold;
+    font-style: normal;
+    font-size: 2.8rem;
+    line-height: 3rem;
+  }
+  
+  .h2 {
+    font-family: sirenne-text-mvb, serif;
+    font-weight: bold;
+    font-style: normal;
+    font-size: 2rem;
+    line-height: 2.4rem;
+  }
+  
+  .h3 {
+    font-family: sirenne-text-mvb, serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 1.4rem;
+    line-height: 2.4rem;
+  }
+  
+  .h4 {
+    font-family: sirenne-text-mvb, serif;
+    font-weight: 700;
+    font-style: bold;
+    font-size: 1.4rem;
+    line-height: 2.4rem;
+  }
+  
+  .t1 {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 1.8rem;
+    line-height: 2.4rem;
+  }
+  
+  .t2 {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 1.4rem;
+    line-height: 2.1rem;
+  }
+  
+  .t3 {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 1.2rem;
+    line-height: 1.8rem;
+  }
+  
+  .container {
+    margin: 0;
+    color: #102146;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  .button {
+    border: #102146 0.2rem solid;
+    color: #102146;
+    background: none;
+    border-radius: 10rem;
+    padding: 0 2rem;
+    transition: all 0.2s;
+  }
+  
+  .button__top_throw {
+    margin-bottom: 2rem;
+    composes: t1;
+  }
+  
+  .topparty {
+    text-decoration: none;
+    color: #102146;
+    composes: t1;
+  }
+  
+  .home__top {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    margin: 0 auto;
+    width: auto;
+    margin-top: 8rem;
+  }
+  
+  .home__stats {
+    right: 4rem;
+    top: 4rem;
+    z-index: 0;
+    position: absolute;
+    transform: rotate(-15deg);
+    width: 23rem;
+  }
+  
+  .stats__content {
+    position: absolute;
+    margin: 6rem 2rem 0;
+    padding-left: 1.5rem;
+    max-width: 19rem;
+    composes: t2;
+  }
+  
+  .stats__background {
+    width: 23.35rem;
+    height: 29.25rem;
+    z-index: -1;
+    overflow-y: hidden;
+  }
+  .stats__title {
+    /*var: {h2}*/
+    padding-bottom: 2rem;
+    composes: h2;
+  }
+  .stats__title_name {
+    text-transform: capitalize;
+  }
+  
+  .stats__detail {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .stats__detaillink {
+    color: #102146;
+  }
+  
+  .stats__detailbold {
+    font-weight: bold;
+    composes: h4;
+  }
+  
+  .home__account {
+    right: 4rem;
+    bottom: 8rem;
+    z-index: 0;
+    position: absolute;
+    width: 18rem;
+  }
+  .account__background {
+    width: 17.2rem;
+    height: 24.3rem;
+    z-index: -1;
+  }
+  
+  .account__content {
+    position: absolute;
+    margin: 6rem 2rem 0 1rem;
+    padding-left: 1.5rem;
+    color: #f6f2ee;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+  }
+  
+  .account__name {
+    z-index: 2;
+    margin-top: -1rem;
+    margin-bottom: 1.5rem;
+    composes: h1;
+  }
+  
+  .account__profilepicture {
+    border-radius: 2rem;
+    width: 8rem;
+    height: 8rem;
+    transform: rotate(-6deg);
+  }
+  
+  .account__tape {
+    position: absolute;
+    z-index: 10;
+    width: 4.55rem;
+    height: 2.25rem;
+    margin-top: -1.3rem;
+  }
+  
+  .button_account {
+    color: #f6f2ee;
+    border-color: #f6f2ee;
+  }
+  
+  /* middle */
+  
+  .home__middle {
+    margin: 0rem auto;
+    width: 96rem;
+  }
+  
+  .middle__title {
+    font-size: 6.4rem;
+    line-height: 2;
+  }
+  
+  .home__stats {
+    right: 4rem;
+    top: 4rem;
+    z-index: 0;
+    position: absolute;
+    transform: rotate(-15deg);
+    width: 23rem;
+  }
+  
+  .stats__content {
+    position: absolute;
+    margin: 6rem 2rem 0;
+    padding-left: 1.5rem;
+    max-width: 19rem;
+  }
+  
+  .stats__background {
+    width: 23.35rem;
+    height: 29.25rem;
+    z-index: -1;
+    overflow-y: hidden;
+  }
+  .stats__title {
+    /*var: {h2}*/
+    padding-bottom: 2rem;
+  }
+  
+  .stats__detail {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .stats__detail--link {
+    color: #102146;
+  }
+  
+  .stats__detail--bold {
+    font-weight: bold;
+  }
+  
+  .background__grid {
+    display: grid;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    grid-template-rows: repeat(100, 1fr);
+    grid-template-columns: repeat(100, 1fr);
+    z-index: -99;
+  }
+  
+  .background {
+    position: absolute;
+    z-index: -100;
+    top: 0;
+    left: 0;
+    width: 100vw;
+  }
+  
+  .background__wrapper {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -100;
+  }
+  

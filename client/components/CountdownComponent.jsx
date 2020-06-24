@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import countdown from 'countdown';
 
 const CountdownComponent = ({ startDate }) => {
   const [sentence, setSentence] = useState('');
